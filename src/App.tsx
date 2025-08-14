@@ -177,7 +177,17 @@ function App() {
               
               {/* Game status below pile */}
               <div className="mt-6 bg-black bg-opacity-40 rounded-lg px-4 py-2 text-white text-sm backdrop-blur-sm">
-                {gameState.gamePhase === 'setup' && 'Click Deal Cards to start'}
+                {gameState.gamePhase === 'setup' && (
+                  <div className="text-center">
+                    <button
+                      onClick={dealCards}
+                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl shadow-lg transition-all transform hover:scale-105 mb-2"
+                    >
+                      Deal Cards
+                    </button>
+                    <div className="text-xs opacity-75">Click to start a new game</div>
+                  </div>
+                )}
                 {gameState.gamePhase === 'swapping' && 'Choose your face-up cards'}
                 {gameState.gamePhase === 'playing' && (
                   <div>
@@ -266,15 +276,6 @@ function App() {
         {/* Game controls */}
         <div className="absolute top-4 right-4">
           <div className="flex flex-col gap-2">
-            {gameState.gamePhase === 'setup' && (
-              <button
-                onClick={dealCards}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105"
-              >
-                Deal Cards
-              </button>
-            )}
-            
             {gameState.gamePhase === 'swapping' && (
               <button
                 onClick={startGame}
