@@ -84,10 +84,10 @@ export const useGame = () => {
           };
         });
       } else if (event.key === 'Alt' && gameState.gamePhase === 'playing') {
-        // Add 10 additional cards to Carol's hand for testing
+        // Add 10 cards to Carol's hand for testing
         setGameState(prev => {
           const newPlayers = prev.players.map((player, index) => {
-            if (player.id === 'ai1') { // Carol
+            if (index === 1) { // Carol (index 1 in the reordered array)
               const newCards = [];
               for (let i = 0; i < 10; i++) {
                 const suits = ['hearts', 'diamonds', 'clubs', 'spades'] as const;
