@@ -93,22 +93,22 @@ function App() {
           </div>
         </div>
         
-        {/* Carol's cards - horizontal layout */}
-        <div className="flex items-center gap-2">
-          {/* Hand (face-down) */}
-          <div className="flex flex-col gap-1">
-            {gameState.players[1]?.hand.slice(0, 3).map((_, index) => (
+        {/* Carol's cards - vertical layout */}
+        <div className="flex flex-col items-center gap-1">
+          {/* Face-down cards */}
+          <div className="flex gap-1">
+            {gameState.players[1]?.faceDownCards.map((_, index) => (
               <Card
-                key={`carol-hand-${index}`}
+                key={`carol-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-10 h-14"
+                className="w-12 h-16"
               />
             ))}
           </div>
           
           {/* Face-up cards */}
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
             {gameState.players[1]?.faceUpCards.map((card, index) => (
               <Card
                 key={`carol-up-${index}`}
@@ -118,14 +118,14 @@ function App() {
             ))}
           </div>
           
-          {/* Face-down cards */}
-          <div className="flex flex-col gap-1">
-            {gameState.players[1]?.faceDownCards.map((_, index) => (
+          {/* Hand (face-down) */}
+          <div className="flex gap-1">
+            {gameState.players[1]?.hand.slice(0, 3).map((_, index) => (
               <Card
-                key={`carol-down-${index}`}
+                key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
@@ -140,10 +140,10 @@ function App() {
           </div>
         </div>
         
-        {/* Bob's cards - horizontal layout (mirrored) */}
-        <div className="flex items-center gap-2">
+        {/* Bob's cards - vertical layout */}
+        <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
             {gameState.players[3]?.faceDownCards.map((_, index) => (
               <Card
                 key={`bob-down-${index}`}
@@ -155,7 +155,7 @@ function App() {
           </div>
           
           {/* Face-up cards */}
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
             {gameState.players[3]?.faceUpCards.map((card, index) => (
               <Card
                 key={`bob-up-${index}`}
@@ -166,7 +166,7 @@ function App() {
           </div>
           
           {/* Hand (face-down) */}
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
             {gameState.players[3]?.hand.slice(0, 3).map((_, index) => (
               <Card
                 key={`bob-hand-${index}`}
