@@ -224,7 +224,7 @@ export const useGame = () => {
       currentPlayerIndex: 0,
       pile: [],
       deck: remainingDeck,
-      gamePhase: 'setup', // Human player needs to choose face-up cards
+      gamePhase: 'swapping', // Move directly to swapping phase
       winner: null,
       loser: null
     });
