@@ -100,6 +100,33 @@ function App() {
           </div>
         )}
 
+        {/* Test Table */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white bg-opacity-90 rounded-lg p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Game Statistics</h3>
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-4 font-semibold text-gray-700">Player</th>
+                  <th className="text-center py-2 px-4 font-semibold text-gray-700">Hand</th>
+                  <th className="text-center py-2 px-4 font-semibold text-gray-700">Face Up</th>
+                  <th className="text-center py-2 px-4 font-semibold text-gray-700">Face Down</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gameState.players.map((player, index) => (
+                  <tr key={player.id} className={`${index === gameState.currentPlayerIndex ? 'bg-yellow-100' : ''}`}>
+                    <td className="py-2 px-4 font-medium">{player.name}</td>
+                    <td className="py-2 px-4 text-center">{player.hand.length}</td>
+                    <td className="py-2 px-4 text-center">{player.faceUpCards.length}</td>
+                    <td className="py-2 px-4 text-center">{player.faceDownCards.length}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Game Area - Center Pile and Deck */}
         <div className="flex justify-center items-start gap-16 mb-8">
           {/* Center Pile */}
