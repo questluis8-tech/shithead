@@ -490,8 +490,8 @@ export const useGame = () => {
           cardToPlay = currentPlayer.hand.find(card => canPlayCard(card, topCard));
         }
         
-        // Then face-up cards
-        if (!cardToPlay && currentPlayer.faceUpCards.length > 0) {
+        // Then face-up cards (only if hand is empty)
+        if (!cardToPlay && currentPlayer.hand.length === 0 && currentPlayer.faceUpCards.length > 0) {
           cardToPlay = currentPlayer.faceUpCards.find(card => canPlayCard(card, topCard));
         }
         
