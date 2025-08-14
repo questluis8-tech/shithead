@@ -566,21 +566,16 @@ export const useGame = () => {
           setGameState(prev => {
             const newPlayers = [...prev.players];
             const aiPlayer = newPlayers[prev.currentPlayerIndex];
-            let newDeck = [...prev.deck];
             
             // Add pile to hand
             aiPlayer.hand.push(...prev.pile);
             
-            // Draw additional cards to reach 3 total (if deck has cards)
-            const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
-            newPlayers[prev.currentPlayerIndex] = updatedPlayer;
-            newDeck = updatedDeck;
+            newPlayers[prev.currentPlayerIndex] = aiPlayer;
             
             return {
               ...prev,
               players: newPlayers,
               pile: [],
-              deck: newDeck,
               currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
             };
           });
