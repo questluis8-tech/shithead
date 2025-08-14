@@ -508,14 +508,15 @@ export const useGame = () => {
             
             if (handIndex !== -1) {
               aiPlayer.hand.splice(handIndex, 1);
+              // Only draw cards to maintain 3 in hand if we played from hand and deck has cards
+              const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
+              newPlayers[prev.currentPlayerIndex] = updatedPlayer;
+              newDeck = updatedDeck;
             } else if (faceUpIndex !== -1) {
               aiPlayer.faceUpCards.splice(faceUpIndex, 1);
+              // Don't draw cards when playing from face-up cards
             }
             
-            // Draw cards to maintain 3 in hand (if deck has cards)
-            const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
-            newPlayers[prev.currentPlayerIndex] = updatedPlayer;
-            newDeck = updatedDeck;
             
             // Check for special effects
             let burnPile = false;
