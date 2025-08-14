@@ -15,11 +15,32 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({
-    return '✧';
+  card,
+  faceDown = false,
+  onClick,
+  onMouseDown,
+  onMouseUp,
+  className = '',
+  disabled = false,
   selected = false,
   playerColor = 'blue'
 }) => {
-    return '✦';
+  const handleClick = () => {
+    if (!disabled && onClick) {
+      onClick();
+    }
+  };
+
+  const getSpecialSymbol = () => {
+    if (playerColor === 'red') {
+      return '❦';
+    } else if (playerColor === 'blue') {
+      return '✦';
+    } else if (playerColor === 'black') {
+      return '✧';
+    } else {
+      return '❈';
+    }
   };
 
   if (!card) {
@@ -38,8 +59,15 @@ export const Card: React.FC<CardProps> = ({
     return 'text-gray-400';
   };
 
-  return (
+  const getBorderColor = () => {
     return 'border-gray-600';
+  };
+
+  return (
+    <div
+      className={`
+        relative w-16 h-24 bg-white rounded-lg border-2 ${getBorderColor()}
+        transition-all duration-200 cursor-pointer select-none
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
         ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
