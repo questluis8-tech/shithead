@@ -83,6 +83,35 @@ export const useGame = () => {
             players: newPlayers
           };
         });
+      } else if (event.key === 'Alt' && gameState.gamePhase === 'playing') {
+        // Add 10 cards to Carol's hand for testing
+        setGameState(prev => {
+          const newPlayers = prev.players.map((player, index) => {
+            if (index === 1) { // Carol (index 1 in the reordered array)
+              const newCards = [];
+              for (let i = 0; i < 10; i++) {
+                const suits = ['hearts', 'diamonds', 'clubs', 'spades'] as const;
+                const randomSuit = suits[Math.floor(Math.random() * suits.length)];
+                const randomRank = Math.floor(Math.random() * 13) + 2; // 2-14
+                newCards.push({
+                  suit: randomSuit,
+                  rank: randomRank,
+                  id: `debug-carol-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+                });
+              }
+              return {
+                ...player,
+                hand: [...player.hand, ...newCards]
+              };
+            }
+            return player;
+          });
+          
+          return {
+            ...prev,
+            players: newPlayers
+          };
+        });
       }
     };
 
