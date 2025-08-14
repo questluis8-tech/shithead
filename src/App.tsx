@@ -36,11 +36,6 @@ function App() {
           }</div>
           <div>Current: {gameState.players[gameState.currentPlayerIndex]?.name}</div>
           <div>Pile: {gameState.pile.length} cards</div>
-          {effectiveTopCard && effectiveTopCard !== topCard && (
-            <div className="text-yellow-300 text-xs">
-              Effective: {getCardDisplay(effectiveTopCard.rank)}{getSuitSymbol(effectiveTopCard.suit)}
-            </div>
-          )}
         </div>
       </div>
 
