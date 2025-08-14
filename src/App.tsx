@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from './hooks/useGame';
 import { Card } from './components/Card';
-import { getCardDisplay, getSuitSymbol } from './utils/cardUtils';
+import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
 function App() {
   const {
@@ -20,6 +20,7 @@ function App() {
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+  const effectiveTopCard = getEffectiveTopCard(gameState.pile);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">

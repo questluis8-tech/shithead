@@ -54,6 +54,7 @@ export const canPlayCard = (card: Card, topCard: Card | null): boolean => {
   
   // Special rules
   if (card.rank === 2) return true; // 2s can be played on anything
+  if (card.rank === 3) return true; // 3s can be played on anything (invisible)
   if (card.rank === 10) return true; // 10s can be played on anything
   if (topCard.rank === 7) return card.rank <= 7; // Must play 7 or lower on 7
   
@@ -61,6 +62,20 @@ export const canPlayCard = (card: Card, topCard: Card | null): boolean => {
   return card.rank >= topCard.rank;
 };
 
+export const getEffectiveTopCard = (pile: Card[]): Card | null => {
+  if (pile.length === 0) return null;
+  
+  // Look backwards through the pile to find the last non-3 card
+  // 3s are "invisible" so we ignore them when determining what can be played next
+  for (let i = pile.length - 1; i >= 0; i--) {
+    if (pile[i].rank !== 3) {
+      return pile[i];
+    }
+  }
+  
+  // If all cards in pile are 3s, treat as if pile is empty
+  return null;
+};
 export const shouldBurn = (pile: Card[]): boolean => {
   if (pile.length < 4) return false;
   

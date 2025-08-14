@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GameState, Player, Card } from '../types/game';
-import { createDeck, canPlayCard, shouldBurn } from '../utils/cardUtils';
+import { createDeck, canPlayCard, shouldBurn, getEffectiveTopCard } from '../utils/cardUtils';
 
 const createInitialPlayers = (): Player[] => [
   { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false },
@@ -144,7 +144,7 @@ export const useGame = () => {
       console.log('Revealed card:', revealedCard);
       console.log('Remaining faceDownCards after filter:', newFaceDownCards.length);
       
-      const topCard = prev.pile.length > 0 ? prev.pile[prev.pile.length - 1] : null;
+      const topCard = getEffectiveTopCard(prev.pile);
       console.log('Top card on pile:', topCard);
       
       // Create new player object
@@ -403,7 +403,7 @@ export const useGame = () => {
 
   const canPlaySelected = useCallback(() => {
     if (selectedCards.length === 0) return false;
-    const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+    const topCard = getEffectiveTopCard(gameState.pile);
     return canPlayCard(selectedCards[0], topCard);
   }, [selectedCards, gameState.pile]);
 
@@ -513,7 +513,7 @@ export const useGame = () => {
     }
     
     const humanPlayer = gameState.players[0];
-    const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+    const topCard = getEffectiveTopCard(gameState.pile);
     
     // Check if any card in hand can be played
     const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
@@ -532,7 +532,7 @@ export const useGame = () => {
       
       const timer = setTimeout(() => {
         const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-        const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+        const topCard = getEffectiveTopCard(gameState.pile);
         
         // Simple AI: play lowest valid card
         let cardToPlay = null;
