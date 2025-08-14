@@ -309,7 +309,7 @@ function App() {
             You
           </div>
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
-            <div className="text-sm text-white opacity-75">Choose 3 cards for face-up</div>
+            <div className="text-sm text-white opacity-75">Choose face-up cards</div>
           )}
           {gameState.gamePhase === 'swapping' && (
             <div className="text-sm text-white opacity-75">Click hand card, then face-up card to swap</div>
