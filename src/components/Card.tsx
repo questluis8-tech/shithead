@@ -44,11 +44,21 @@ export const Card: React.FC<CardProps> = ({
 
   const getCardBackColor = () => {
     switch (playerColor) {
-      case 'red': return 'bg-gradient-to-br from-red-600 to-red-800 border-2 border-red-500';
-      case 'blue': return 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500';
-      case 'black': return 'bg-gradient-to-br from-gray-800 to-black border-2 border-gray-600';
-      case 'green': return 'bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500';
-      default: return 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500';
+      case 'red': return 'bg-gradient-to-br from-red-800 to-red-900';
+      case 'blue': return 'bg-gradient-to-br from-blue-800 to-blue-900';
+      case 'black': return 'bg-gradient-to-br from-gray-900 to-black';
+      case 'green': return 'bg-gradient-to-br from-green-800 to-green-900';
+      default: return 'bg-gradient-to-br from-blue-800 to-blue-900';
+    }
+  };
+
+  const getOrnamentColor = () => {
+    switch (playerColor) {
+      case 'red': return 'text-yellow-400';
+      case 'blue': return 'text-white';
+      case 'black': return 'text-gray-400';
+      case 'green': return 'text-yellow-300';
+      default: return 'text-white';
     }
   };
 
@@ -71,9 +81,66 @@ export const Card: React.FC<CardProps> = ({
       onMouseUp={onMouseUp}
     >
       {faceDown ? (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-white rounded-full opacity-30" />
-          <div className="absolute w-4 h-4 border-2 border-white rounded-full" />
+        <div className={`absolute inset-0 ${getCardBackColor()} rounded-lg border-2 border-yellow-600`}>
+          {/* Ornate corner decorations */}
+          <div className={`absolute top-1 left-1 ${getOrnamentColor()} text-xs font-bold`}>
+            {playerColor === 'red' && '❦'}
+            {playerColor === 'blue' && '✦'}
+            {playerColor === 'black' && '✧'}
+            {playerColor === 'green' && '❈'}
+          </div>
+          <div className={`absolute top-1 right-1 ${getOrnamentColor()} text-xs font-bold`}>
+            {playerColor === 'red' && '❦'}
+            {playerColor === 'blue' && '✦'}
+            {playerColor === 'black' && '✧'}
+            {playerColor === 'green' && '❈'}
+          </div>
+          <div className={`absolute bottom-1 left-1 ${getOrnamentColor()} text-xs font-bold transform rotate-180`}>
+            {playerColor === 'red' && '❦'}
+            {playerColor === 'blue' && '✦'}
+            {playerColor === 'black' && '✧'}
+            {playerColor === 'green' && '❈'}
+          </div>
+          <div className={`absolute bottom-1 right-1 ${getOrnamentColor()} text-xs font-bold transform rotate-180`}>
+            {playerColor === 'red' && '❦'}
+            {playerColor === 'blue' && '✦'}
+            {playerColor === 'black' && '✧'}
+            {playerColor === 'green' && '❈'}
+          </div>
+          
+          {/* Ornate border design */}
+          <div className={`absolute inset-2 border border-opacity-50 rounded ${getOrnamentColor().replace('text-', 'border-')}`}>
+            {/* Side decorations */}
+            <div className={`absolute top-2 left-1/2 transform -translate-x-1/2 ${getOrnamentColor()} text-xs`}>
+              {playerColor === 'red' && '◈'}
+              {playerColor === 'blue' && '❋'}
+              {playerColor === 'black' && '✦'}
+              {playerColor === 'green' && '❅'}
+            </div>
+            <div className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 ${getOrnamentColor()} text-xs`}>
+              {playerColor === 'red' && '◈'}
+              {playerColor === 'blue' && '❋'}
+              {playerColor === 'black' && '✦'}
+              {playerColor === 'green' && '❅'}
+            </div>
+            <div className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${getOrnamentColor()} text-xs`}>
+              {playerColor === 'red' && '◈'}
+              {playerColor === 'blue' && '❋'}
+              {playerColor === 'black' && '✦'}
+              {playerColor === 'green' && '❅'}
+            </div>
+            <div className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${getOrnamentColor()} text-xs`}>
+              {playerColor === 'red' && '◈'}
+              {playerColor === 'blue' && '❋'}
+              {playerColor === 'black' && '✦'}
+              {playerColor === 'green' && '❅'}
+            </div>
+          </div>
+          
+          {/* Center poop emoji */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-2xl">💩</div>
+          </div>
         </div>
       ) : (
         <>
