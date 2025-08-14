@@ -55,7 +55,7 @@ function App() {
                 key={`alice-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
@@ -66,19 +66,19 @@ function App() {
               <Card
                 key={`alice-up-${index}`}
                 card={card}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[2]?.hand.slice(0, 3).map((_, index) => (
+            {gameState.players[2]?.hand.map((_, index) => (
               <Card
                 key={`alice-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-10 h-14"
+                className="w-8 h-12"
               />
             ))}
           </div>
@@ -102,7 +102,7 @@ function App() {
                 key={`carol-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
@@ -113,19 +113,19 @@ function App() {
               <Card
                 key={`carol-up-${index}`}
                 card={card}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[1]?.hand.slice(0, 3).map((_, index) => (
+            {gameState.players[1]?.hand.map((_, index) => (
               <Card
                 key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-10 h-14"
+                className="w-8 h-12"
               />
             ))}
           </div>
@@ -149,7 +149,7 @@ function App() {
                 key={`bob-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
@@ -160,19 +160,19 @@ function App() {
               <Card
                 key={`bob-up-${index}`}
                 card={card}
-                className="w-12 h-16"
+                className="w-10 h-14"
               />
             ))}
           </div>
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[3]?.hand.slice(0, 3).map((_, index) => (
+            {gameState.players[3]?.hand.map((_, index) => (
               <Card
                 key={`bob-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                className="w-10 h-14"
+                className="w-8 h-12"
               />
             ))}
           </div>
