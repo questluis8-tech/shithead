@@ -271,63 +271,6 @@ function App() {
         </div>
       </div>
 
-      {/* Action Buttons - Centered between player and pile */}
-      <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-16 flex gap-4 z-20">
-        {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
-          <button
-            onClick={dealCards}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
-          >
-            Deal Cards
-          </button>
-        )}
-        
-        {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
-          <button
-            onClick={confirmFaceUpCards}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
-          >
-            Confirm Face-Up Cards
-          </button>
-        )}
-        
-        {gameState.gamePhase === 'swapping' && (
-          <button
-            onClick={startGame}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
-          >
-            Start Game
-          </button>
-        )}
-
-        {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
-          <button
-            onClick={playCards}
-            disabled={!canPlaySelected}
-            className={`px-6 py-3 rounded-lg font-bold text-lg transition-all cursor-pointer ${
-              canPlaySelected
-                ? 'bg-yellow-600 hover:bg-yellow-700 text-white transform hover:scale-105'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            Play Cards ({selectedCards.length})
-          </button>
-        )}
-
-        {gameState.gamePhase === 'playing' && 
-         gameState.currentPlayerIndex === 0 && 
-         selectedCards.length === 0 && 
-         !canPlayAnyCard && 
-         gameState.pile.length > 0 && (
-          <button
-            onClick={pickupCards}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer"
-          >
-            Pick up Cards ({gameState.pile.length})
-          </button>
-        )}
-      </div>
-
       {/* Human Player - Bottom */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
         <div className={`text-center mb-4 ${
@@ -401,6 +344,63 @@ function App() {
             ))}
           </div>
         )}
+        
+        {/* Action Buttons - Above hand cards */}
+        <div className="flex justify-center gap-4 mb-4 z-20">
+          {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+            >
+              Deal Cards
+            </button>
+          )}
+          
+          {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
+            <button
+              onClick={confirmFaceUpCards}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+            >
+              Confirm Face-Up Cards
+            </button>
+          )}
+          
+          {gameState.gamePhase === 'swapping' && (
+            <button
+              onClick={startGame}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+            >
+              Start Game
+            </button>
+          )}
+
+          {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
+            <button
+              onClick={playCards}
+              disabled={!canPlaySelected}
+              className={`px-6 py-3 rounded-lg font-bold transition-all cursor-pointer shadow-lg ${
+                canPlaySelected
+                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white transform hover:scale-105'
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              Play Cards ({selectedCards.length})
+            </button>
+          )}
+
+          {gameState.gamePhase === 'playing' && 
+           gameState.currentPlayerIndex === 0 && 
+           selectedCards.length === 0 && 
+           !canPlayAnyCard && 
+           gameState.pile.length > 0 && (
+            <button
+              onClick={pickupCards}
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+            >
+              Pick up Cards ({gameState.pile.length})
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
