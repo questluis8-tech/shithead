@@ -50,6 +50,7 @@ export const Card: React.FC<CardProps> = ({
   }
 
   const isSpecialCard = card.rank === 2 || card.rank === 7 || card.rank === 10;
+  const isSpecialCard = card.rank === 2 || card.rank === 3 || card.rank === 7 || card.rank === 10;
 
   const getCardBackColor = () => {
     return 'bg-gradient-to-br from-gray-900 to-black';
