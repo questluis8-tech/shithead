@@ -41,11 +41,11 @@ function App() {
       {/* Alice - Top Center */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-2">
-          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             Alice
           </div>
           <div className="text-xs text-white opacity-75">
-            H:{gameState.players[1]?.hand.length} U:{gameState.players[1]?.faceUpCards.length} D:{gameState.players[1]?.faceDownCards.length}
+            H:{gameState.players[2]?.hand.length} U:{gameState.players[2]?.faceUpCards.length} D:{gameState.players[2]?.faceDownCards.length}
           </div>
         </div>
         
@@ -53,7 +53,7 @@ function App() {
         <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
           <div className="flex gap-1">
-            {gameState.players[1]?.faceDownCards.map((_, index) => (
+            {gameState.players[2]?.faceDownCards.map((_, index) => (
               <Card
                 key={`alice-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -65,7 +65,7 @@ function App() {
           
           {/* Face-up cards */}
           <div className="flex gap-1">
-            {gameState.players[1]?.faceUpCards.map((card, index) => (
+            {gameState.players[2]?.faceUpCards.map((card, index) => (
               <Card
                 key={`alice-up-${index}`}
                 card={card}
@@ -76,7 +76,7 @@ function App() {
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[1]?.hand.slice(0, 3).map((_, index) => (
+            {gameState.players[2]?.hand.slice(0, 3).map((_, index) => (
               <Card
                 key={`alice-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -91,11 +91,11 @@ function App() {
       {/* Carol - Left Side */}
       <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
-          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             Carol
           </div>
           <div className="text-xs text-white opacity-75">
-            H:{gameState.players[2]?.hand.length} U:{gameState.players[2]?.faceUpCards.length} D:{gameState.players[2]?.faceDownCards.length}
+            H:{gameState.players[1]?.hand.length} U:{gameState.players[1]?.faceUpCards.length} D:{gameState.players[1]?.faceDownCards.length}
           </div>
         </div>
         
@@ -103,7 +103,7 @@ function App() {
         <div className="flex items-center gap-2">
           {/* Hand (face-down) */}
           <div className="flex flex-col gap-1">
-            {gameState.players[2]?.hand.slice(0, 3).map((_, index) => (
+            {gameState.players[1]?.hand.slice(0, 3).map((_, index) => (
               <Card
                 key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -115,7 +115,7 @@ function App() {
           
           {/* Face-up cards */}
           <div className="flex flex-col gap-1">
-            {gameState.players[2]?.faceUpCards.map((card, index) => (
+            {gameState.players[1]?.faceUpCards.map((card, index) => (
               <Card
                 key={`carol-up-${index}`}
                 card={card}
@@ -126,7 +126,7 @@ function App() {
           
           {/* Face-down cards */}
           <div className="flex flex-col gap-1">
-            {gameState.players[2]?.faceDownCards.map((_, index) => (
+            {gameState.players[1]?.faceDownCards.map((_, index) => (
               <Card
                 key={`carol-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}

@@ -4,9 +4,9 @@ import { createDeck, canPlayCard, shouldBurn } from '../utils/cardUtils';
 
 const createInitialPlayers = (): Player[] => [
   { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false },
-  { id: 'ai1', name: 'Alice', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
-  { id: 'ai2', name: 'Bob', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
-  { id: 'ai3', name: 'Carol', hand: [], faceDownCards: [], faceUpCards: [], isAI: true }
+  { id: 'ai1', name: 'Carol', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
+  { id: 'ai2', name: 'Alice', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
+  { id: 'ai3', name: 'Bob', hand: [], faceDownCards: [], faceUpCards: [], isAI: true }
 ];
 
 const drawToThreeCards = (player: Player, deck: Card[]): { updatedPlayer: Player, updatedDeck: Card[] } => {
