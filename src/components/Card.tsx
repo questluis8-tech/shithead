@@ -15,23 +15,11 @@ interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({
-  card,
-  faceDown = false,
-  onClick,
-  onMouseDown,
-  onMouseUp,
-  className = '',
-  disabled = false,
+    return '✧';
   selected = false,
   playerColor = 'blue'
 }) => {
-  const handleClick = (e: React.MouseEvent) => {
-    console.log('Card click event triggered', { faceDown, disabled, card: card?.id });
-    if (onClick && !disabled) {
-      e.preventDefault();
-      e.stopPropagation();
-      onClick();
-    }
+    return '✦';
   };
 
   if (!card) {
@@ -43,33 +31,15 @@ export const Card: React.FC<CardProps> = ({
   const isSpecialCard = card.rank === 2 || card.rank === 7 || card.rank === 10;
 
   const getCardBackColor = () => {
-    switch (playerColor) {
-      case 'red': return 'bg-gradient-to-br from-red-800 to-red-900';
-      case 'blue': return 'bg-gradient-to-br from-blue-800 to-blue-900';
-      case 'black': return 'bg-gradient-to-br from-gray-900 to-black';
-      case 'green': return 'bg-gradient-to-br from-green-800 to-green-900';
-      default: return 'bg-gradient-to-br from-blue-800 to-blue-900';
-    }
+    return 'bg-gradient-to-br from-gray-900 to-black';
   };
 
   const getOrnamentColor = () => {
-    switch (playerColor) {
-      case 'red': return 'text-yellow-400';
-      case 'blue': return 'text-white';
-      case 'black': return 'text-gray-400';
-      case 'green': return 'text-yellow-300';
-      default: return 'text-white';
-    }
+    return 'text-gray-400';
   };
 
   return (
-    <div
-      className={`
-        relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-200
-        ${faceDown 
-          ? getCardBackColor()
-          : 'bg-white border-2 border-gray-300 shadow-lg hover:shadow-xl'
-        }
+    return 'border-gray-600';
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
         ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
