@@ -9,6 +9,7 @@ interface CardProps {
   onMouseDown?: () => void;
   onMouseUp?: () => void;
   className?: string;
+  style?: React.CSSProperties;
   disabled?: boolean;
   selected?: boolean;
 }
@@ -20,6 +21,7 @@ export const Card: React.FC<CardProps> = ({
   onMouseDown,
   onMouseUp,
   className = '',
+  style,
   disabled = false,
   selected = false
 }) => {
@@ -42,14 +44,15 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
+      style={style}
       className={`
         relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-200
         ${faceDown 
-          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500' 
+          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 shadow-lg' 
           : 'bg-white border-2 border-gray-300 shadow-lg hover:shadow-xl'
         }
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
-        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
+        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-110 -translate-y-3 shadow-2xl' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${isSpecialCard && !faceDown ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
         ${className}
