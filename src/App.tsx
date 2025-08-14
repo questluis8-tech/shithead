@@ -1,7 +1,6 @@
 import React from 'react';
 import { useGame } from './hooks/useGame';
 import { Card } from './components/Card';
-import { GameOverModal } from './components/GameOverModal';
 import { getCardDisplay, getSuitSymbol } from './utils/cardUtils';
 
 function App() {
@@ -18,11 +17,6 @@ function App() {
     canPlayAnyCard,
     playFaceDownCard
   } = useGame();
-
-  const handleExitGame = () => {
-    // Reset to initial state
-    window.location.reload();
-  };
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
@@ -400,13 +394,32 @@ function App() {
 
       {/* Game Over Modal */}
       {gameState.gamePhase === 'finished' && gameState.winner && (
-        <GameOverModal
-          winner={gameState.winner}
-          loser={gameState.loser}
-          players={gameState.players}
-          onNewGame={dealCards}
-          onExitGame={handleExitGame}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4 shadow-2xl">
+            <div className="mb-6">
+              {gameState.winner === 'human' ? (
+                <div className="text-green-600">
+                  <div className="text-6xl mb-4">🏆</div>
+                  <h2 className="text-3xl font-bold">Victory!</h2>
+                  <p className="text-lg mt-2">Congratulations! You won!</p>
+                </div>
+              ) : (
+                <div className="text-red-600">
+                  <div className="text-6xl mb-4">😞</div>
+                  <h2 className="text-3xl font-bold">Game Over</h2>
+                  <p className="text-lg mt-2">{gameState.players.find(p => p.id === gameState.winner)?.name} won this round!</p>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
