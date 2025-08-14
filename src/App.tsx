@@ -41,11 +41,12 @@ function App() {
           {/* AI Players positioned around the screen */}
           {gameState.players.slice(1).map((player, index) => {
             const positions = [
-              { top: '10%', left: '50%', transform: 'translateX(-50%)' }, // Top
-              { top: '50%', right: '5%', transform: 'translateY(-50%)' }, // Right
-              { top: '50%', left: '5%', transform: 'translateY(-50%)' }   // Left
+              { top: '8%', left: '50%', transform: 'translateX(-50%)' }, // Top
+              { top: '50%', right: '3%', transform: 'translateY(-50%)' }, // Right
+              { top: '50%', left: '3%', transform: 'translateY(-50%)' }   // Left
             ];
             const position = positions[index] || positions[0];
+            const isCurrentPlayer = gameState.currentPlayerIndex === index + 1;
             
             return (
               <div
@@ -54,27 +55,66 @@ function App() {
                 style={position}
               >
                 {/* Player info */}
-                <div className="bg-black bg-opacity-50 rounded-lg p-3 text-white text-center min-w-32">
-                  <div className="text-sm font-bold mb-1">{player.name}</div>
+                <div className={`rounded-lg p-3 text-white text-center min-w-32 transition-all ${
+                  isCurrentPlayer 
+                    ? 'bg-yellow-600 bg-opacity-80 shadow-lg ring-2 ring-yellow-400' 
+                    : 'bg-black bg-opacity-50'
+                }`}>
+                  <div className={`text-sm font-bold mb-1 ${isCurrentPlayer ? 'text-yellow-100' : ''}`}>
+                    {player.name}
+                  </div>
                   <div className="text-xs opacity-75 mb-2">
-                    {player.hand.length} cards
+                    {player.hand.length} cards in hand
                   </div>
                   
-                  {/* Player's cards (face down for AI) */}
-                  <div className="flex justify-center gap-1">
-                    {Array.from({ length: Math.min(player.hand.length, 7) }).map((_, cardIndex) => (
-                      <div
-                        key={cardIndex}
-                        className="w-6 h-9 bg-blue-600 border border-blue-500 rounded-sm"
-                        style={{
-                          transform: `rotate(${(cardIndex - 3) * 5}deg)`,
-                          zIndex: cardIndex
-                        }}
-                      />
-                    ))}
-                    {player.hand.length > 7 && (
-                      <div className="text-xs text-white ml-1">
-                        +{player.hand.length - 7}
+                  {/* Face-down cards */}
+                  {player.faceDownCards.length > 0 && (
+                    <div className="flex justify-center gap-1 mb-1">
+                      {player.faceDownCards.map((_, cardIndex) => (
+                        <div
+                          key={`${player.id}-down-${cardIndex}`}
+                          className="w-4 h-6 bg-blue-800 border border-blue-600 rounded-sm"
+                        />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Face-up cards */}
+                  {player.faceUpCards.length > 0 && (
+                    <div className="flex justify-center gap-1 mb-2">
+                      {player.faceUpCards.map((card, cardIndex) => (
+                        <Card
+                          key={`${player.id}-up-${cardIndex}`}
+                          card={card}
+                          className="w-4 h-6"
+                        />
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Hand cards (face down for AI) */}
+                  <div className="flex justify-center">
+                    {Array.from({ length: Math.min(player.hand.length, 8) }).map((_, cardIndex) => {
+                      const totalCards = Math.min(player.hand.length, 8);
+                      const rotation = index === 0 ? 0 : // Top player - no rotation
+                                     index === 1 ? (cardIndex - totalCards / 2) * 8 : // Right player
+                                     (cardIndex - totalCards / 2) * -8; // Left player
+                      
+                      return (
+                        <div
+                          key={cardIndex}
+                          className="w-6 h-9 bg-blue-600 border border-blue-500 rounded-sm shadow-md"
+                          style={{
+                            transform: `rotate(${rotation}deg) ${index === 0 ? 'translateY(0)' : ''}`,
+                            zIndex: cardIndex,
+                            marginLeft: cardIndex > 0 ? '-4px' : '0'
+                          }}
+                        />
+                      );
+                    })}
+                    {player.hand.length > 8 && (
+                      <div className="text-xs text-white ml-1 self-center">
+                        +{player.hand.length - 8}
                       </div>
                     )}
                   </div>
@@ -160,22 +200,61 @@ function App() {
           
           {/* Human player at bottom */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <div className="text-center">
+            <div className="text-center max-w-4xl">
               {/* Player name */}
-              <div className="text-white font-bold mb-2">{humanPlayer.name}</div>
+              <div className={`font-bold mb-3 text-lg ${
+                gameState.currentPlayerIndex === 0 
+                  ? 'text-yellow-300 drop-shadow-lg' 
+                  : 'text-white'
+              }`}>
+                {humanPlayer.name}
+                {gameState.currentPlayerIndex === 0 && (
+                  <div className="text-sm text-yellow-200 opacity-75">Your turn</div>
+                )}
+              </div>
+              
+              {/* Face-down cards */}
+              {humanPlayer.faceDownCards.length > 0 && (
+                <div className="flex justify-center gap-2 mb-2">
+                  {humanPlayer.faceDownCards.map((_, cardIndex) => (
+                    <div
+                      key={`human-down-${cardIndex}`}
+                      className="w-12 h-18 bg-blue-800 border-2 border-blue-600 rounded-lg cursor-pointer hover:scale-105 transition-all shadow-lg"
+                      onClick={() => playFaceDownCard(cardIndex)}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Face-up cards */}
+              {humanPlayer.faceUpCards.length > 0 && (
+                <div className="flex justify-center gap-2 mb-3">
+                  {humanPlayer.faceUpCards.map((card, cardIndex) => (
+                    <Card
+                      key={`human-up-${cardIndex}`}
+                      card={card}
+                      onClick={() => handleCardClick(card, 'faceUp')}
+                      selected={selectedCards.some(c => c.id === card.id)}
+                      className="w-12 h-18 hover:scale-105 hover:-translate-y-2 transition-all shadow-lg"
+                      disabled={humanPlayer.hand.length > 0 || gameState.currentPlayerIndex !== 0}
+                    />
+                  ))}
+                </div>
+              )}
               
               {/* Player's hand */}
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center" style={{ minHeight: '80px' }}>
                 {humanPlayer.hand.map((card, index) => (
                   <Card
                     key={card.id}
                     card={card}
                     onClick={() => handleCardClick(card, 'hand')}
                     selected={selectedCards.some(c => c.id === card.id)}
-                    className="w-12 h-18 hover:scale-105 hover:-translate-y-2 transition-all"
+                    className="w-14 h-20 hover:scale-110 hover:-translate-y-4 transition-all shadow-lg cursor-pointer"
                     style={{
-                      transform: `rotate(${(index - humanPlayer.hand.length / 2) * 3}deg)`,
-                      zIndex: index
+                      transform: `rotate(${(index - humanPlayer.hand.length / 2) * 4}deg)`,
+                      zIndex: selectedCards.some(c => c.id === card.id) ? 100 : index,
+                      marginLeft: index > 0 ? '-8px' : '0'
                     }}
                   />
                 ))}
@@ -186,28 +265,61 @@ function App() {
         
         {/* Game controls */}
         <div className="absolute top-4 right-4">
-          {gameState.gamePhase === 'setup' && (
-            <button
-              onClick={dealCards}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg"
-            >
-              Deal Cards
-            </button>
-          )}
-          
-          {gameState.gamePhase === 'playing' && selectedCards.length > 0 && (
-            <button
-              onClick={playCards}
-              disabled={!canPlaySelected}
-              className={`px-6 py-3 rounded-lg font-bold shadow-lg ${
-                canPlaySelected
-                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Play Cards
-            </button>
-          )}
+          <div className="flex flex-col gap-2">
+            {gameState.gamePhase === 'setup' && (
+              <button
+                onClick={dealCards}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105"
+              >
+                Deal Cards
+              </button>
+            )}
+            
+            {gameState.gamePhase === 'swapping' && (
+              <button
+                onClick={startGame}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105"
+              >
+                Start Game
+              </button>
+            )}
+            
+            {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && (
+              <div className="flex flex-col gap-2">
+                {selectedCards.length > 0 && (
+                  <button
+                    onClick={playCards}
+                    disabled={!canPlaySelected}
+                    className={`px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105 ${
+                      canPlaySelected
+                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Play Cards ({selectedCards.length})
+                  </button>
+                )}
+                
+                {!canPlayAnyCard && (
+                  <button
+                    onClick={pickupCards}
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105"
+                  >
+                    Pick Up Pile
+                  </button>
+                )}
+              </div>
+            )}
+            
+            {gameState.gamePhase === 'finished' && (
+              <button
+                onClick={dealCards}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all transform hover:scale-105"
+              >
+                New Game
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
