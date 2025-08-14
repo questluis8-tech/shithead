@@ -11,6 +11,7 @@ interface CardProps {
   className?: string;
   disabled?: boolean;
   selected?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -21,10 +22,10 @@ export const Card: React.FC<CardProps> = ({
   onMouseUp,
   className = '',
   disabled = false,
-  selected = false
+  selected = false,
+  style
 }) => {
   const handleClick = (e: React.MouseEvent) => {
-    console.log('Card click event triggered', { faceDown, disabled, card: card?.id });
     if (onClick && !disabled) {
       e.preventDefault();
       e.stopPropagation();
@@ -34,7 +35,7 @@ export const Card: React.FC<CardProps> = ({
 
   if (!card) {
     return (
-      <div className={`w-16 h-24 border-2 border-dashed border-gray-400 rounded-lg ${className}`} />
+      <div className={`border-2 border-dashed border-gray-400 rounded-lg ${className}`} style={style} />
     );
   }
 
@@ -43,13 +44,13 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-200
+        relative rounded-lg cursor-pointer transition-all duration-200 shadow-lg
         ${faceDown 
-          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500' 
-          : 'bg-white border-2 border-gray-300 shadow-lg hover:shadow-xl'
+          ? 'bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 border-2 border-blue-600' 
+          : 'bg-white border-2 border-gray-300 hover:shadow-xl'
         }
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
-        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
+        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2 shadow-2xl' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         ${isSpecialCard && !faceDown ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
         ${className}
@@ -57,34 +58,40 @@ export const Card: React.FC<CardProps> = ({
       onClick={handleClick}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
+      style={style}
     >
       {faceDown ? (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-white rounded-full opacity-30" />
-          <div className="absolute w-4 h-4 border-2 border-white rounded-full" />
+          {/* Card back design */}
+          <div className="w-full h-full relative overflow-hidden rounded-lg">
+            <div className="absolute inset-2 border-2 border-blue-300 rounded-lg opacity-60" />
+            <div className="absolute inset-4 border border-blue-200 rounded-lg opacity-40" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 border-2 border-blue-200 rounded-full opacity-50" />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-200 rounded-full opacity-30" />
+          </div>
         </div>
       ) : (
         <>
           {/* Top-left corner */}
           <div className={`absolute top-1 left-1 text-xs font-bold ${getSuitColor(card.suit)}`}>
-            <div>{getCardDisplay(card.rank)}</div>
-            <div className="text-lg leading-none">{getSuitSymbol(card.suit)}</div>
+            <div className="leading-none">{getCardDisplay(card.rank)}</div>
+            <div className="text-sm leading-none">{getSuitSymbol(card.suit)}</div>
           </div>
           
           {/* Center symbol */}
-          <div className={`absolute inset-0 flex items-center justify-center text-2xl ${getSuitColor(card.suit)}`}>
+          <div className={`absolute inset-0 flex items-center justify-center text-2xl font-bold ${getSuitColor(card.suit)}`}>
             {getSuitSymbol(card.suit)}
           </div>
           
           {/* Bottom-right corner (rotated) */}
           <div className={`absolute bottom-1 right-1 text-xs font-bold transform rotate-180 ${getSuitColor(card.suit)}`}>
-            <div>{getCardDisplay(card.rank)}</div>
-            <div className="text-lg leading-none">{getSuitSymbol(card.suit)}</div>
+            <div className="leading-none">{getCardDisplay(card.rank)}</div>
+            <div className="text-sm leading-none">{getSuitSymbol(card.suit)}</div>
           </div>
           
           {/* Special card indicators */}
           {isSpecialCard && (
-            <div className="absolute top-0 right-0 w-3 h-3 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border border-white" />
           )}
         </>
       )}
