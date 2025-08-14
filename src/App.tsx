@@ -190,7 +190,8 @@ function App() {
 
       {/* Center Area - Pile, Deck, and Controls */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="flex items-center gap-8 mb-6">
+        {/* Pile and Deck - Fixed position */}
+        <div className="flex items-center justify-center gap-8 mb-8">
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
@@ -229,13 +230,14 @@ function App() {
           </div>
         </div>
 
-        {/* Game Controls - Centered */}
-        <div className="text-center h-16 flex items-center justify-center">
+        {/* Game Controls - Fixed position below pile/deck */}
+        <div className="flex justify-center">
+          <div className="w-64 flex justify-center">
           {/* Setup Phase - Deal Cards */}
           {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
             <button
               onClick={dealCards}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Deal Cards
             </button>
@@ -245,7 +247,7 @@ function App() {
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
             <button
               onClick={confirmFaceUpCards}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Confirm Face-Up Cards
             </button>
@@ -255,7 +257,7 @@ function App() {
           {gameState.gamePhase === 'swapping' && (
             <button
               onClick={startGame}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Start Game
             </button>
@@ -266,7 +268,7 @@ function App() {
             <button
               onClick={playCards}
               disabled={!canPlaySelected}
-              className={`px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 ${
+              className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
                 canPlaySelected
                   ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
                   : 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -284,7 +286,7 @@ function App() {
            gameState.pile.length > 0 && (
             <button
               onClick={pickupCards}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Pick up Cards ({gameState.pile.length})
             </button>
@@ -294,11 +296,12 @@ function App() {
           {gameState.gamePhase === 'finished' && (
             <button
               onClick={dealCards}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               New Game
             </button>
           )}
+          </div>
         </div>
       </div>
 
