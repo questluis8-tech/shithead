@@ -85,17 +85,75 @@ function App() {
           
           {/* Center area - pile and game controls */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="text-center">
-              <div className="w-20 h-28 bg-gray-800 bg-opacity-50 border-2 border-dashed border-yellow-400 rounded-lg flex items-center justify-center text-yellow-400 text-sm mb-4">
-                Pile
+            <div className="text-center relative">
+              {/* Draw pile (deck) */}
+              <div className="absolute -left-20 top-0">
+                <div className="relative">
+                  {/* Stack effect for deck */}
+                  <div className="w-16 h-24 bg-blue-800 border-2 border-blue-600 rounded-lg absolute transform rotate-1"></div>
+                  <div className="w-16 h-24 bg-blue-700 border-2 border-blue-500 rounded-lg absolute transform -rotate-1"></div>
+                  <div className="w-16 h-24 bg-blue-600 border-2 border-blue-400 rounded-lg relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-8 h-8 border-2 border-white rounded-full opacity-50"></div>
+                    </div>
+                  </div>
+                  <div className="text-white text-xs text-center mt-1">Deck</div>
+                </div>
               </div>
               
-              {/* Game phase indicator */}
-              <div className="bg-black bg-opacity-50 rounded-lg px-4 py-2 text-white text-sm">
+              {/* Center pile */}
+              <div className="relative">
+                {gameState.pile.length === 0 ? (
+                  <div className="w-16 h-24 border-2 border-dashed border-yellow-400 rounded-lg flex items-center justify-center text-yellow-400 text-xs bg-black bg-opacity-20">
+                    Pile
+                  </div>
+                ) : (
+                  <div className="relative">
+                    {/* Show last few cards in pile with slight rotation */}
+                    {gameState.pile.slice(-3).map((card, index) => (
+                      <Card
+                        key={card.id}
+                        card={card}
+                        className={`absolute w-16 h-24 ${
+                          index === 0 ? 'transform rotate-3' : 
+                          index === 1 ? 'transform -rotate-2' : 
+                          'transform rotate-1'
+                        }`}
+                        style={{
+                          zIndex: index,
+                          left: `${index * 2}px`,
+                          top: `${index * 1}px`
+                        }}
+                      />
+                    ))}
+                    {/* Invisible spacer to maintain layout */}
+                    <div className="w-16 h-24 opacity-0"></div>
+                  </div>
+                )}
+                <div className="text-white text-xs text-center mt-1">
+                  Pile ({gameState.pile.length})
+                </div>
+              </div>
+              
+              {/* Game status below pile */}
+              <div className="mt-6 bg-black bg-opacity-40 rounded-lg px-4 py-2 text-white text-sm backdrop-blur-sm">
                 {gameState.gamePhase === 'setup' && 'Click Deal Cards to start'}
                 {gameState.gamePhase === 'swapping' && 'Choose your face-up cards'}
-                {gameState.gamePhase === 'playing' && `${gameState.players[gameState.currentPlayerIndex].name}'s turn`}
-                {gameState.gamePhase === 'finished' && 'Game Over!'}
+                {gameState.gamePhase === 'playing' && (
+                  <div>
+                    <div className="font-bold text-yellow-300">
+                      {gameState.players[gameState.currentPlayerIndex].name}'s turn
+                    </div>
+                    {gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
+                      <div className="text-xs mt-1">
+                        {selectedCards.length} card{selectedCards.length > 1 ? 's' : ''} selected
+                      </div>
+                    )}
+                  </div>
+                )}
+                {gameState.gamePhase === 'finished' && (
+                  <div className="font-bold text-green-300">Game Over!</div>
+                )}
               </div>
             </div>
           </div>
