@@ -60,6 +60,29 @@ export const useGame = () => {
           };
         });
         setSelectedCards([]);
+      } else if (event.key === 'Control' && gameState.gamePhase === 'playing') {
+        // Add an ace to human player's hand for testing
+        setGameState(prev => {
+          const newPlayers = prev.players.map((player, index) => {
+            if (index === 0) { // Human player only
+              const aceCard = {
+                suit: 'spades' as const,
+                rank: 14, // Ace
+                id: `debug-ace-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              };
+              return {
+                ...player,
+                hand: [...player.hand, aceCard]
+              };
+            }
+            return player;
+          });
+          
+          return {
+            ...prev,
+            players: newPlayers
+          };
+        });
       }
     };
 
