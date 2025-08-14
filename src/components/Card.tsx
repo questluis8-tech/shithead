@@ -46,15 +46,15 @@ export const Card: React.FC<CardProps> = ({
     <div
       style={style}
       className={`
-        relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-200
+        relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-300
         ${faceDown 
-          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 shadow-lg' 
-          : 'bg-white border-2 border-gray-300 shadow-lg hover:shadow-xl'
+          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-3 border-blue-400 shadow-xl' 
+          : 'bg-white border-3 border-gray-300 shadow-xl hover:shadow-2xl'
         }
-        ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
-        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-110 -translate-y-3 shadow-2xl' : ''}
+        ${onClick && !disabled ? 'hover:scale-110 hover:-translate-y-2' : ''}
+        ${selected ? 'ring-4 ring-yellow-400 ring-opacity-90 scale-125 -translate-y-6 shadow-2xl shadow-yellow-400/50' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        ${isSpecialCard && !faceDown ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
+        ${isSpecialCard && !faceDown ? 'ring-2 ring-purple-400 ring-opacity-60' : ''}
         ${className}
       `}
       onClick={handleClick}

@@ -6,6 +6,10 @@
   .bg-gradient-radial {
     background: radial-gradient(circle, var(--tw-gradient-stops));
   }
+  
+  .border-3 {
+    border-width: 3px;
+  }
 }
 
 body {
