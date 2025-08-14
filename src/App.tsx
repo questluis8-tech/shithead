@@ -31,18 +31,18 @@ function App() {
   const aiPlayers = gameState.players.slice(1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-600 via-orange-600 to-red-700 relative overflow-hidden">
-      {/* Radial gradient overlay for table effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-orange-400 via-red-600 to-red-800 opacity-90"></div>
+    <div className="min-h-screen bg-gradient-to-br from-red-600 via-orange-500 to-red-700 relative overflow-hidden">
+      {/* Table surface effect */}
+      <div className="absolute inset-0 bg-gradient-radial from-orange-300 via-red-500 to-red-800 opacity-80"></div>
       
       {/* Game Controls - Top Left */}
       <div className="absolute top-4 left-4 z-20">
-        <div className="bg-black bg-opacity-80 backdrop-blur-sm rounded-xl p-4 text-white border-2 border-yellow-500 shadow-2xl">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-4 text-white border-2 border-yellow-400 shadow-2xl">
           <div className="flex items-center gap-3 mb-3">
             <h1 className="text-xl font-bold text-yellow-400">Shithead</h1>
             <button
               onClick={toggleSound}
-              className="p-2 rounded-lg bg-yellow-600 bg-opacity-30 hover:bg-opacity-50 transition-all"
+              className="p-2 rounded-lg bg-yellow-500 bg-opacity-40 hover:bg-opacity-60 transition-all"
             >
               {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
@@ -89,7 +89,7 @@ function App() {
 
       {/* Game Rules - Top Right */}
       <div className="absolute top-4 right-4 z-20">
-        <div className="bg-black bg-opacity-80 backdrop-blur-sm rounded-xl p-4 text-white border-2 border-yellow-500 max-w-xs shadow-2xl">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-4 text-white border-2 border-yellow-400 max-w-xs shadow-2xl">
           <h3 className="text-lg font-bold text-yellow-400 mb-2">Special Cards</h3>
           <div className="text-sm space-y-1">
             <div>• <span className="text-yellow-300 font-bold">2</span> can be played on anything</div>
