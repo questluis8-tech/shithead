@@ -6,13 +6,15 @@ interface GameOverModalProps {
   loser: string | null;
   players: any[];
   onNewGame: () => void;
+  onExitGame: () => void;
 }
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
   winner,
   loser,
   players,
-  onNewGame
+  onNewGame,
+  onExitGame
 }) => {
   if (!winner) return null;
 
@@ -21,38 +23,46 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const isPlayerWinner = winner === 'human';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4 shadow-2xl">
-        <div className="mb-6">
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-12 text-center max-w-2xl w-full mx-8 shadow-2xl">
+        <div className="mb-8">
           {isPlayerWinner ? (
             <div className="text-green-600">
-              <Trophy size={64} className="mx-auto mb-4" />
-              <h2 className="text-3xl font-bold">Victory!</h2>
-              <p className="text-lg mt-2">Congratulations! You won!</p>
+              <Trophy size={96} className="mx-auto mb-6" />
+              <h2 className="text-5xl font-bold mb-4">Victory!</h2>
+              <p className="text-2xl mt-4">Congratulations! You won!</p>
             </div>
           ) : (
             <div className="text-red-600">
-              <Frown size={64} className="mx-auto mb-4" />
-              <h2 className="text-3xl font-bold">Game Over</h2>
-              <p className="text-lg mt-2">{winnerPlayer?.name} won this round!</p>
+              <Frown size={96} className="mx-auto mb-6" />
+              <h2 className="text-5xl font-bold mb-4">Game Over</h2>
+              <p className="text-2xl mt-4">{winnerPlayer?.name} won this round!</p>
             </div>
           )}
         </div>
         
         {loserPlayer && (
-          <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-            <p className="text-gray-700">
+          <div className="mb-8 p-6 bg-gray-100 rounded-lg">
+            <p className="text-gray-700 text-xl">
               <span className="font-bold">{loserPlayer.name}</span> is the Shithead! 💩
             </p>
           </div>
         )}
         
-        <button
-          onClick={onNewGame}
-          className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
-        >
-          Play Again
-        </button>
+        <div className="flex gap-6 justify-center">
+          <button
+            onClick={onNewGame}
+            className="bg-green-600 hover:bg-green-700 text-white px-12 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg"
+          >
+            Rematch
+          </button>
+          <button
+            onClick={onExitGame}
+            className="bg-red-600 hover:bg-red-700 text-white px-12 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105 shadow-lg"
+          >
+            Exit Game
+          </button>
+        </div>
       </div>
     </div>
   );
