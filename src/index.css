@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure body has no white background */
+html, body {
+  background-color: #dc2626 !important;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  background-color: #dc2626 !important;
+  min-height: 100vh;
+}
+
 @layer utilities {
   .bg-gradient-radial {
     background: radial-gradient(circle, var(--tw-gradient-stops));

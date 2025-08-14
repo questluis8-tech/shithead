@@ -6,6 +6,9 @@ import { Volume2, VolumeX, RotateCcw, Play } from 'lucide-react';
 import { soundManager } from './utils/soundManager';
 
 function App() {
+  // Debug log to see if component is rendering
+  console.log('App component rendering');
+  
   const {
     gameState,
     selectedCards,
