@@ -44,9 +44,6 @@ function App() {
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             Alice
           </div>
-          <div className="text-xs text-white opacity-75">
-            H:{gameState.players[2]?.hand.length} U:{gameState.players[2]?.faceUpCards.length} D:{gameState.players[2]?.faceDownCards.length}
-          </div>
         </div>
         
         {/* Alice's cards - stacked vertically */}
@@ -94,9 +91,6 @@ function App() {
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             Carol
           </div>
-          <div className="text-xs text-white opacity-75">
-            H:{gameState.players[1]?.hand.length} U:{gameState.players[1]?.faceUpCards.length} D:{gameState.players[1]?.faceDownCards.length}
-          </div>
         </div>
         
         {/* Carol's cards - horizontal layout */}
@@ -143,9 +137,6 @@ function App() {
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
             Bob
-          </div>
-          <div className="text-xs text-white opacity-75">
-            H:{gameState.players[3]?.hand.length} U:{gameState.players[3]?.faceUpCards.length} D:{gameState.players[3]?.faceDownCards.length}
           </div>
         </div>
         
@@ -204,11 +195,6 @@ function App() {
                 <Card card={topCard} className="w-20 h-28" />
               )}
             </div>
-            {topCard && (
-              <div className="text-xs text-white opacity-75 mt-1">
-                {getCardDisplay(topCard.rank)}{getSuitSymbol(topCard.suit)}
-              </div>
-            )}
           </div>
 
           {/* Deck */}
