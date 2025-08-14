@@ -65,65 +65,8 @@ function App() {
       </div>
 
       {/* AI Player 1 - Top */}
-      {aiPlayers[0] && (
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
-          <div className={`text-center mb-2 ${
-            gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'
-          }`}>
-            <div className="text-sm font-bold">{aiPlayers[0].name}</div>
-            <div className="text-xs opacity-75">
-              H:{aiPlayers[0].hand.length} U:{aiPlayers[0].faceUpCards.length} D:{aiPlayers[0].faceDownCards.length}
-            </div>
-          </div>
-          
-          {/* Cards arranged horizontally, rotated 180 degrees */}
-          <div className="transform rotate-180">
-            {/* Face Down Cards */}
-            <div className="flex gap-1 justify-center mb-1">
-              {aiPlayers[0].faceDownCards.map((_, index) => (
-                <Card
-                  key={`ai1-down-${index}`}
-                  card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
-                  faceDown={true}
-                  className="w-8 h-12"
-                />
-              ))}
-            </div>
-            
-            {/* Face Up Cards */}
-            <div className="flex gap-1 justify-center mb-1">
-              {aiPlayers[0].faceUpCards.map((card, index) => (
-                <Card
-                  key={`ai1-up-${index}`}
-                  card={card}
-                  className="w-8 h-12"
-                />
-              ))}
-            </div>
-            
-            {/* Hand (face down) */}
-            <div className="flex gap-1 justify-center">
-              {aiPlayers[0].hand.slice(0, 5).map((_, index) => (
-                <Card
-                  key={`ai1-hand-${index}`}
-                  card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
-                  faceDown={true}
-                  className="w-8 h-12"
-                />
-              ))}
-              {aiPlayers[0].hand.length > 5 && (
-                <div className="w-8 h-12 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
-                  +{aiPlayers[0].hand.length - 5}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* AI Player 2 - Right */}
       {aiPlayers[1] && (
-        <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
           <div className={`text-center mb-2 ${
             gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'
           }`}>
@@ -133,8 +76,8 @@ function App() {
             </div>
           </div>
           
-          {/* Cards arranged vertically, rotated 90 degrees */}
-          <div className="transform -rotate-90">
+          {/* Cards arranged horizontally, rotated 180 degrees */}
+          <div className="transform rotate-180">
             {/* Face Down Cards */}
             <div className="flex gap-1 justify-center mb-1">
               {aiPlayers[1].faceDownCards.map((_, index) => (
@@ -178,9 +121,9 @@ function App() {
         </div>
       )}
 
-      {/* AI Player 3 - Left */}
+      {/* AI Player 2 - Right */}
       {aiPlayers[2] && (
-        <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
           <div className={`text-center mb-2 ${
             gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'
           }`}>
@@ -191,7 +134,7 @@ function App() {
           </div>
           
           {/* Cards arranged vertically, rotated 90 degrees */}
-          <div className="transform rotate-90">
+          <div className="transform -rotate-90">
             {/* Face Down Cards */}
             <div className="flex gap-1 justify-center mb-1">
               {aiPlayers[2].faceDownCards.map((_, index) => (
@@ -228,6 +171,63 @@ function App() {
               {aiPlayers[2].hand.length > 5 && (
                 <div className="w-8 h-12 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                   +{aiPlayers[2].hand.length - 5}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Player 3 - Left */}
+      {aiPlayers[0] && (
+        <div className="absolute left-8 top-1/2 transform -translate-y-1/2">
+          <div className={`text-center mb-2 ${
+            gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'
+          }`}>
+            <div className="text-sm font-bold">{aiPlayers[0].name}</div>
+            <div className="text-xs opacity-75">
+              H:{aiPlayers[0].hand.length} U:{aiPlayers[0].faceUpCards.length} D:{aiPlayers[0].faceDownCards.length}
+            </div>
+          </div>
+          
+          {/* Cards arranged vertically, rotated 90 degrees */}
+          <div className="transform rotate-90">
+            {/* Face Down Cards */}
+            <div className="flex gap-1 justify-center mb-1">
+              {aiPlayers[0].faceDownCards.map((_, index) => (
+                <Card
+                  key={`ai1-down-${index}`}
+                  card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                  faceDown={true}
+                  className="w-8 h-12"
+                />
+              ))}
+            </div>
+            
+            {/* Face Up Cards */}
+            <div className="flex gap-1 justify-center mb-1">
+              {aiPlayers[0].faceUpCards.map((card, index) => (
+                <Card
+                  key={`ai1-up-${index}`}
+                  card={card}
+                  className="w-8 h-12"
+                />
+              ))}
+            </div>
+            
+            {/* Hand (face down) */}
+            <div className="flex gap-1 justify-center">
+              {aiPlayers[0].hand.slice(0, 5).map((_, index) => (
+                <Card
+                  key={`ai1-hand-${index}`}
+                  card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                  faceDown={true}
+                  className="w-8 h-12"
+                />
+              ))}
+              {aiPlayers[0].hand.length > 5 && (
+                <div className="w-8 h-12 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                  +{aiPlayers[0].hand.length - 5}
                 </div>
               )}
             </div>
