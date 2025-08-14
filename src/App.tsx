@@ -308,7 +308,7 @@ function App() {
       </div>
 
       {/* Action Buttons - Centered between player and pile */}
-      <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-24 flex gap-4 z-20">
+      <div className="absolute top-1/2 left-[62.5%] transform -translate-x-1/2 -translate-y-1/2 flex gap-4 z-20">
         {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
           <button
             onClick={dealCards}
