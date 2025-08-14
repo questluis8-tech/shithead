@@ -587,17 +587,17 @@ export const useGame = () => {
         } else {
           // AI must pick up pile
           setGameState(prev => {
-            const newPlayers = [...prev.players];
-            const aiPlayer = newPlayers[prev.currentPlayerIndex];
-            
-            // Add pile to hand
-            aiPlayer.hand.push(...prev.pile);
-            
             return {
               ...prev,
-              players: newPlayers.map((player, index) => 
-                index === prev.currentPlayerIndex ? aiPlayer : player
-              ),
+              players: prev.players.map((player, index) => {
+                if (index === prev.currentPlayerIndex) {
+                  return {
+                    ...player,
+                    hand: [...player.hand, ...prev.pile]
+                  };
+                }
+                return player;
+              }),
               pile: [],
               currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
             };
