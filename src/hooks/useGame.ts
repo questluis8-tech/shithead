@@ -570,11 +570,11 @@ export const useGame = () => {
             // Add pile to hand
             aiPlayer.hand.push(...prev.pile);
             
-            newPlayers[prev.currentPlayerIndex] = aiPlayer;
-            
             return {
               ...prev,
-              players: newPlayers,
+              players: newPlayers.map((player, index) => 
+                index === prev.currentPlayerIndex ? aiPlayer : player
+              ),
               pile: [],
               currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
             };
