@@ -271,8 +271,35 @@ function App() {
         </div>
       </div>
 
-      {/* Action Buttons - Center Bottom */}
-      <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 flex gap-4 z-20">
+      {/* Action Buttons - Centered between player and pile */}
+      <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-16 flex gap-4 z-20">
+        {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
+          <button
+            onClick={dealCards}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+          >
+            Deal Cards
+          </button>
+        )}
+        
+        {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
+          <button
+            onClick={confirmFaceUpCards}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+          >
+            Confirm Face-Up Cards
+          </button>
+        )}
+        
+        {gameState.gamePhase === 'swapping' && (
+          <button
+            onClick={startGame}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer shadow-lg"
+          >
+            Start Game
+          </button>
+        )}
+
         {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
           <button
             onClick={playCards}
