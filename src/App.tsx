@@ -272,12 +272,12 @@ function App() {
       </div>
 
       {/* Action Buttons - Center Bottom */}
-      <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 flex gap-4">
+      <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 flex gap-4 z-20">
         {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
           <button
             onClick={playCards}
             disabled={!canPlaySelected}
-            className={`px-6 py-3 rounded-lg font-bold text-lg transition-all ${
+            className={`px-6 py-3 rounded-lg font-bold text-lg transition-all cursor-pointer ${
               canPlaySelected
                 ? 'bg-yellow-600 hover:bg-yellow-700 text-white transform hover:scale-105'
                 : 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -294,7 +294,7 @@ function App() {
          gameState.pile.length > 0 && (
           <button
             onClick={pickupCards}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105 cursor-pointer"
           >
             Pick up Cards ({gameState.pile.length})
           </button>
