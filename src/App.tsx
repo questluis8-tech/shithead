@@ -6,8 +6,7 @@ import { Volume2, VolumeX, RotateCcw, Play } from 'lucide-react';
 import { soundManager } from './utils/soundManager';
 
 function App() {
-  // Debug log to see if component is rendering
-  console.log('App component rendering');
+  console.log('App component rendering - this should show in console');
   
   const {
     gameState,
@@ -34,12 +33,13 @@ function App() {
   const aiPlayers = gameState.players.slice(1);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-600 via-orange-500 to-red-700 relative overflow-hidden">
+    <div className="min-h-screen bg-red-600 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-600"></div>
       {/* Table surface effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-orange-300 via-red-500 to-red-800 opacity-80"></div>
+      <div className="absolute inset-0 bg-gradient-radial from-orange-400 via-red-600 to-red-800 opacity-90"></div>
       
       {/* Game Controls - Top Left */}
-      <div className="absolute top-4 left-4 z-20">
+      <div className="absolute top-4 left-4 z-20 relative">
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-4 text-white border-2 border-yellow-400 shadow-2xl">
           <div className="flex items-center gap-3 mb-3">
             <h1 className="text-xl font-bold text-yellow-400">Shithead</h1>
