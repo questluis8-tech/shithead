@@ -49,7 +49,15 @@ export const Card: React.FC<CardProps> = ({
     );
   }
 
-  const isSpecialCard = card.rank === 2 || card.rank === 7 || card.rank === 10;
+  const isSpecialCard = card.rank === 2 || card.rank === 3 || card.rank === 7 || card.rank === 10;
+  
+  const getSpecialBorder = () => {
+    if (card.rank === 2) return 'ring-2 ring-yellow-400 ring-opacity-75'; // Gold for 2s
+    if (card.rank === 3) return 'ring-2 ring-gray-400 ring-opacity-40'; // Slightly invisible for 3s
+    if (card.rank === 7) return 'ring-2 ring-blue-500 ring-opacity-75'; // Blue for 7s
+    if (card.rank === 10) return 'ring-2 ring-red-500 ring-opacity-75 shadow-red-500/50 shadow-lg'; // Fire for 10s
+    return '';
+  };
 
   const getCardBackColor = () => {
     return 'bg-gradient-to-br from-gray-900 to-black';
@@ -71,7 +79,7 @@ export const Card: React.FC<CardProps> = ({
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
         ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        ${isSpecialCard && !faceDown ? 'ring-2 ring-purple-400 ring-opacity-50' : ''}
+        ${!faceDown ? getSpecialBorder() : ''}
         ${className}
       `}
       onClick={handleClick}
@@ -159,9 +167,29 @@ export const Card: React.FC<CardProps> = ({
             <div className="text-lg leading-none">{getSuitSymbol(card.suit)}</div>
           </div>
           
-          {/* Special card indicators */}
-          {isSpecialCard && (
-            <div className="absolute top-0 right-0 w-3 h-3 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1" />
+          {/* Special card decorations */}
+          {card.rank === 2 && (
+            <>
+              {/* Gold stars for 2s */}
+              <div className="absolute top-0 right-0 text-yellow-400 text-xs transform translate-x-1 -translate-y-1">⭐</div>
+              <div className="absolute top-0 left-0 text-yellow-400 text-xs transform -translate-x-1 -translate-y-1">⭐</div>
+            </>
+          )}
+          
+          {card.rank === 7 && (
+            <>
+              {/* Down arrows for 7s */}
+              <div className="absolute left-0 top-1/2 text-blue-500 text-xs transform -translate-x-1 -translate-y-1/2">↓</div>
+              <div className="absolute right-0 top-1/2 text-blue-500 text-xs transform translate-x-1 -translate-y-1/2">↓</div>
+            </>
+          )}
+          
+          {card.rank === 10 && (
+            <>
+              {/* Fire effects for 10s */}
+              <div className="absolute top-0 left-1/2 text-red-500 text-xs transform -translate-x-1/2 -translate-y-1">🔥</div>
+              <div className="absolute bottom-0 left-1/2 text-red-500 text-xs transform -translate-x-1/2 translate-y-1">🔥</div>
+            </>
           )}
         </>
       )}
