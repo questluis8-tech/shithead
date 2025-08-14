@@ -11,6 +11,7 @@ interface CardProps {
   className?: string;
   disabled?: boolean;
   selected?: boolean;
+  playerColor?: 'red' | 'blue' | 'black' | 'green';
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -21,7 +22,8 @@ export const Card: React.FC<CardProps> = ({
   onMouseUp,
   className = '',
   disabled = false,
-  selected = false
+  selected = false,
+  playerColor = 'blue'
 }) => {
   const handleClick = (e: React.MouseEvent) => {
     console.log('Card click event triggered', { faceDown, disabled, card: card?.id });
@@ -40,12 +42,22 @@ export const Card: React.FC<CardProps> = ({
 
   const isSpecialCard = card.rank === 2 || card.rank === 7 || card.rank === 10;
 
+  const getCardBackColor = () => {
+    switch (playerColor) {
+      case 'red': return 'bg-gradient-to-br from-red-600 to-red-800 border-2 border-red-500';
+      case 'blue': return 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500';
+      case 'black': return 'bg-gradient-to-br from-gray-800 to-black border-2 border-gray-600';
+      case 'green': return 'bg-gradient-to-br from-green-600 to-green-800 border-2 border-green-500';
+      default: return 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500';
+    }
+  };
+
   return (
     <div
       className={`
         relative w-16 h-24 rounded-lg cursor-pointer transition-all duration-200
         ${faceDown 
-          ? 'bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500' 
+          ? getCardBackColor()
           : 'bg-white border-2 border-gray-300 shadow-lg hover:shadow-xl'
         }
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}

@@ -55,6 +55,7 @@ function App() {
                 key={`alice-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="black"
                 className="w-14 h-20"
               />
             ))}
@@ -78,6 +79,7 @@ function App() {
                 key={`alice-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="black"
                 className="w-12 h-16"
               />
             ))}
@@ -107,6 +109,7 @@ function App() {
                 key={`carol-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="red"
                 className="w-14 h-20"
               />
             ))}
@@ -130,6 +133,7 @@ function App() {
                 key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="red"
                 className="w-12 h-16"
               />
             ))}
@@ -159,6 +163,7 @@ function App() {
                 key={`bob-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="green"
                 className="w-14 h-20"
               />
             ))}
@@ -182,6 +187,7 @@ function App() {
                 key={`bob-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
+                playerColor="green"
                 className="w-12 h-16"
               />
             ))}
@@ -327,6 +333,7 @@ function App() {
                   key={`human-down-${index}`}
                   card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                   faceDown={true}
+                  playerColor="blue"
                   onClick={
                     humanPlayer.hand.length === 0 && 
                     humanPlayer.faceUpCards.length === 0 && 
