@@ -506,12 +506,15 @@ export const useGame = () => {
             const handIndex = aiPlayer.hand.findIndex(c => c.id === cardToPlay.id);
             const faceUpIndex = aiPlayer.faceUpCards.findIndex(c => c.id === cardToPlay.id);
             
+            let playerStateForWinCheck = aiPlayer;
+            
             if (handIndex !== -1) {
               aiPlayer.hand.splice(handIndex, 1);
               // Only draw cards to maintain 3 in hand if we played from hand and deck has cards
               const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
               newPlayers[prev.currentPlayerIndex] = updatedPlayer;
               newDeck = updatedDeck;
+              playerStateForWinCheck = updatedPlayer;
             } else if (faceUpIndex !== -1) {
               aiPlayer.faceUpCards.splice(faceUpIndex, 1);
               // Don't draw cards when playing from face-up cards
@@ -536,9 +539,9 @@ export const useGame = () => {
             }
             
             // Check win condition
-            const hasWon = updatedPlayer.hand.length === 0 && 
-                           updatedPlayer.faceUpCards.length === 0 && 
-                           updatedPlayer.faceDownCards.length === 0;
+            const hasWon = playerStateForWinCheck.hand.length === 0 && 
+                           playerStateForWinCheck.faceUpCards.length === 0 && 
+                           playerStateForWinCheck.faceDownCards.length === 0;
             
             if (hasWon) {
               return {
@@ -547,7 +550,7 @@ export const useGame = () => {
                 pile: newPile,
                 deck: newDeck,
                 gamePhase: 'finished',
-                winner: updatedPlayer.id
+                winner: playerStateForWinCheck.id
               };
             }
             
