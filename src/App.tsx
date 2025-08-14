@@ -230,7 +230,7 @@ function App() {
         </div>
 
         {/* Game Controls - Centered */}
-        <div className="text-center">
+        <div className="text-center h-16 flex items-center justify-center">
           {/* Setup Phase - Deal Cards */}
           {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
             <button
