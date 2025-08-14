@@ -22,42 +22,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 p-4 relative overflow-hidden">
-      {/* Temporary Grid Overlay */}
-      <div className="absolute inset-0 pointer-events-none z-50">
-        {/* Vertical grid lines */}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute top-0 bottom-0 w-px bg-white opacity-20"
-            style={{ left: `${(i + 1) * 5}%` }}
-          />
-        ))}
-        {/* Horizontal grid lines */}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute left-0 right-0 h-px bg-white opacity-20"
-            style={{ top: `${(i + 1) * 5}%` }}
-          />
-        ))}
-        {/* Grid labels for reference */}
-        {Array.from({ length: 4 }).map((_, row) =>
-          Array.from({ length: 4 }).map((_, col) => (
-            <div
-              key={`label-${row}-${col}`}
-              className="absolute text-white text-xs bg-black bg-opacity-50 px-1 rounded"
-              style={{
-                left: `${(col + 1) * 25}%`,
-                top: `${(row + 1) * 25}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-            >
-              {row + 1},{col + 1}
-            </div>
-          ))
-        )}
-      </div>
-
       {/* Game Status - Top Left */}
       <div className="absolute top-4 left-4 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg p-4 text-white z-10">
         <h1 className="text-2xl font-bold mb-2">Shithead</h1>
