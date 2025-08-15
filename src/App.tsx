@@ -245,10 +245,10 @@ function App() {
                       key={card.id}
                       className="absolute top-0"
                       style={{
-                        left: `${index * 8}px`,
-                        top: `${index * 2}px`,
+                        left: `${index * 12}px`,
+                        top: `${index * 3}px`,
                         zIndex: index,
-                        transform: `rotate(${index * 3 - 3}deg)`
+                        transform: `rotate(${index * 5 - 5}deg)`
                       }}
                     >
                       <Card
