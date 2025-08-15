@@ -261,7 +261,6 @@ function App() {
                           position: 'absolute',
                          left: leftPosition,
                           top: '0',
-                         transform: 'translateX(-50%)',
                          zIndex: index
                         }}
                       />
