@@ -37,7 +37,8 @@ export interface MultiplayerGameState {
   currentPlayerIndex: number;
   pile: import('../types/game').Card[];
   deck: import('../types/game').Card[];
-  gamePhase: 'setup' | 'swapping' | 'playing' | 'finished';
+  gamePhase: 'setup' | 'playing' | 'finished';
   winner: string | null;
   loser: string | null;
+  playersReady?: string[];
 }

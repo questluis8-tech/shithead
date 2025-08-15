@@ -413,7 +413,7 @@ export const useMultiplayer = () => {
             currentPlayerIndex: 0,
             pile: [],
             deck: remainingDeck,
-            gamePhase: 'setup',
+            gamePhase: 'setup' as const,
             winner: null,
             loser: null
           };
