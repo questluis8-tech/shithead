@@ -1,7 +1,7 @@
 import React from 'react';
 import { LogOut, Users } from 'lucide-react';
 import { Card } from './Card';
-import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from '../utils/cardUtils';
+import { getCardDisplay, getSuitSymbol } from '../utils/cardUtils';
 
 interface MultiplayerGameProps {
   gameState: any;
@@ -21,11 +21,13 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
   const humanPlayer = gameState.players.find((p: any) => p.id === playerId);
   const otherPlayers = gameState.players.filter((p: any) => p.id !== playerId);
 
-  if (!humanPlayer) {
+  // Add safety checks
+  if (!gameState || !gameState.players || !humanPlayer) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-          <h1 className="text-3xl font-bold text-white mb-6">Error: Player not found</h1>
+          <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
+          <p className="text-white mb-4">Setting up your game...</p>
           <button
             onClick={onLeaveRoom}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
