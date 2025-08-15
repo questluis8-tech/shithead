@@ -29,6 +29,7 @@ function App() {
       setShowFireEffect(true);
       setTimeout(() => setShowFireEffect(false), 2000);
     }
+  }, [gameState.pile.length, gameState.gamePhase]);
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
