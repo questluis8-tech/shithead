@@ -170,6 +170,11 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               <p className="text-white font-bold mb-2">Players ({roomPlayers.length}/{currentRoom.max_players}):</p>
               <div className="space-y-1">
                 {roomPlayers.map((player) => (
+                  <div key={player.player_id} className="text-white text-sm">
+                    {player.name} {player.is_host && '(Host)'}
+                  </div>
+                ))}
+              </div>
               {(() => {
                 try {
                   const player = currentRoom.game_state.players.find(p => p.id === playerId);
@@ -215,7 +220,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                   );
                 }
               })()}
-            )}
+            </div>
             
             {/* Waiting for more players message */}
             {isHost && roomPlayers.length < 2 && (
