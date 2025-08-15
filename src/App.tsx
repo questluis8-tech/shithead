@@ -239,17 +239,11 @@ function App() {
                 </div>
               ) : (
                 <div className="relative">
-                  {/* Show last 3 cards with specific positioning */}
-                  {gameState.pile.slice(-3).map((card, index) => {
-                    const totalCards = gameState.pile.slice(-3).length;
-                    let leftPosition = '50%'; // Default center position
-                    
-                    if (totalCards >= 2 && index === 1) {
-                      leftPosition = '46%'; // Card 2 at 46%
-                    } else if (totalCards >= 3 && index === 2) {
-                      leftPosition = '45%'; // Card 3 at 45%
-                    }
-                    
+                  {gameState.pile.slice(-3).map((card, index, arr) => {
+                    const total = arr.length;
+                    const middle = Math.floor(total / 2);
+                    const offset = (index - middle) * 8; // 8px horizontal spacing
+
                     return (
                       <Card
                         key={card.id}
@@ -257,9 +251,10 @@ function App() {
                         className="w-20 h-28"
                         style={{
                           position: 'absolute',
-                          left: leftPosition,
+                          left: `calc(50% - 40px + ${offset}px)`, 
+                          // 50% centers in container, -40px centers card width (w-20 = ~80px)
                           top: '0',
-                          transform: 'translateX(-50%)'
+                          zIndex: index // middle card will be naturally above left card
                         }}
                       />
                     );
