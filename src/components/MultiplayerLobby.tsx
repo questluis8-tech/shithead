@@ -19,7 +19,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     roomPlayers,
     gameState,
     startGame,
-    playerId
+    playerId,
+    leaveRoom
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
@@ -58,7 +59,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 <div>Players: {currentRoom.game_state.players.length}</div>
               </div>
               <button
-                onClick={onBackToMenu}
+                onClick={() => {
+                  leaveRoom();
+                  onBackToMenu();
+                }}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
               >
                 Leave Game
