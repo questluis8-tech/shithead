@@ -1,4 +1,5 @@
 import React from 'react';
+import { supabase } from '../lib/supabase';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { Card } from './Card';
 interface MultiplayerLobbyProps {
@@ -23,6 +24,57 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     leaveRoom
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
+  const [selectedCards, setSelectedCards] = React.useState([]);
+
+  // Handle card clicks for setup phase
+  const handleCardClick = React.useCallback(async (card, source) => {
+    if (!currentRoom?.game_state || currentRoom.game_state.gamePhase !== 'setup') {
+      return;
+    }
+
+    const humanPlayer = currentRoom.game_state.players.find(p => p.id === playerId);
+    if (!humanPlayer) return;
+
+    // Create new game state
+    const newGameState = { ...currentRoom.game_state };
+    const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+    const player = { ...newGameState.players[playerIndex] };
+
+    if (source === 'hand') {
+      // Move card from hand to face-up (if we have less than 3 face-up cards)
+      if (player.faceUpCards.length >= 3) return;
+      
+      const handIndex = player.hand.findIndex(c => c.id === card.id);
+      if (handIndex !== -1) {
+        const cardToMove = player.hand.splice(handIndex, 1)[0];
+        player.faceUpCards.push(cardToMove);
+      }
+    } else if (source === 'faceUp') {
+      // Move card back from face-up to hand
+      const faceUpIndex = player.faceUpCards.findIndex(c => c.id === card.id);
+      if (faceUpIndex !== -1) {
+        const cardToMove = player.faceUpCards.splice(faceUpIndex, 1)[0];
+        player.hand.push(cardToMove);
+      }
+    }
+
+    // Update the player in the game state
+    newGameState.players[playerIndex] = player;
+
+    try {
+      // Save updated game state to database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: newGameState })
+        .eq('id', currentRoom.id);
+
+      if (error) {
+        console.error('Error updating game state:', error);
+      }
+    } catch (error) {
+      console.error('Error updating game state:', error);
+    }
+  }, [currentRoom, playerId]);
 
   const handleCreateRoom = () => {
     console.log('Create room clicked with:', { playerName, roomName });
@@ -253,6 +305,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                   <Card
                     key={card.id}
                     card={card}
+                    onClick={() => handleCardClick(card, 'faceUp')}
+                    selected={selectedCards.some(c => c.id === card.id)}
                     className="w-16 h-24"
                   />
                 ))}
@@ -271,6 +325,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     <Card
                       key={card.id}
                       card={card}
+                      onClick={() => handleCardClick(card, 'hand')}
+                      selected={selectedCards.some(c => c.id === card.id)}
                       className="w-16 h-24"
                     />
                   ))}
