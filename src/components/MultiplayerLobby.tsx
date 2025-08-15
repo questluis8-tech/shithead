@@ -1,6 +1,7 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
+import { MultiplayerGame } from './MultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
