@@ -4,6 +4,11 @@ import { Card } from './components/Card';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
 function App() {
+  const [showFireEffect, setShowFireEffect] = React.useState(false);
+  const [showPickupEffect, setShowPickupEffect] = React.useState(false);
+  const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
+  const [playerCount, setPlayerCount] = React.useState<number | null>(null);
+
   const {
     gameState,
     selectedCards,
@@ -20,11 +25,6 @@ function App() {
     lastAction,
     clearLastAction
   } = useGame(playerCount || 4);
-
-  const [showFireEffect, setShowFireEffect] = React.useState(false);
-  const [showPickupEffect, setShowPickupEffect] = React.useState(false);
-  const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
-  const [playerCount, setPlayerCount] = React.useState<number | null>(null);
 
   // Show effects based on last action
   React.useEffect(() => {
