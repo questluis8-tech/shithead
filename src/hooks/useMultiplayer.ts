@@ -380,7 +380,7 @@ export const useMultiplayer = () => {
       console.error('Error starting game:', error);
       alert('Failed to start game: ' + error.message);
     }
-  }, [currentRoom, playerName]);
+  }, [currentRoom, playerName, roomPlayers]);
 
   // Multiplayer game actions
   const handleCardClick = useCallback((card: Card, source: 'hand' | 'faceUp') => {
@@ -429,6 +429,19 @@ export const useMultiplayer = () => {
       
       setSelectedCards(prev => {
         const isSelected = prev.some(c => c.id === card.id);
+        if (isSelected) {
+          return prev.filter(c => c.id !== card.id);
+        } else {
+          // Only allow selecting cards of the same rank
+          if (prev.length === 0 || prev[0].rank === card.rank) {
+            return [...prev, card];
+          }
+          return [card]; // Start new selection
+        }
+      });
+    }
+  }, [gameState, playerId]);
+
   const confirmFaceUpCards = useCallback(async () => {
     if (!gameState || !currentRoom) return;
     
@@ -447,7 +460,7 @@ export const useMultiplayer = () => {
       console.error('Error confirming face-up cards:', error);
     }
   }, [gameState, currentRoom, playerId]);
-        if (isSelected) {
+
   const startGamePhase = useCallback(async () => {
     if (!gameState || !currentRoom) return;
     
@@ -470,13 +483,13 @@ export const useMultiplayer = () => {
       console.error('Error starting game phase:', error);
     }
   }, [gameState, currentRoom]);
-          return prev.filter(c => c.id !== card.id);
+
   const canPlaySelected = useCallback(() => {
     if (!gameState || selectedCards.length === 0) return false;
     const topCard = getEffectiveTopCard(gameState.pile);
     return canPlayCard(selectedCards[0], topCard);
   }, [selectedCards, gameState]);
-        } else {
+
   const playCards = useCallback(async () => {
     if (!gameState || !currentRoom || !canPlaySelected()) return;
     
@@ -536,7 +549,7 @@ export const useMultiplayer = () => {
       console.error('Error playing cards:', error);
     }
   }, [gameState, currentRoom, selectedCards, canPlaySelected]);
-          // Only allow selecting cards of the same rank
+
   const pickupCards = useCallback(async () => {
     if (!gameState || !currentRoom) return;
     
@@ -566,7 +579,7 @@ export const useMultiplayer = () => {
       console.error('Error picking up cards:', error);
     }
   }, [gameState, currentRoom]);
-          if (prev.length === 0 || prev[0].rank === card.rank) {
+
   const playFaceDownCard = useCallback(async (cardIndex: number) => {
     if (!gameState || !currentRoom) return;
     
@@ -611,14 +624,14 @@ export const useMultiplayer = () => {
       newGameState.pile = [];
       newGameState.currentPlayerIndex = (currentPlayerIndex + 1) % newGameState.players.length;
     }
-            return [...prev, card];
+
     try {
       // Update game state in database
       const { error } = await supabase
         .from('game_rooms')
         .update({ game_state: newGameState })
         .eq('id', currentRoom.id);
-          }
+
       if (error) throw error;
       
       setGameState(newGameState);
@@ -626,7 +639,7 @@ export const useMultiplayer = () => {
       console.error('Error playing face-down card:', error);
     }
   }, [gameState, currentRoom]);
-          return [card]; // Start new selection
+
   const canPlayAnyCard = useCallback(() => {
     if (!gameState || gameState.gamePhase !== 'playing') return true;
     
@@ -647,7 +660,7 @@ export const useMultiplayer = () => {
     
     return canPlayFromHand || canPlayFromFaceUp;
   }, [gameState, playerId]);
-        }
+
   const leaveRoom = useCallback(async () => {
     if (!currentRoom) return;
 
@@ -658,13 +671,13 @@ export const useMultiplayer = () => {
         .delete()
         .eq('room_id', currentRoom.id)
         .eq('player_id', playerId);
-      });
+
       // Update room player count
       await supabase
         .from('game_rooms')
         .update({ current_players: currentRoom.current_players - 1 })
         .eq('id', currentRoom.id);
-    }
+
       // Reset local state
       setCurrentRoom(null);
       setIsConnected(false);
@@ -675,7 +688,7 @@ export const useMultiplayer = () => {
       console.error('Error leaving room:', error);
     }
   }, [currentRoom, playerId]);
-  }, [gameState, playerId]);
+
   return {
     playerId,
     playerName,
