@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from './hooks/useGame';
 import { useMultiplayer } from './hooks/useMultiplayer';
+import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { Card } from './components/Card';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
