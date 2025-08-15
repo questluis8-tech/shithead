@@ -148,6 +148,40 @@ export const useGame = () => {
             players: newPlayers
           };
         });
+      } else if (event.key === 'p' && gameState.gamePhase === 'playing') {
+        // Give Carol three Jacks and human player one Jack for jump-in testing
+        setGameState(prev => {
+          const newPlayers = prev.players.map((player, index) => {
+            if (index === 1) { // Carol (index 1)
+              const suits = ['hearts', 'diamonds', 'clubs'] as const;
+              const newCards = suits.map((suit, i) => ({
+                suit,
+                rank: 11, // Jack
+                id: `debug-carol-jack-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+              }));
+              return {
+                ...player,
+                hand: newCards // Replace hand with just the 3 Jacks
+              };
+            } else if (index === 0) { // Human player
+              const jackCard = {
+                suit: 'spades' as const,
+                rank: 11, // Jack
+                id: `debug-human-jack-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              };
+              return {
+                ...player,
+                hand: [...player.hand, jackCard]
+              };
+            }
+            return player;
+          });
+          
+          return {
+            ...prev,
+            players: newPlayers
+          };
+        });
       }
     };
 
