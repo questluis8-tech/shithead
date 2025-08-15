@@ -148,6 +148,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 <option value={4}>4 Players</option>
               </select>
             </div>
+
             <div className="flex gap-4">
               <button
                 onClick={() => setShowCreateRoom(false)}
