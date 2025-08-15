@@ -208,13 +208,38 @@ function App() {
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
-            <div className="w-20 h-28">
+            <div className="w-24 h-32 relative">
               {gameState.pile.length === 0 ? (
                 <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                   Empty
                 </div>
               ) : (
-                <Card card={topCard} className="w-20 h-28" />
+                <div className="relative w-full h-full">
+                  {/* Show last 3 cards with angles and offsets */}
+                  {gameState.pile.slice(-3).map((card, index) => {
+                    const totalCards = Math.min(3, gameState.pile.length);
+                    const cardIndex = gameState.pile.length - totalCards + index;
+                    
+                    // Different angles and positions for each card
+                    const angles = [-8, 3, -2];
+                    const xOffsets = [-4, 2, -1];
+                    const yOffsets = [2, -1, 0];
+                    const zIndexes = [1, 2, 3];
+                    
+                    return (
+                      <Card
+                        key={`${card.id}-${cardIndex}`}
+                        card={card}
+                        className="absolute w-20 h-28"
+                        style={{
+                          transform: `rotate(${angles[index]}deg) translate(${xOffsets[index]}px, ${yOffsets[index]}px)`,
+                          zIndex: zIndexes[index],
+                          transformOrigin: 'center center'
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>
