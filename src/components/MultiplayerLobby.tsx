@@ -584,6 +584,15 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                         return null; // Don't show turn indicator if cards are selected
                       }
                       
+                     // Check if player is on face-down cards (last 3 cards)
+                     if (humanPlayer.hand.length === 0 && humanPlayer.faceUpCards.length === 0 && humanPlayer.faceDownCards.length > 0) {
+                       return (
+                         <div className="bg-yellow-500 text-black px-6 py-3 rounded-lg font-bold text-center">
+                           Your turn! Choose a random card! Good Luck!
+                         </div>
+                       );
+                     }
+                     
                       // Check if player can play any cards
                       const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
                       const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
