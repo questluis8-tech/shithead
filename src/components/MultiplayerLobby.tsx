@@ -296,24 +296,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
                   <button
                     onClick={async () => {
-                      // Transition to playing phase
-                      const newGameState = { ...currentRoom.game_state };
-                      newGameState.gamePhase = 'playing';
-                      
-                      try {
-                        const { error } = await supabase
-                          .from('game_rooms')
-                          .update({ game_state: newGameState })
-                          .eq('id', currentRoom.id);
-                        
-                        if (error) {
-                          console.error('Error starting game:', error);
-                        }
-                      } catch (error) {
-                        console.error('Error starting game:', error);
-                      }
-                    }}
-                      // Mark this player as ready
                       const newGameState = { ...currentRoom.game_state };
                       const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
                       if (playerIndex !== -1) {
