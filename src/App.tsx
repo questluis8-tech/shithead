@@ -240,51 +240,22 @@ function App() {
               ) : (
                 <div className="relative w-20 h-28">
                   {/* Show last 3 cards with specific positioning */}
-                  {gameState.pile.slice(-3).map((card, index, slicedArray) => {
-                    let positionStyle: React.CSSProperties = {
-                      position: 'absolute',
-                      top: '0',
-                      width: '80px',
-                      height: '112px'
-                    };
-                    
-                    // Card positioning based on how many cards we're showing
-                    if (slicedArray.length === 1) {
-                      // Only 1 card - center position (default)
-                      positionStyle.left = '0';
-                    } else if (slicedArray.length === 2) {
-                      if (index === 0) {
-                        // First card - center position (default)
-                        positionStyle.left = '0';
-                      } else if (index === 1) {
-                        // Second card at 46%
-                        positionStyle.left = '8px'; // Slight offset
-                        positionStyle.zIndex = 1;
-                      }
-                    } else if (slicedArray.length === 3) {
-                      if (index === 0) {
-                        // First card - center position (default)
-                        positionStyle.left = '0';
-                      } else if (index === 1) {
-                        // Second card at 46%
-                        positionStyle.left = '4px';
-                        positionStyle.zIndex = 1;
-                      } else if (index === 2) {
-                        // Third card at 45%
-                        positionStyle.left = '8px';
-                        positionStyle.zIndex = 2;
-                      }
-                    }
-
-                    return (
+                  {gameState.pile.slice(-3).map((card, index) => (
+                    <div
+                      key={card.id}
+                      className="absolute top-0"
+                      style={{
+                        left: `${index * 4}px`,
+                        zIndex: index,
+                        transform: `rotate(${index * 2 - 2}deg)`
+                      }}
+                    >
                       <Card
-                        key={card.id}
                         card={card}
                         className="w-20 h-28"
-                        style={positionStyle}
                       />
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
