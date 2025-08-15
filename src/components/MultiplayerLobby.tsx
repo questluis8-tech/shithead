@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
-import { MultiplayerGame } from './MultiplayerGame';
+
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -18,22 +18,17 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     currentRoom, 
     isConnected, 
     roomPlayers,
-    gameState,
     startGame,
     playerId,
     leaveRoom
   } = useMultiplayer();
+  
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
     console.log('Create room clicked with:', { playerName, roomName });
     createRoom(roomName, 4);
   };
-
-  // Add logging to see state changes
-  React.useEffect(() => {
-    console.log('Room state changed:', { currentRoom, isConnected });
-  }, [currentRoom, isConnected]);
 
   // Fetch available rooms when component mounts
   React.useEffect(() => {
@@ -45,7 +40,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
-  // Show game starting state
+  // Show simple game started message when game is playing
   if (currentRoom?.status === 'playing') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
@@ -53,8 +48,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
           <h1 className="text-3xl font-bold text-white mb-6">Game Started!</h1>
           <p className="text-white mb-4">Room: {currentRoom.name}</p>
           <p className="text-white mb-4">Players: {roomPlayers.length}</p>
-          <p className="text-white mb-4">Status: {currentRoom.status}</p>
-          <p className="text-white mb-4">Game State: {currentRoom.game_state ? 'Loaded' : 'Not loaded'}</p>
+          <p className="text-white mb-6">The multiplayer game is now in progress.</p>
           <button
             onClick={() => {
               leaveRoom();
@@ -148,15 +142,23 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
           </>
         ) : (
           <div className="p-4 bg-green-800 rounded-lg">
-            <MultiplayerGame
-              gameState={currentRoom.game_state}
-              roomPlayers={roomPlayers}
-              playerId={playerId}
-              onLeaveRoom={() => {
-                leaveRoom();
-                onBackToMenu();
-              }}
-            />
+            <h2 className="text-white text-xl font-bold mb-4">Room: {currentRoom.name}</h2>
+            
+            <div className="mb-4">
+              <h3 className="text-white text-lg font-bold mb-2">Players ({roomPlayers.length}/{currentRoom.max_players})</h3>
+              <div className="space-y-2">
+                {roomPlayers.map((player) => (
+                  <div key={player.id} className="bg-gray-700 p-2 rounded flex justify-between items-center">
+                    <span className="text-white">
+                      {player.player_name} {player.is_host && '(Host)'}
+                    </span>
+                    <span className={`text-sm ${player.is_connected ? 'text-green-400' : 'text-red-400'}`}>
+                      {player.is_connected ? 'Connected' : 'Disconnected'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
             
             {/* Start Game Button (Host Only) */}
             {isHost && roomPlayers.length >= 2 && (
@@ -178,6 +180,16 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 </p>
               </div>
             )}
+            
+            <button
+              onClick={() => {
+                leaveRoom();
+                onBackToMenu();
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-all mt-4 w-full"
+            >
+              Leave Room
+            </button>
           </div>
         )}
         
