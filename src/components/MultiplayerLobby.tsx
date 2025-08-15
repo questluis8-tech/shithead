@@ -170,24 +170,51 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               <p className="text-white font-bold mb-2">Players ({roomPlayers.length}/{currentRoom.max_players}):</p>
               <div className="space-y-1">
                 {roomPlayers.map((player) => (
-                  <div key={player.id} className="text-white text-sm flex items-center gap-2">
-                    <span>{player.player_name}</span>
-                    {player.is_host && <span className="text-yellow-300">(Host)</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Start Game Button (Host Only) */}
-            {isHost && roomPlayers.length >= 2 && (
-              <div className="mt-4">
-                <button
-                  onClick={startGame}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold transition-all w-full"
-                >
-                  Start Game ({roomPlayers.length} players)
-                </button>
-              </div>
+              {(() => {
+                try {
+                  const player = currentRoom.game_state.players.find(p => p.id === playerId);
+                  return (
+                    <div>
+                      <h1 className="text-3xl font-bold text-white mb-6">Multiplayer Game</h1>
+                      <div className="text-white mb-4">
+                        <div>Your name: {player?.name || 'Unknown'}</div>
+                        <div>Phase: {currentRoom.game_state.gamePhase}</div>
+                        <div>Players: {currentRoom.game_state.players.length}</div>
+                        <div>Your hand: {player?.hand?.length || 0} cards</div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          leaveRoom();
+                          onBackToMenu();
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                      >
+                        Leave Game
+                      </button>
+                    </div>
+                  );
+                } catch (error) {
+                  console.error('Game render error:', error);
+                  return (
+                    <div>
+                      <h1 className="text-3xl font-bold text-red-400 mb-6">Error Loading Game</h1>
+                      <div className="text-white mb-4">
+                        <div>Error: {error.message}</div>
+                        <div>Check console for details</div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          leaveRoom();
+                          onBackToMenu();
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                      >
+                        Leave Game
+                      </button>
+                    </div>
+                  );
+                }
+              })()}
             )}
             
             {/* Waiting for more players message */}
