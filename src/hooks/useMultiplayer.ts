@@ -8,6 +8,7 @@ export const useMultiplayer = () => {
   const [currentRoom, setCurrentRoom] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [roomPlayers, setRoomPlayers] = useState([]);
+  const [availableRooms, setAvailableRooms] = useState([]);
 
   // Simple create room function for now
   const createRoom = useCallback(async (roomName: string, maxPlayers: number) => {
@@ -76,11 +77,138 @@ export const useMultiplayer = () => {
     }
   }, [playerId, playerName]);
 
+  // Fetch available rooms
+  const fetchAvailableRooms = useCallback(async () => {
+    try {
+      const { data: rooms, error } = await supabase
+        .from('game_rooms')
+        .select('*')
+        .eq('status', 'waiting')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching rooms:', error);
+      } else {
+        setAvailableRooms(rooms || []);
+      }
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
+  }, []);
+
+  // Join existing room
+  const joinRoom = useCallback(async (roomId: string) => {
+    if (!playerName.trim()) {
+      alert('Please enter your name first');
+      return;
+    }
+
+    try {
+      console.log('Joining room:', roomId);
+      
+      // First, get the room details
+      const { data: room, error: roomError } = await supabase
+        .from('game_rooms')
+        .select('*')
+        .eq('id', roomId)
+        .single();
+
+      if (roomError) {
+        console.error('Room fetch error:', roomError);
+        throw roomError;
+      }
+
+      // Check if room is still available
+      if (room.status !== 'waiting') {
+        alert('Room is no longer available');
+        return;
+      }
+
+      if (room.current_players >= room.max_players) {
+        alert('Room is full');
+        return;
+      }
+
+      // Get current players to determine next player index
+      const { data: existingPlayers, error: playersError } = await supabase
+        .from('room_players')
+        .select('*')
+        .eq('room_id', roomId);
+
+      if (playersError) {
+        console.error('Players fetch error:', playersError);
+        throw playersError;
+      }
+
+      const nextPlayerIndex = existingPlayers.length;
+
+      // Add player to room
+      const { error: playerError } = await supabase
+        .from('room_players')
+        .insert({
+          room_id: roomId,
+          player_id: playerId,
+          player_name: playerName,
+          player_index: nextPlayerIndex,
+          is_host: false
+        });
+
+      if (playerError) {
+        console.error('Player join error:', playerError);
+        throw playerError;
+      }
+
+      // Update room player count
+      const { error: updateError } = await supabase
+        .from('game_rooms')
+        .update({ current_players: room.current_players + 1 })
+        .eq('id', roomId);
+
+      if (updateError) {
+        console.error('Room update error:', updateError);
+        throw updateError;
+      }
+
+      // Fetch updated room and players
+      const { data: updatedRoom, error: updatedRoomError } = await supabase
+        .from('game_rooms')
+        .select('*')
+        .eq('id', roomId)
+        .single();
+
+      if (updatedRoomError) {
+        console.error('Updated room fetch error:', updatedRoomError);
+        throw updatedRoomError;
+      }
+
+      const { data: allPlayers, error: allPlayersError } = await supabase
+        .from('room_players')
+        .select('*')
+        .eq('room_id', roomId);
+
+      if (allPlayersError) {
+        console.error('All players fetch error:', allPlayersError);
+      } else {
+        setRoomPlayers(allPlayers || []);
+      }
+
+      setCurrentRoom(updatedRoom);
+      setIsConnected(true);
+      
+    } catch (error) {
+      console.error('Error joining room:', error);
+      alert('Failed to join room: ' + error.message);
+    }
+  }, [playerId, playerName]);
+
   return {
     playerId,
     playerName,
     setPlayerName,
     createRoom,
+    joinRoom,
+    fetchAvailableRooms,
+    availableRooms,
     currentRoom,
     isConnected,
     roomPlayers
