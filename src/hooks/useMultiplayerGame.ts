@@ -9,6 +9,11 @@ export const useMultiplayerGame = (roomId: string, playerId: string, playerName:
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Get current player
+  const currentPlayer = gameState?.players.find(p => p.id === playerId);
+  const isMyTurn = gameState?.currentPlayerIndex !== undefined && 
+                   gameState?.players[gameState.currentPlayerIndex]?.id === playerId;
+
   // Initialize game when host starts it
   const initializeGame = useCallback(async (roomPlayers: any[]) => {
     if (!roomId) return;

@@ -1,7 +1,9 @@
 import React from 'react';
 import { useGame } from './hooks/useGame';
 import { useMultiplayer } from './hooks/useMultiplayer';
+import { useMultiplayerGame } from './hooks/useMultiplayerGame';
 import { MultiplayerLobby } from './components/MultiplayerLobby';
+import { MultiplayerGame } from './components/MultiplayerGame';
 import { Card } from './components/Card';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
@@ -10,6 +12,21 @@ function App() {
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
   const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
   const [playerCount, setPlayerCount] = React.useState<number | null>(null);
+
+  const {
+    playerId,
+    playerName,
+    currentRoom,
+    isConnected,
+    roomPlayers,
+    leaveRoom
+  } = useMultiplayer();
+
+  const multiplayerGame = useMultiplayerGame(
+    currentRoom?.id || '',
+    playerId,
+    playerName
+  );
 
   const {
     gameState,
@@ -74,6 +91,30 @@ function App() {
 
   // Show multiplayer lobby
   if (gameMode === 'multiplayer') {
+    // If we're in a room and game is playing, show the game
+    if (currentRoom?.status === 'playing' && multiplayerGame.gameState) {
+      return (
+        <MultiplayerGame
+          gameState={multiplayerGame.gameState}
+          roomPlayers={roomPlayers}
+          playerId={playerId}
+          selectedCards={multiplayerGame.selectedCards}
+          onCardClick={multiplayerGame.handleCardClick}
+          onPlayCards={() => {}} // TODO: Implement in next step
+          onPickupCards={() => {}} // TODO: Implement in next step
+          onPlayFaceDownCard={() => {}} // TODO: Implement in next step
+          onConfirmFaceUpCards={() => {}} // TODO: Implement in next step
+          onStartGame={() => {}} // TODO: Implement in next step
+          onLeaveRoom={() => {
+            leaveRoom();
+            setGameMode('menu');
+          }}
+          canPlaySelected={multiplayerGame.canPlaySelected}
+          canPlayAnyCard={true} // TODO: Implement proper logic
+        />
+      );
+    }
+    
     return <MultiplayerLobby onBackToMenu={() => setGameMode('menu')} />;
   }
 

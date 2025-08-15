@@ -279,8 +279,13 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
             <div className="text-sm text-white opacity-75">Choose face-up cards</div>
           )}
-          {isMyTurn && gameState.gamePhase === 'playing' && (
+          {isMyTurn && gameState.gamePhase === 'playing' && gameState.pile.length > 0 && (
             <div className="text-sm text-yellow-300">Your turn!</div>
+          )}
+          {gameState.gamePhase === 'setup' && (
+            <div className="text-sm text-white opacity-75">
+              Choose {3 - humanPlayer.faceUpCards.length} more face-up cards
+            </div>
           )}
         </div>
         
