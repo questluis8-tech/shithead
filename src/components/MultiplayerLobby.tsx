@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
-import { MultiplayerGame } from './MultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
@@ -52,8 +51,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
-  // Test rendering the game component
-  if (multiplayerGame.gameState && multiplayerGame.gameState.status === 'playing') {
+  // Check if game has started
+  if (multiplayerGame.gameState) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 text-center">
