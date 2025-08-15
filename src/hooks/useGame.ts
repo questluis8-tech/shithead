@@ -37,6 +37,7 @@ export const useGame = () => {
   });
   
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
+  const [jumpInWindow, setJumpInWindow] = useState<{ rank: number; timeoutId: NodeJS.Timeout } | null>(null);
 
   // Debug keybind to clear hand and face-up cards
   useEffect(() => {
@@ -267,6 +268,65 @@ export const useGame = () => {
     
     console.log('=== playFaceDownCard END ===');
   }, []);
+
+  const canJumpIn = useCallback((playerIndex: number, rank: number): boolean => {
+    if (!jumpInWindow || jumpInWindow.rank !== rank) return false;
+    
+    const player = gameState.players[playerIndex];
+    const matchingCards = player.hand.filter(card => card.rank === rank);
+    
+    // Need at least 1 card to jump in, and total must make 4 in a row
+    return matchingCards.length >= 1;
+  }, [jumpInWindow, gameState.players]);
+
+  const performJumpIn = useCallback((playerIndex: number, rank: number) => {
+    if (!canJumpIn(playerIndex, rank)) return;
+    
+    // Clear the jump-in window
+    if (jumpInWindow?.timeoutId) {
+      clearTimeout(jumpInWindow.timeoutId);
+    }
+    setJumpInWindow(null);
+    
+    setGameState(prev => {
+      const newPlayers = [...prev.players];
+      const jumpingPlayer = newPlayers[playerIndex];
+      
+      // Get all matching cards from hand
+      const matchingCards = jumpingPlayer.hand.filter(card => card.rank === rank);
+      
+      // Remove matching cards from hand
+      jumpingPlayer.hand = jumpingPlayer.hand.filter(card => card.rank !== rank);
+      
+      // Add cards to pile
+      const newPile = [...prev.pile, ...matchingCards];
+      let newDeck = [...prev.deck];
+      
+      // Draw cards to maintain 3 in hand (if deck has cards)
+      const { updatedPlayer, updatedDeck } = drawToThreeCards(jumpingPlayer, newDeck);
+      newPlayers[playerIndex] = updatedPlayer;
+      newDeck = updatedDeck;
+      
+      // Jump-in always burns the pile (4 of same rank)
+      // Check win condition before clearing pile
+      const hasWon = updatedPlayer.hand.length === 0 && 
+                     updatedPlayer.faceUpCards.length === 0 && 
+                     updatedPlayer.faceDownCards.length === 0;
+      
+      return {
+        ...prev,
+        players: newPlayers,
+        pile: [], // Burn the pile
+        deck: newDeck,
+        currentPlayerIndex: playerIndex, // Jumping player gets the turn
+        gamePhase: hasWon ? 'finished' : prev.gamePhase,
+        winner: hasWon ? updatedPlayer.id : prev.winner
+      };
+    });
+    
+    setSelectedCards([]);
+  }, [canJumpIn, jumpInWindow]);
+
   const dealCards = useCallback(() => {
     const deck = createDeck();
     const players = createInitialPlayers();
@@ -336,6 +396,15 @@ export const useGame = () => {
   }, []);
 
   const handleCardClick = useCallback((card: Card, source: 'hand' | 'faceUp') => {
+    // Check for jump-in first (available to all players during any turn)
+    if (gameState.gamePhase === 'playing' && jumpInWindow) {
+      const humanPlayerIndex = 0;
+      if (canJumpIn(humanPlayerIndex, card.rank) && card.rank === jumpInWindow.rank) {
+        performJumpIn(humanPlayerIndex, card.rank);
+        return;
+      }
+    }
+    
     if (gameState.gamePhase === 'setup' && gameState.currentPlayerIndex === 0) {
       // Handle choosing face-up cards from hand
       if (source === 'hand') {
@@ -475,6 +544,25 @@ export const useGame = () => {
       
       // Check for 10 (clears pile)
       const hasTen = selectedCards.some(card => card.rank === 10);
+      
+      // Open jump-in window if pile has 3 of same rank
+      if (newPile.length >= 3) {
+        const lastThree = newPile.slice(-3);
+        if (lastThree.every(c => c.rank === lastThree[0].rank)) {
+          // Clear any existing jump-in window
+          if (jumpInWindow?.timeoutId) {
+            clearTimeout(jumpInWindow.timeoutId);
+          }
+          
+          // Open new jump-in window for 2 seconds
+          const timeoutId = setTimeout(() => {
+            setJumpInWindow(null);
+          }, 2000);
+          
+          setJumpInWindow({ rank: lastThree[0].rank, timeoutId });
+        }
+      }
+      
       if (hasTen || burnPile) {
         // Check win condition before clearing pile
         const hasWon = updatedPlayer.hand.length === 0 && 
@@ -567,6 +655,22 @@ export const useGame = () => {
   }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.players, gameState.pile]);
   // AI turn logic
   useEffect(() => {
+    // AI Jump-in logic - check if any AI can jump in
+    if (gameState.gamePhase === 'playing' && jumpInWindow) {
+      // Check each AI player (skip human player at index 0)
+      for (let i = 1; i < gameState.players.length; i++) {
+        if (canJumpIn(i, jumpInWindow.rank)) {
+          // 70% chance AI will jump in
+          if (Math.random() < 0.7) {
+            setTimeout(() => {
+              performJumpIn(i, jumpInWindow.rank);
+            }, 500 + Math.random() * 1000); // Random delay 0.5-1.5s
+            return;
+          }
+        }
+      }
+    }
+    
     if (gameState.gamePhase === 'playing' && 
         gameState.currentPlayerIndex !== 0 && 
         !gameState.winner) {
@@ -669,6 +773,24 @@ export const useGame = () => {
             // Next player
             const nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
             
+            // Open jump-in window if pile has 3 of same rank
+            if (newPile.length >= 3) {
+              const lastThree = newPile.slice(-3);
+              if (lastThree.every(c => c.rank === lastThree[0].rank)) {
+                // Clear any existing jump-in window
+                if (jumpInWindow?.timeoutId) {
+                  clearTimeout(jumpInWindow.timeoutId);
+                }
+                
+                // Open new jump-in window for 2 seconds
+                const timeoutId = setTimeout(() => {
+                  setJumpInWindow(null);
+                }, 2000);
+                
+                setJumpInWindow({ rank: lastThree[0].rank, timeoutId });
+              }
+            }
+            
             return {
               ...prev,
               players: newPlayers,
@@ -700,7 +822,16 @@ export const useGame = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.pile, gameState.players, gameState.winner]);
+  }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.pile, gameState.players, gameState.winner, jumpInWindow, canJumpIn, performJumpIn]);
+
+  // Cleanup jump-in window on unmount
+  useEffect(() => {
+    return () => {
+      if (jumpInWindow?.timeoutId) {
+        clearTimeout(jumpInWindow.timeoutId);
+      }
+    };
+  }, [jumpInWindow]);
 
   return {
     gameState,
@@ -713,6 +844,7 @@ export const useGame = () => {
     canPlaySelected: canPlaySelected(),
     pickupCards,
     canPlayAnyCard: canPlayAnyCard(),
-    playFaceDownCard
+    playFaceDownCard,
+    jumpInWindow
   };
 };

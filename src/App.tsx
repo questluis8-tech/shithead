@@ -15,7 +15,8 @@ function App() {
     canPlaySelected,
     pickupCards,
     canPlayAnyCard,
-    playFaceDownCard
+    playFaceDownCard,
+    jumpInWindow
   } = useGame();
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
@@ -259,6 +260,15 @@ function App() {
           </div>
         )}
         
+        {/* Jump-in indicator */}
+        {jumpInWindow && (
+          <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+              JUMP-IN! Play {jumpInWindow.rank === 14 ? 'A' : jumpInWindow.rank === 13 ? 'K' : jumpInWindow.rank === 12 ? 'Q' : jumpInWindow.rank === 11 ? 'J' : jumpInWindow.rank}
+            </div>
+          </div>
+        )}
+        
         {/* Pile and Deck - Fixed position */}
         <div className="flex items-center justify-center gap-8 mb-8">
           {/* Pile */}
@@ -460,7 +470,11 @@ function App() {
                   card={card}
                   onClick={() => handleCardClick(card, 'hand')}
                   selected={selectedCards.some(c => c.id === card.id)}
-                  className="w-16 h-24"
+                  className={`w-16 h-24 ${
+                    jumpInWindow && card.rank === jumpInWindow.rank 
+                      ? 'ring-4 ring-yellow-400 ring-opacity-75 animate-pulse' 
+                      : ''
+                  }`}
                 />
               ))}
             </div>
