@@ -236,9 +236,9 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       return (
         <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
           {/* Game Info Panel - Top Left */}
-          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-2 sm:p-4 text-white max-w-xs z-10">
-            <h1 className="text-sm sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Shithead (MP)</h1>
-            <div className="text-xs sm:text-sm space-y-0.5 sm:space-y-1">
+          <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
+            <h1 className="text-xl font-bold mb-2">Shithead (Multiplayer)</h1>
+            <div className="text-sm space-y-1">
               <div>Phase: {
                 currentRoom.game_state.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
                 currentRoom.game_state.gamePhase === 'playing' ? 'Playing' :
@@ -256,65 +256,65 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
             
             if (totalOthers === 1) {
               // 2 players total - other player at top center
-              position = 'absolute top-2 sm:top-4 md:top-8 left-1/2 transform -translate-x-1/2';
+              position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
             } else if (totalOthers === 2) {
               // 3 players total - one at top, one at left
-              if (index === 0) position = 'absolute top-2 sm:top-4 md:top-8 left-1/2 transform -translate-x-1/2';
-              if (index === 1) position = 'absolute left-1 sm:left-4 md:left-8 top-1/2 transform -translate-y-1/2';
+              if (index === 0) position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
+              if (index === 1) position = 'absolute left-2 sm:left-12 top-1/2 transform -translate-y-1/2';
             } else if (totalOthers === 3) {
               // 4 players total - top, left, right
-              if (index === 0) position = 'absolute left-1 sm:left-4 md:left-8 top-1/2 transform -translate-y-1/2';
-              if (index === 1) position = 'absolute top-2 sm:top-4 md:top-8 left-1/2 transform -translate-x-1/2';
-              if (index === 2) position = 'absolute right-1 sm:right-4 md:right-8 top-1/2 transform -translate-y-1/2';
+              if (index === 0) position = 'absolute left-2 sm:left-12 top-1/2 transform -translate-y-1/2';
+              if (index === 1) position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
+              if (index === 2) position = 'absolute right-2 sm:right-12 top-1/2 transform -translate-y-1/2';
             }
             
             return (
               <div key={player.id} className={position}>
-                <div className="text-center mb-1">
+                <div className="text-center mb-2">
                   <div className={`text-sm font-bold ${currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === player.id) ? 'text-yellow-300' : 'text-white'}`}>
                     {player.name}
                   </div>
                 </div>
                 
                 {/* Player's cards - horizontal rows */}
-                <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+                <div className="flex flex-col items-center gap-2">
                   {/* Face-down cards */}
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     {player.faceDownCards.map((_, cardIndex) => (
                       <Card
                         key={`${player.id}-down-${cardIndex}`}
                         card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                         faceDown={true}
                         playerColor="black"
-                        className="w-6 h-9 sm:w-10 sm:h-14 md:w-12 md:h-16"
+                        className="w-10 h-14 sm:w-14 sm:h-20"
                       />
                     ))}
                   </div>
                   
                   {/* Face-up cards */}
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     {player.faceUpCards.map((card, cardIndex) => (
                       <Card
                         key={`${player.id}-up-${cardIndex}`}
                         card={card}
-                        className="w-6 h-9 sm:w-10 sm:h-14 md:w-12 md:h-16"
+                        className="w-10 h-14 sm:w-14 sm:h-20"
                       />
                     ))}
                   </div>
                   
                   {/* Hand (face-down for other players) */}
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     {player.hand.slice(0, Math.min(6, player.hand.length)).map((_, cardIndex) => (
                       <Card
                         key={`${player.id}-hand-${cardIndex}`}
                         card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                         faceDown={true}
                         playerColor="black"
-                        className="w-5 h-7 sm:w-8 sm:h-12 md:w-10 md:h-14"
+                        className="w-8 h-12 sm:w-12 sm:h-16"
                       />
                     ))}
                     {player.hand.length > 6 && (
-                      <div className="w-5 h-7 sm:w-8 sm:h-12 md:w-10 md:h-14 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                      <div className="w-8 h-12 sm:w-12 sm:h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                         +{player.hand.length - 6}
                       </div>
                     )}
@@ -345,32 +345,32 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
             )}
             
             {/* Pile and Deck - Fixed position */}
-            <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 mb-4 sm:mb-6 md:mb-8">
+            <div className="flex items-center justify-center gap-8 mb-8">
               {/* Pile */}
               <div className="text-center">
-                <h3 className="text-white font-bold mb-1 text-sm sm:text-base">Pile ({currentRoom.game_state.pile.length})</h3>
-                <div className="w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28">
+                <h3 className="text-white font-bold mb-2">Pile ({currentRoom.game_state.pile.length})</h3>
+                <div className="w-20 h-28">
                   {currentRoom.game_state.pile.length === 0 ? (
                     <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                       Empty
                     </div>
                   ) : (
-                    <div className="relative w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28 overflow-visible">
+                    <div className="relative w-20 h-28 overflow-visible">
                       {/* Show last 3 cards with specific positioning */}
                       {currentRoom.game_state.pile.slice(-3).map((card, index) => (
                         <div
                           key={card.id}
                           className="absolute top-0"
                           style={{
-                            left: `${index * 6}px`,
-                            top: `${index * 2}px`,
+                            left: `${index * 12}px`,
+                            top: `${index * 3}px`,
                             zIndex: index,
                             transform: `rotate(${index * 5 - 5}deg)`
                           }}
                         >
                           <Card
                             card={card}
-                            className="w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24"
+                            className="w-16 h-24 sm:w-20 sm:h-28"
                           />
                         </div>
                       ))}
@@ -381,10 +381,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
               {/* Deck */}
               <div className="text-center">
-                <h3 className="text-white font-bold mb-1 text-sm sm:text-base">Deck ({currentRoom.game_state.deck.length})</h3>
-                <div className="w-12 h-16 sm:w-16 sm:h-24 md:w-20 md:h-28">
+                <h3 className="text-white font-bold mb-2">Deck ({currentRoom.game_state.deck.length})</h3>
+                <div className="w-20 h-28">
                   {currentRoom.game_state.deck.length > 0 ? (
-                    <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-10 h-14 sm:w-14 sm:h-20 md:w-16 md:h-24" />
+                    <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-16 h-24 sm:w-20 sm:h-28" />
                   ) : (
                     <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                       Empty
@@ -396,7 +396,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
             {/* Game Controls - Fixed position below pile/deck */}
             <div className="flex justify-center">
-              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md flex justify-center px-2 sm:px-4">
+              <div className="w-full max-w-xs sm:max-w-md flex justify-center px-4">
                 {/* Setup Phase - Confirm Face-Up Cards */}
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
                   <>
@@ -435,12 +435,12 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             console.error('Error updating game state:', error);
                           }
                         }}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold transition-all text-xs sm:text-sm md:text-base"
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base"
                       >
                         Confirm Face-Up Cards
                       </button>
                     ) : (
-                      <div className="bg-yellow-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold text-center text-xs sm:text-sm md:text-base">
+                      <div className="bg-yellow-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold text-center text-sm sm:text-base">
                         Waiting for other players...
                       </div>
                     )}
@@ -548,7 +548,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             console.error('Error playing cards:', error);
                           }
                         }}
-                        className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold transition-all text-xs sm:text-sm md:text-base"
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base"
                       >
                         Play Cards ({selectedCards.length})
                       </button>
@@ -608,7 +608,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                               console.error('Error picking up cards:', error);
                             }
                           }}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold transition-all text-xs sm:text-sm md:text-base"
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base"
                         >
                           Your turn! Pick up Cards ({currentRoom.game_state.pile.length})
                         </button>
@@ -621,7 +621,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       
                       if (!isPlayerTurn) {
                         return (
-                          <div className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold text-center text-xs sm:text-sm md:text-base">
+                          <div className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold text-center text-sm sm:text-base">
                             {currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}'s turn
                           </div>
                         );
@@ -634,7 +634,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                      // Check if player is on face-down cards (last 3 cards)
                      if (humanPlayer.hand.length === 0 && humanPlayer.faceUpCards.length === 0 && humanPlayer.faceDownCards.length > 0) {
                        return (
-                         <div className="bg-yellow-500 text-black px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold text-center text-xs sm:text-sm md:text-base">
+                         <div className="bg-yellow-500 text-black px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold text-center text-sm sm:text-base">
                            Your turn! Choose a random card! Good Luck!
                          </div>
                        );
@@ -648,7 +648,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       
                       if (canPlayFromHand || canPlayFromFaceUp) {
                         return (
-                          <div className="bg-green-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold text-center text-xs sm:text-sm md:text-base">
+                          <div className="bg-green-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold text-center text-sm sm:text-base">
                             Your turn! Select cards to play
                           </div>
                         );
@@ -662,7 +662,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 {/* Game Over */}
                 {currentRoom.game_state.gamePhase === 'finished' && (
                   <div className="text-center">
-                    <div className="bg-purple-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold mb-4 text-xs sm:text-sm md:text-base">
+                    <div className="bg-purple-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold mb-4 text-sm sm:text-base">
                       {currentRoom.game_state.winner === playerId ? 'You Won! 🏆' : 
                        `${currentRoom.game_state.players.find(p => p.id === currentRoom.game_state.winner)?.name} Won!`}
                     </div>
@@ -671,7 +671,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                         leaveRoom();
                         onBackToMenu();
                       }}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-lg font-bold transition-all text-xs sm:text-sm md:text-base"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-bold transition-all text-sm sm:text-base"
                     >
                       Back to Menu
                     </button>
@@ -682,21 +682,21 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
           </div>
 
           {/* Human Player - Bottom */}
-          <div className="absolute bottom-2 sm:bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2">
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
             <div className="text-center mb-4">
-              <div className={`text-sm sm:text-base md:text-lg font-bold ${currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) ? 'text-yellow-300' : 'text-white'}`}>
+              <div className={`text-lg font-bold ${currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) ? 'text-yellow-300' : 'text-white'}`}>
                 You
               </div>
               {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
-                <div className="text-xs sm:text-sm text-white opacity-75">Choose face-up cards</div>
+                <div className="text-sm text-white opacity-75">Choose face-up cards</div>
               )}
             </div>
             
             {/* Human player cards - stacked vertically */}
-            <div className="flex flex-col items-center gap-1 sm:gap-2">
+            <div className="flex flex-col items-center gap-2">
               {/* Face-down cards */}
               {humanPlayer.faceDownCards.length > 0 && (
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   {humanPlayer.faceDownCards.map((_, index) => (
                     <Card
                       key={`human-down-${index}`}
@@ -778,14 +778,14 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             }
                           : undefined
                       }
-                      className="w-8 h-12 sm:w-12 sm:h-18 md:w-16 md:h-24"
+                      className="w-12 h-18 sm:w-16 sm:h-24"
                     />
                   ))}
                 </div>
               )}
               
               {/* Face-up cards */}
-              <div className="flex gap-1">
+              <div className="flex gap-2">
                 {humanPlayer.faceUpCards.map((card) => (
                   <Card
                     key={card.id}
@@ -794,12 +794,12 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     onMouseDown={() => soundManager.cardPlay()}
                     selected={selectedCards.some(c => c.id === card.id)}
                     disabled={humanPlayer.hand.length > 0 && currentRoom.game_state.gamePhase === 'playing'}
-                    className="w-8 h-12 sm:w-12 sm:h-18 md:w-16 md:h-24"
+                    className="w-12 h-18 sm:w-16 sm:h-24"
                   />
                 ))}
                 {/* Empty slots during setup */}
                 {currentRoom.game_state.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
-                  <div key={`empty-${index}`} className="w-8 h-12 sm:w-12 sm:h-18 md:w-16 md:h-24 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                  <div key={`empty-${index}`} className="w-12 h-18 sm:w-16 sm:h-24 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                     Empty
                   </div>
                 ))}
@@ -807,7 +807,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
               {/* Hand */}
               {humanPlayer.hand.length > 0 && (
-                <div className="flex gap-0.5 sm:gap-1 md:gap-2 justify-center mb-1 sm:mb-2 flex-wrap px-1 sm:px-2">
+                <div className="flex gap-1 sm:gap-2 justify-center mb-2 flex-wrap px-2">
                   {humanPlayer.hand.map((card) => (
                     <Card
                       key={card.id}
@@ -815,7 +815,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       onClick={() => handleCardClick(card, 'hand')}
                       onMouseDown={() => soundManager.cardPlay()}
                       selected={selectedCards.some(c => c.id === card.id)}
-                      className="w-8 h-12 sm:w-12 sm:h-18 md:w-16 md:h-24"
+                      className="w-12 h-18 sm:w-16 sm:h-24"
                     />
                   ))}
                 </div>
@@ -824,13 +824,13 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
           </div>
 
           {/* Leave button - top right */}
-          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+          <div className="absolute top-4 right-4 z-10">
             <button
               onClick={() => {
                 leaveRoom();
                 onBackToMenu();
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-bold transition-all text-xs sm:text-sm mt-16 sm:mt-20"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-all mt-20"
             >
               Leave
             </button>
