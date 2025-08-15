@@ -24,6 +24,29 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+      {/* Debug gridlines */}
+      <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
+        {/* Vertical lines */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div
+            key={`v-${i}`}
+            className="absolute top-0 bottom-0 w-px bg-white"
+            style={{ left: `${(i + 1) * 5}%` }}
+          />
+        ))}
+        {/* Horizontal lines */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div
+            key={`h-${i}`}
+            className="absolute left-0 right-0 h-px bg-white"
+            style={{ top: `${(i + 1) * 5}%` }}
+          />
+        ))}
+        {/* Center crosshairs */}
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-yellow-400 opacity-50" />
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-yellow-400 opacity-50" />
+      </div>
+
       {/* Game Info Panel - Top Left */}
       <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
         <h1 className="text-xl font-bold mb-2">Shithead</h1>
