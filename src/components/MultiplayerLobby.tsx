@@ -408,7 +408,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 {currentRoom.game_state.gamePhase === 'playing' && (
                   <>
                     {/* Play Cards button */}
-                    {(currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length > 0) && (
+                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length > 0 && (
                       <button
                         onClick={async () => {
                           // Import card utilities
@@ -512,24 +512,20 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     )}
                     
                     {/* Pick up cards button */}
-                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && 
-                     selectedCards.length === 0 && 
-                     currentRoom.game_state.pile.length > 0 && (
+                    {(() => {
+                      // Only show if it's player's turn and no cards selected
+                      if (currentRoom.game_state.currentPlayerIndex !== currentRoom.game_state.players.findIndex(p => p.id === playerId) || 
+                          selectedCards.length > 0 || 
+                          currentRoom.game_state.pile.length === 0) {
+                        return null;
+                      }
+                      
+                      // Check if player can play any card (async import needed)
+                      return (
                       <button
                         onClick={async () => {
                           // Import card utilities
                           const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
-                          
-                          // Check if player can play any card
-                          const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
-                          const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
-                          const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
-                                                    humanPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
-                          
-                          if (canPlayFromHand || canPlayFromFaceUp) {
-                            // Player can play cards, don't show pickup button
-                            return;
-                          }
                           
                           // Player must pick up pile
                           const newGameState = { ...currentRoom.game_state };
@@ -565,21 +561,33 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       >
                         Pick up Cards ({currentRoom.game_state.pile.length})
                       </button>
-                    )}
+                      );
+                    })()}
                     
-                    {/* Turn indicator */}
-                    {currentRoom.game_state.currentPlayerIndex !== currentRoom.game_state.players.findIndex(p => p.id === playerId) && (
+                    {/* Turn indicator - only show if not player's turn */}
+                    {currentRoom.game_state.currentPlayerIndex !== currentRoom.game_state.players.findIndex(p => p.id === playerId) ? (
                       <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
                         {currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}'s turn
                       </div>
-                    )}
-                    
-                    {/* Your turn indicator */}
-                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length === 0 && (
+                    ) : selectedCards.length === 0 ? (
                       <div className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-center">
-                        Your turn! Select cards to play
+                        Your turn! 
+                        {(() => {
+                          // Check if player can play any cards
+                          const { canPlayCard, getEffectiveTopCard } = require('../utils/cardUtils');
+                          const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
+                          const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
+                          const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
+                                                    humanPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
+                          
+                          if (canPlayFromHand || canPlayFromFaceUp) {
+                            return " Select cards to play";
+                          } else {
+                            return " Pick up the pile";
+                          }
+                        })()}
                       </div>
-                    )}
+                    ) : null}
                   </>
                 )}
                 
