@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { Card } from './Card';
 import { canPlayCard, getEffectiveTopCard, shouldBurn } from '../utils/cardUtils';
+import { musicManager } from '../utils/musicManager';
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -30,6 +31,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   const [roomName, setRoomName] = React.useState('');
   const [selectedCards, setSelectedCards] = React.useState([]);
   const [isClosingRooms, setIsClosingRooms] = React.useState(false);
+  const [musicEnabled, setMusicEnabled] = React.useState(musicManager.isActive());
 
   // Handle card clicks for setup phase
   const handleCardClick = React.useCallback(async (card, source) => {
@@ -185,6 +187,37 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       if (!humanPlayer) {
         return (
           <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+            {/* Music Controls - Top Right */}
+            <div className="absolute top-4 right-4 z-20">
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    musicManager.toggle();
+                    setMusicEnabled(musicManager.isActive());
+                  }}
+                  className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
+                >
+                  {musicEnabled ? '🎵' : '🔇'}
+                  <span className="text-sm">Lo-Fi</span>
+                </button>
+                
+                {/* Volume Control */}
+                {musicEnabled && (
+                  <div className="bg-black bg-opacity-50 backdrop-blur-sm p-2 rounded-lg">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={musicManager.getVolume()}
+                      onChange={(e) => musicManager.setVolume(parseFloat(e.target.value))}
+                      className="w-16 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
               <h1 className="text-3xl font-bold text-white mb-6">Error</h1>
               <div className="text-white">Player not found in game state</div>
@@ -777,7 +810,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 leaveRoom();
                 onBackToMenu();
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-all mt-20"
             >
               Leave
             </button>
@@ -798,6 +831,20 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+      {/* Music Controls - Top Right */}
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => {
+            musicManager.toggle();
+            setMusicEnabled(musicManager.isActive());
+          }}
+          className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
+        >
+          {musicEnabled ? '🎵' : '🔇'}
+          <span className="text-sm">Lo-Fi</span>
+        </button>
+      </div>
+      
       <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4">
         <h1 className="text-3xl font-bold text-white mb-6">Multiplayer Lobby</h1>
         

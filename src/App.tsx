@@ -4,12 +4,14 @@ import { useMultiplayer } from './hooks/useMultiplayer';
 import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { Card } from './components/Card';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
+import { musicManager } from './utils/musicManager';
 
 function App() {
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
   const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
   const [playerCount, setPlayerCount] = React.useState<number | null>(null);
+  const [musicEnabled, setMusicEnabled] = React.useState(false);
 
   const {
     gameState,
@@ -27,6 +29,30 @@ function App() {
     lastAction,
     clearLastAction
   } = useGame(playerCount || 4);
+
+  // Start music when app loads
+  React.useEffect(() => {
+    const startMusic = async () => {
+      // Wait for user interaction before starting audio
+      const handleFirstInteraction = () => {
+        if (!musicEnabled) {
+          musicManager.start();
+          setMusicEnabled(true);
+        }
+        document.removeEventListener('click', handleFirstInteraction);
+        document.removeEventListener('keydown', handleFirstInteraction);
+      };
+      
+      document.addEventListener('click', handleFirstInteraction);
+      document.addEventListener('keydown', handleFirstInteraction);
+    };
+    
+    startMusic();
+    
+    return () => {
+      musicManager.stop();
+    };
+  }, [musicEnabled]);
 
   // Show effects based on last action
   React.useEffect(() => {
@@ -51,8 +77,25 @@ function App() {
   if (gameMode === 'menu') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        {/* Music Controls - Top Right */}
+        <div className="absolute top-4 right-4 z-10">
+          <button
+            onClick={() => {
+              musicManager.toggle();
+              setMusicEnabled(musicManager.isActive());
+            }}
+            className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
+          >
+            {musicEnabled ? '🎵' : '🔇'}
+            <span className="text-sm">Lo-Fi</span>
+          </button>
+        </div>
+        
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
+          <div className="text-sm text-white opacity-75 mb-6">
+            {musicEnabled ? '🎵 Lo-fi beats playing' : 'Click anywhere to start lo-fi music'}
+          </div>
           <div className="space-y-4">
             <button
               onClick={() => setGameMode('singleplayer')}
@@ -111,6 +154,37 @@ function App() {
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+
+      {/* Music Controls - Top Right */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => {
+              musicManager.toggle();
+              setMusicEnabled(musicManager.isActive());
+            }}
+            className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
+          >
+            {musicEnabled ? '🎵' : '🔇'}
+            <span className="text-sm">Lo-Fi</span>
+          </button>
+          
+          {/* Volume Control */}
+          {musicEnabled && (
+            <div className="bg-black bg-opacity-50 backdrop-blur-sm p-2 rounded-lg">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={musicManager.getVolume()}
+                onChange={(e) => musicManager.setVolume(parseFloat(e.target.value))}
+                className="w-16 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Game Info Panel - Top Left */}
       <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
