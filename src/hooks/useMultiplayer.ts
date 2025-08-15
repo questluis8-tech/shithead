@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import React from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,19 +10,6 @@ export const useMultiplayer = () => {
   const [roomPlayers, setRoomPlayers] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [gameState, setGameState] = useState(null);
-
-  // Add polling as fallback for real-time updates
-  React.useEffect(() => {
-    if (!currentRoom) return;
-
-    // Poll every 2 seconds as fallback
-    const pollInterval = setInterval(() => {
-      console.log('Polling for room updates...');
-      fetchRoomData();
-    }, 2000);
-
-    return () => clearInterval(pollInterval);
-  }, [currentRoom?.id, fetchRoomData]);
 
   // Function to fetch current room players and room info
   const fetchRoomData = useCallback(async () => {
@@ -53,12 +39,6 @@ export const useMultiplayer = () => {
         setCurrentRoom(roomResult.data);
       }
 
-      const { data: players, error } = await supabase
-        .from('room_players')
-        .select('*')
-        .eq('room_id', currentRoom.id)
-        .order('player_index');
-
       if (playersResult.error) {
         console.error('Error fetching room players:', playersResult.error);
       } else {
@@ -70,8 +50,27 @@ export const useMultiplayer = () => {
     }
   }, [currentRoom?.id]);
 
+  // Add polling as fallback for real-time updates
+  useEffect(() => {
+    if (!currentRoom) return;
+
+    // Poll every 2 seconds as fallback
+    const pollInterval = setInterval(() => {
+      console.log('Polling for room updates...');
+      fetchRoomData();
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [currentRoom?.id, fetchRoomData]);
+
+  // Function to fetch current room players and room info
+  const fetchRoomData = useCallback(async () => {
+    if (!currentRoom) return;
+
+    try {
+      console.log('Fetching room data for room:', currentRoom.id);
   // Real-time subscription for room updates
-  React.useEffect(() => {
+  useEffect(() => {
     if (!currentRoom) return;
 
     console.log('Setting up real-time subscription for room:', currentRoom.id);
