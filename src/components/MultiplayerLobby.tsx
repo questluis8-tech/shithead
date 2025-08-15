@@ -57,6 +57,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 <div>Your name: {currentRoom.game_state.players.find(p => p.id === playerId)?.name}</div>
                 <div>Phase: {currentRoom.game_state.gamePhase}</div>
                 <div>Players: {currentRoom.game_state.players.length}</div>
+                <div>Your hand: {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.length || 0} cards</div>
               </div>
               <button
                 onClick={() => {
