@@ -217,22 +217,17 @@ function App() {
                 <div className="relative w-full h-full">
                   {/* Show last 3 cards with angles and offsets */}
                   {gameState.pile.slice(-3).map((card, index) => {
-                    const totalCards = Math.min(3, gameState.pile.length);
-                    const cardIndex = gameState.pile.length - totalCards + index;
-                    
-                    // Different angles and positions for each card
-                    const angles = [-8, 3, -2];
-                    const xOffsets = [-4, 2, -1];
-                    const yOffsets = [2, -1, 0];
+                    // Slight tilts for each card
+                    const angles = [-3, 2, -1];
                     const zIndexes = [1, 2, 3];
                     
                     return (
                       <Card
-                        key={`${card.id}-${cardIndex}`}
+                        key={`${card.id}-${index}`}
                         card={card}
                         className="absolute w-20 h-28"
                         style={{
-                          transform: `rotate(${angles[index]}deg) translate(${xOffsets[index]}px, ${yOffsets[index]}px)`,
+                          transform: `rotate(${angles[index]}deg)`,
                           zIndex: zIndexes[index],
                           transformOrigin: 'center center'
                         }}
