@@ -353,11 +353,7 @@ function App() {
             <h3 className="text-white font-bold mb-2">Deck ({gameState.deck.length})</h3>
             <div className="w-20 h-28">
               {gameState.deck.length > 0 ? (
-                <div className="relative">
-                  <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
-                  {/* Stack effect - behind the card */}
-                  <div className="absolute top-0.5 left-0.5 w-20 h-28 bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-lg -z-10" />
-                </div>
+                <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
               ) : (
                 <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                   Empty
