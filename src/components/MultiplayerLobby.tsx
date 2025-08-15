@@ -28,7 +28,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Handle card clicks for setup phase
   const handleCardClick = React.useCallback(async (card, source) => {
-    if (!currentRoom?.game_state || currentRoom.game_state.gamePhase !== 'setup') {
+    if (!currentRoom?.game_state || (currentRoom.game_state.gamePhase !== 'setup' && currentRoom.game_state.gamePhase !== 'swapping')) {
       return;
     }
 
@@ -40,7 +40,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
     const player = { ...newGameState.players[playerIndex] };
 
-    if (source === 'hand') {
+    if (currentRoom.game_state.gamePhase === 'setup' && source === 'hand') {
       // Move card from hand to face-up (if we have less than 3 face-up cards)
       if (player.faceUpCards.length >= 3) return;
       
@@ -49,12 +49,43 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
         const cardToMove = player.hand.splice(handIndex, 1)[0];
         player.faceUpCards.push(cardToMove);
       }
-    } else if (source === 'faceUp') {
+    } else if (currentRoom.game_state.gamePhase === 'setup' && source === 'faceUp') {
       // Move card back from face-up to hand
       const faceUpIndex = player.faceUpCards.findIndex(c => c.id === card.id);
       if (faceUpIndex !== -1) {
         const cardToMove = player.faceUpCards.splice(faceUpIndex, 1)[0];
         player.hand.push(cardToMove);
+      }
+    }
+    
+    // Swapping phase logic
+    if (currentRoom.game_state.gamePhase === 'swapping') {
+      // Simple swap: click hand card then face-up card to swap them
+      const isSelected = selectedCards.some(c => c.id === card.id);
+      if (isSelected) {
+        setSelectedCards(prev => prev.filter(c => c.id !== card.id));
+        return;
+      } else {
+        const newSelection = [...selectedCards, card];
+        
+        // If we have one hand card and one face-up card selected, perform swap
+        const handCards = newSelection.filter(c => humanPlayer.hand.some(hc => hc.id === c.id));
+        const faceUpCards = newSelection.filter(c => humanPlayer.faceUpCards.some(fc => fc.id === c.id));
+        
+        if (handCards.length === 1 && faceUpCards.length === 1) {
+          // Perform the swap
+          const handIndex = player.hand.findIndex(c => c.id === handCards[0].id);
+          const faceUpIndex = player.faceUpCards.findIndex(c => c.id === faceUpCards[0].id);
+          
+          if (handIndex !== -1 && faceUpIndex !== -1) {
+            [player.hand[handIndex], player.faceUpCards[faceUpIndex]] = 
+            [player.faceUpCards[faceUpIndex], player.hand[handIndex]];
+          }
+          
+          setSelectedCards([]); // Clear selection after swap
+        } else {
+          setSelectedCards(newSelection);
+        }
       }
     }
 
@@ -331,6 +362,9 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
                 <div className="text-sm text-white opacity-75">Choose face-up cards</div>
               )}
+              {currentRoom.game_state.gamePhase === 'swapping' && (
+                <div className="text-sm text-white opacity-75">Swap cards (optional)</div>
+              )}
             </div>
             
             {/* Human player cards - stacked vertically */}
@@ -358,6 +392,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     card={card}
                     onClick={() => handleCardClick(card, 'faceUp')}
                     selected={selectedCards.some(c => c.id === card.id)}
+                    disabled={currentRoom.game_state.gamePhase === 'playing'}
                     className="w-16 h-24"
                   />
                 ))}
@@ -378,6 +413,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       card={card}
                       onClick={() => handleCardClick(card, 'hand')}
                       selected={selectedCards.some(c => c.id === card.id)}
+                      disabled={currentRoom.game_state.gamePhase === 'playing'}
                       className="w-16 h-24"
                     />
                   ))}
