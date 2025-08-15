@@ -21,6 +21,8 @@ function App() {
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [burnJustHappened, setBurnJustHappened] = React.useState(false);
+  const [showPickupEffect, setShowPickupEffect] = React.useState(false);
+  const [pickupJustHappened, setPickupJustHappened] = React.useState(false);
   const prevPileLength = React.useRef(gameState.pile.length);
 
   // Show fire effect when pile is cleared by 10 or burn
@@ -32,11 +34,38 @@ function App() {
     }
   }, [burnJustHappened]);
 
-  // Check for burns when pile changes
+  // Show pickup effect when cards are picked up
   React.useEffect(() => {
-    // If pile was cleared (had cards, now empty), it was a burn
+    if (pickupJustHappened) {
+      setShowPickupEffect(true);
+      setPickupJustHappened(false);
+      setTimeout(() => setShowPickupEffect(false), 1500);
+    }
+  }, [pickupJustHappened]);
+
+  // Check for burns when pile changes
+
+  // Detect pickups by watching for sudden increases in hand size
+  const prevHandSizes = React.useRef(gameState.players.map(p => p.hand.length));
+  React.useEffect(() => {
+    gameState.players.forEach((player, index) => {
+      const prevHandSize = prevHandSizes.current[index];
+      const currentHandSize = player.hand.length;
+      
+      // If hand size increased by more than 3 cards, it was likely a pickup
+      if (currentHandSize > prevHandSize + 3) {
+        setPickupJustHappened(true);
+      }
+    });
+    
+    prevHandSizes.current = gameState.players.map(p => p.hand.length);
+  }, [gameState.players]);
+
+  // Remove the old pile length tracking for pickups
+  React.useEffect(() => {
     if (prevPileLength.current > 0 && gameState.pile.length === 0) {
       setBurnJustHappened(true);
+      setPickupJustHappened(true);
     }
     
     prevPileLength.current = gameState.pile.length;
@@ -256,6 +285,15 @@ function App() {
           <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
             <div className="text-6xl animate-bounce">
               🔥
+            </div>
+          </div>
+        )}
+        
+        {/* Pickup effect */}
+        {showPickupEffect && (
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="text-6xl animate-pulse">
+              😰
             </div>
           </div>
         )}
