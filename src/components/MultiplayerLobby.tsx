@@ -18,7 +18,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     currentRoom, 
     isConnected, 
     roomPlayers,
-    gameState,
     startGame,
     playerId,
     leaveRoom
@@ -142,7 +141,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     />
                   ))}
                   {/* Empty slots during setup */}
-                  {gameState.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
+                  {currentRoom.game_state.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
                     <div key={`empty-${index}`} className="w-14 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                       Empty
                     </div>
