@@ -47,28 +47,26 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Show game starting state
   if (currentRoom?.status === 'playing') {
-    if (currentRoom.game_state) {
-      return (
-        <MultiplayerGame
-          gameState={currentRoom.game_state}
-          roomPlayers={roomPlayers}
-          playerId={playerId}
-          onLeaveRoom={() => {
-            leaveRoom();
-            onBackToMenu();
-          }}
-        />
-      );
-    } else {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-            <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
-            <p className="text-white mb-4">Setting up the game state...</p>
-          </div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+          <h1 className="text-3xl font-bold text-white mb-6">Game Started!</h1>
+          <p className="text-white mb-4">Room: {currentRoom.name}</p>
+          <p className="text-white mb-4">Players: {roomPlayers.length}</p>
+          <p className="text-white mb-4">Status: {currentRoom.status}</p>
+          <p className="text-white mb-4">Game State: {currentRoom.game_state ? 'Loaded' : 'Not loaded'}</p>
+          <button
+            onClick={() => {
+              leaveRoom();
+              onBackToMenu();
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+          >
+            Leave Game
+          </button>
         </div>
-      );
-    }
+      </div>
+    );
   }
 
   return (
