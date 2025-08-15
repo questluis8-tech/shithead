@@ -23,6 +23,7 @@ function App() {
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
+  const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
 
   // Show effects based on last action
   React.useEffect(() => {
@@ -43,31 +44,33 @@ function App() {
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
   const effectiveTopCard = getEffectiveTopCard(gameState.pile);
 
+  // Show menu screen
+  if (gameMode === 'menu') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
+          <div className="space-y-4">
+            <button
+              onClick={() => setGameMode('singleplayer')}
+              className="w-full bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
+            >
+              SINGLE PLAYER
+            </button>
+            <button
+              onClick={() => {/* Do nothing for now */}}
+              className="w-full bg-gray-600 text-gray-400 px-8 py-4 rounded-lg font-bold text-xl cursor-not-allowed"
+            >
+              MULTIPLAYER
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
-      {/* Debug gridlines */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
-        {/* Vertical lines */}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div key={`v-${i}`} className="absolute top-0 bottom-0" style={{ left: `${(i + 1) * 5}%` }}>
-            <div className="w-px bg-white h-full" />
-            <div className="absolute top-2 text-xs text-yellow-300 font-mono bg-black bg-opacity-50 px-1 rounded transform -translate-x-1/2">
-              {(i + 1) * 5}%
-            </div>
-          </div>
-        ))}
-        {/* Horizontal lines */}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute left-0 right-0 h-px bg-white"
-            style={{ top: `${(i + 1) * 5}%` }}
-          />
-        ))}
-        {/* Center crosshairs */}
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-yellow-400 opacity-50" />
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-yellow-400 opacity-50" />
-      </div>
 
       {/* Game Info Panel - Top Left */}
       <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
