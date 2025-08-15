@@ -28,12 +28,9 @@ function App() {
       <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
         {/* Vertical lines */}
         {Array.from({ length: 20 }).map((_, i) => (
-          <div key={`v-${i}`} style={{ left: `${(i + 1) * 5}%` }}>
-            <div className="absolute top-0 bottom-0 w-px bg-white" />
-            <div 
-              className="absolute top-2 text-xs text-yellow-300 font-mono bg-black bg-opacity-50 px-1 rounded"
-              style={{ transform: 'translateX(-50%)' }}
-            >
+          <div key={`v-${i}`} className="absolute top-0 bottom-0" style={{ left: `${(i + 1) * 5}%` }}>
+            <div className="w-px bg-white h-full" />
+            <div className="absolute top-2 text-xs text-yellow-300 font-mono bg-black bg-opacity-50 px-1 rounded transform -translate-x-1/2">
               {(i + 1) * 5}%
             </div>
           </div>
