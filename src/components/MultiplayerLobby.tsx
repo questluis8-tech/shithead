@@ -194,3 +194,4 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     </div>
   );
 };
+};
