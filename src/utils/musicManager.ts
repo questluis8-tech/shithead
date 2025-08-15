@@ -14,7 +14,7 @@ class MusicManager {
     }
   }
 
-  private createLoFiChord(frequencies: number[], startTime: number, duration: number) {
+  private createElectronicChord(frequencies: number[], startTime: number, duration: number) {
     if (!this.audioContext || !this.gainNode) return;
 
     frequencies.forEach((freq, index) => {
@@ -22,19 +22,19 @@ class MusicManager {
       const osc = this.audioContext!.createOscillator();
       const oscGain = this.audioContext!.createGain();
       
-      // Create a warm, mellow tone
-      osc.type = 'sine';
+      // Create a bright, electronic tone
+      osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(freq, startTime);
       
-      // Add slight detuning for warmth
-      const detune = (Math.random() - 0.5) * 10;
+      // Add slight detuning for richness
+      const detune = (Math.random() - 0.5) * 5;
       osc.detune.setValueAtTime(detune, startTime);
       
-      // Envelope for smooth attack and release
+      // Sharp attack, sustained release for electronic feel
       oscGain.gain.setValueAtTime(0, startTime);
-      oscGain.gain.linearRampToValueAtTime(0.3 / frequencies.length, startTime + 0.1);
-      oscGain.gain.setValueAtTime(0.3 / frequencies.length, startTime + duration - 0.2);
-      oscGain.gain.linearRampToValueAtTime(0, startTime + duration);
+      oscGain.gain.linearRampToValueAtTime(0.2 / frequencies.length, startTime + 0.05);
+      oscGain.gain.setValueAtTime(0.2 / frequencies.length, startTime + duration - 0.1);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
       
       osc.connect(oscGain);
       oscGain.connect(this.gainNode!);
@@ -43,69 +43,89 @@ class MusicManager {
       osc.stop(startTime + duration);
       
       this.oscillators.push(osc);
+      
+      // Add harmonic for electronic richness
+      const harmonic = this.audioContext!.createOscillator();
+      const harmonicGain = this.audioContext!.createGain();
+      
+      harmonic.type = 'square';
+      harmonic.frequency.setValueAtTime(freq * 2, startTime);
+      
+      harmonicGain.gain.setValueAtTime(0, startTime);
+      harmonicGain.gain.linearRampToValueAtTime(0.05 / frequencies.length, startTime + 0.05);
+      harmonicGain.gain.setValueAtTime(0.05 / frequencies.length, startTime + duration - 0.1);
+      harmonicGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      
+      harmonic.connect(harmonicGain);
+      harmonicGain.connect(this.gainNode!);
+      
+      harmonic.start(startTime);
+      harmonic.stop(startTime + duration);
+      
+      this.oscillators.push(harmonic);
     });
   }
 
-  private playLoFiProgression() {
+  private playElectronicProgression() {
     if (!this.audioContext || !this.isPlaying) return;
 
     const currentTime = this.audioContext.currentTime;
-    const chordDuration = 4; // 4 seconds per chord
+    const chordDuration = 2; // 2 seconds per chord for more energy
     
-    // Lo-fi chord progression in C major (relaxing)
+    // Electronic chord progression in A minor (energetic)
     const chords = [
-      [261.63, 329.63, 392.00], // C major
       [220.00, 277.18, 329.63], // A minor
       [246.94, 311.13, 369.99], // F major
-      [196.00, 246.94, 293.66], // G major
+      [261.63, 329.63, 392.00], // C major
+      [293.66, 369.99, 440.00], // G major
     ];
     
     chords.forEach((chord, index) => {
       const startTime = currentTime + (index * chordDuration);
-      this.createLoFiChord(chord, startTime, chordDuration * 0.9);
+      this.createElectronicChord(chord, startTime, chordDuration * 0.8);
     });
     
     // Schedule next progression
     setTimeout(() => {
       if (this.isPlaying) {
-        this.playLoFiProgression();
+        this.playElectronicProgression();
       }
     }, chordDuration * chords.length * 1000);
   }
 
-  private addLoFiDrums() {
+  private addElectronicBeats() {
     if (!this.audioContext || !this.gainNode || !this.isPlaying) return;
 
     const currentTime = this.audioContext.currentTime;
-    const beatInterval = 0.5; // 120 BPM
+    const beatInterval = 0.375; // 160 BPM - more energetic
     
-    // Simple kick and snare pattern
+    // Electronic kick and snare pattern
     for (let i = 0; i < 16; i++) {
       const beatTime = currentTime + (i * beatInterval);
       
       if (i % 4 === 0) {
-        // Kick drum (low frequency)
-        this.createDrumHit(60, beatTime, 0.1, 'sine');
+        // Electronic kick (punchy low frequency)
+        this.createElectronicDrumHit(80, beatTime, 0.15, 'sine');
       } else if (i % 4 === 2) {
-        // Snare (noise-like)
-        this.createDrumHit(200, beatTime, 0.05, 'sawtooth');
+        // Electronic snare (bright and sharp)
+        this.createElectronicDrumHit(400, beatTime, 0.08, 'square');
       }
       
-      // Hi-hat (subtle)
-      if (Math.random() > 0.3) {
-        this.createDrumHit(8000, beatTime, 0.02, 'square');
+      // Electronic hi-hat (crisp and frequent)
+      if (i % 2 === 1) {
+        this.createElectronicDrumHit(12000, beatTime, 0.03, 'sawtooth');
       }
     }
     
     // Schedule next drum pattern
     setTimeout(() => {
       if (this.isPlaying) {
-        this.addLoFiDrums();
+        this.addElectronicBeats();
       }
     }, 16 * beatInterval * 1000);
   }
 
-  private createDrumHit(frequency: number, startTime: number, duration: number, type: OscillatorType) {
+  private createElectronicDrumHit(frequency: number, startTime: number, duration: number, type: OscillatorType) {
     if (!this.audioContext || !this.gainNode) return;
 
     const osc = this.audioContext.createOscillator();
@@ -114,9 +134,9 @@ class MusicManager {
     osc.type = type;
     osc.frequency.setValueAtTime(frequency, startTime);
     
-    // Quick attack and decay for drum hit
+    // Sharp attack and quick decay for electronic drums
     oscGain.gain.setValueAtTime(0, startTime);
-    oscGain.gain.linearRampToValueAtTime(0.1, startTime + 0.01);
+    oscGain.gain.linearRampToValueAtTime(0.15, startTime + 0.005);
     oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
     
     osc.connect(oscGain);
@@ -141,18 +161,18 @@ class MusicManager {
       
       this.isPlaying = true;
       
-      // Start the lo-fi progression
-      this.playLoFiProgression();
+      // Start the electronic progression
+      this.playElectronicProgression();
       
-      // Start drums with slight delay
+      // Start beats with slight delay
       setTimeout(() => {
         if (this.isPlaying) {
-          this.addLoFiDrums();
+          this.addElectronicBeats();
         }
-      }, 2000);
+      }, 1000);
       
     } catch (error) {
-      console.warn('Could not start lo-fi music:', error);
+      console.warn('Could not start electronic music:', error);
     }
   }
 

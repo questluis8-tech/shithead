@@ -96,7 +96,7 @@ function App() {
             className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
           >
             {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
-            <span className="text-sm">Lo-Fi</span>
+            <span className="text-sm">Music</span>
           </button>
         </div>
         
@@ -177,7 +177,7 @@ function App() {
             className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
           >
             {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
-            <span className="text-sm">Lo-Fi</span>
+            <span className="text-sm">Music</span>
           </button>
           
           {/* Volume Control */}
