@@ -270,7 +270,7 @@ function App() {
         {jumpInWindow && (
           <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20">
             <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-              JUMP-IN! Play {jumpInWindow.rank === 14 ? 'A' : jumpInWindow.rank === 13 ? 'K' : jumpInWindow.rank === 12 ? 'Q' : jumpInWindow.rank === 11 ? 'J' : jumpInWindow.rank}
+              JUMP-IN!
             </div>
           </div>
         )}
