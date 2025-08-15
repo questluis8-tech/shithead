@@ -1,7 +1,5 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
-import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
-import { MultiplayerGame } from './MultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
@@ -25,12 +23,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     playerId
   } = useMultiplayer();
 
-  // Initialize multiplayer game hook when we have a room and game state
-  const multiplayerGame = useMultiplayerGame(
-    currentRoom?.id || '', 
-    playerId, 
-    playerName
-  );
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
@@ -52,27 +44,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   const isHost = currentRoom && roomPlayers.some(player => 
     player.player_id === playerId && player.is_host
   );
-
-  // Show actual game if we have game state
-  if (currentRoom?.status === 'playing' && multiplayerGame.gameState) {
-    return (
-      <MultiplayerGame
-        gameState={multiplayerGame.gameState}
-        roomPlayers={roomPlayers}
-        playerId={playerId}
-        selectedCards={multiplayerGame.selectedCards}
-        onCardClick={multiplayerGame.handleCardClick}
-        onPlayCards={() => {}} // Will implement in next step
-        onPickupCards={() => {}} // Will implement in next step
-        onPlayFaceDownCard={() => {}} // Will implement in next step
-        onConfirmFaceUpCards={() => {}} // Will implement in next step
-        onStartGame={() => {}} // Will implement in next step
-        onLeaveRoom={leaveRoom}
-        canPlaySelected={multiplayerGame.canPlaySelected}
-        canPlayAnyCard={true} // Will implement in next step
-      />
-    );
-  }
 
   // Show game starting state (loading)
   if (currentRoom?.status === 'playing' && !multiplayerGame.gameState) {
