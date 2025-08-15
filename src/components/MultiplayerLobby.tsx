@@ -64,6 +64,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       </div>
     );
   }
+
   // Show lobby creation interface
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
