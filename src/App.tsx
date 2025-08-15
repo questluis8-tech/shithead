@@ -5,6 +5,7 @@ import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { Card } from './components/Card';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 import { musicManager } from './utils/musicManager';
+import { soundManager } from './utils/soundManager';
 
 function App() {
   const [showFireEffect, setShowFireEffect] = React.useState(false);
@@ -58,12 +59,14 @@ function App() {
   // Show effects based on last action
   React.useEffect(() => {
     if (lastAction === 'burn') {
+      soundManager.cardBurn();
       setShowFireEffect(true);
       setTimeout(() => setShowFireEffect(false), 1500);
       clearLastAction();
     }
     
     if (lastAction === 'pickup') {
+      soundManager.cardPickup();
       setShowPickupEffect(true);
       setTimeout(() => setShowPickupEffect(false), 1500);
       clearLastAction();
@@ -574,6 +577,7 @@ function App() {
           {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
             <button
               onClick={dealCards}
+              onMouseDown={() => soundManager.cardDeal()}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Deal Cards
@@ -584,6 +588,7 @@ function App() {
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
             <button
               onClick={confirmFaceUpCards}
+              onMouseDown={() => soundManager.cardPlay()}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Confirm Face-Up Cards
@@ -595,6 +600,7 @@ function App() {
             <button
               onClick={playCards}
               disabled={!canPlaySelected}
+              onMouseDown={() => canPlaySelected && soundManager.cardPlay()}
               className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
                 canPlaySelected
                   ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
@@ -613,6 +619,7 @@ function App() {
            gameState.pile.length > 0 && (
             <button
               onClick={pickupCards}
+              onMouseDown={() => soundManager.cardPickup()}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Pick up Cards ({gameState.pile.length})
@@ -623,6 +630,7 @@ function App() {
           {gameState.gamePhase === 'finished' && (
             <button
               onClick={dealCards}
+              onMouseDown={() => soundManager.cardDeal()}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               New Game
@@ -682,6 +690,7 @@ function App() {
                 key={card.id}
                 card={card}
                 onClick={() => handleCardClick(card, 'faceUp')}
+                onMouseDown={() => soundManager.cardPlay()}
                 selected={selectedCards.some(c => c.id === card.id)}
                 disabled={humanPlayer.hand.length > 0 && gameState.gamePhase === 'playing'}
                 className="w-16 h-24"
@@ -703,6 +712,7 @@ function App() {
                   key={card.id}
                   card={card}
                   onClick={() => handleCardClick(card, 'hand')}
+                  onMouseDown={() => soundManager.cardPlay()}
                   selected={selectedCards.some(c => c.id === card.id)}
                   className={`w-16 h-24 ${
                     jumpInWindow && card.rank === jumpInWindow.rank 
@@ -738,6 +748,7 @@ function App() {
             
             <button
               onClick={dealCards}
+              onMouseDown={() => soundManager.cardDeal()}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
             >
               Play Again
