@@ -57,6 +57,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Show multiplayer game if game state exists
   if (gameState && currentRoom) {
+    console.log('Rendering MultiplayerGame with gameState:', gameState);
     return (
       <MultiplayerGame
         gameState={gameState}
@@ -75,6 +76,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       />
     );
   }
+
+  console.log('Rendering lobby with currentRoom:', currentRoom, 'gameState:', gameState);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">

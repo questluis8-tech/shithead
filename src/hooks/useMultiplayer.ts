@@ -432,9 +432,14 @@ export const useMultiplayer = () => {
         if (isSelected) {
           return prev.filter(c => c.id !== card.id);
         } else {
-          // Only allow selecting cards of the same rank
-          if (prev.length === 0 || prev[0].rank === card.rank) {
-            return [...prev, card];
+          // Handle room updates
+          if (payload.new) {
+            if (payload.new.game_state) {
+              console.log('Game state updated:', payload.new.game_state);
+              setGameState(payload.new.game_state);
+            }
+            // Update current room info
+            setCurrentRoom(payload.new);
           }
           return [card]; // Start new selection
         }
