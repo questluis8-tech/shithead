@@ -200,7 +200,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
             <div className="text-sm space-y-1">
               <div>Phase: {
                 currentRoom.game_state.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
-                currentRoom.game_state.gamePhase === 'swapping' ? 'Swap Cards (Optional)' : 
                 currentRoom.game_state.gamePhase === 'playing' ? 'Playing' :
                 'Game Over'
               }</div>
@@ -374,8 +373,9 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                         
                         // Check if all players are ready
                         if (newGameState.playersReady.length === newGameState.players.length) {
-                          // Move to swapping phase
-                          newGameState.gamePhase = 'swapping';
+                          // Move directly to playing phase
+                          newGameState.gamePhase = 'playing';
+                          newGameState.currentPlayerIndex = 0;
                         }
                         
                         try {
@@ -396,46 +396,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                   >
                     Confirm Face-Up Cards
                   </button>
-                )}
-                
-                {/* Swapping Phase - Skip or Confirm */}
-                {currentRoom.game_state.gamePhase === 'swapping' && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={async () => {
-                        const newGameState = { ...currentRoom.game_state };
-                        if (!newGameState.swappingComplete) {
-                          newGameState.swappingComplete = [];
-                        }
-                        if (!newGameState.swappingComplete.includes(playerId)) {
-                          newGameState.swappingComplete.push(playerId);
-                        }
-                        
-                        // Check if all players are done swapping
-                        if (newGameState.swappingComplete.length === newGameState.players.length) {
-                          // Move to playing phase
-                          newGameState.gamePhase = 'playing';
-                          newGameState.currentPlayerIndex = 0;
-                        }
-                        
-                        try {
-                          const { error } = await supabase
-                            .from('game_rooms')
-                            .update({ game_state: newGameState })
-                            .eq('id', currentRoom.id);
-
-                          if (error) {
-                            console.error('Error updating game state:', error);
-                          }
-                        } catch (error) {
-                          console.error('Error updating game state:', error);
-                        }
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
-                    >
-                      Done Swapping
-                    </button>
-                  </div>
                 )}
                 
                 {/* Playing Phase - Game started message */}
