@@ -296,6 +296,23 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
                   <button
                     onClick={async () => {
+                      // Transition to playing phase
+                      const newGameState = { ...currentRoom.game_state };
+                      newGameState.gamePhase = 'playing';
+                      
+                      try {
+                        const { error } = await supabase
+                          .from('game_rooms')
+                          .update({ game_state: newGameState })
+                          .eq('id', currentRoom.id);
+                        
+                        if (error) {
+                          console.error('Error starting game:', error);
+                        }
+                      } catch (error) {
+                        console.error('Error starting game:', error);
+                      }
+                    }}
                       // Mark this player as ready
                       const newGameState = { ...currentRoom.game_state };
                       const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
@@ -337,6 +354,16 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
                   <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
                     Choose your 3 face-up cards
+                  </div>
+                )}
+                
+                {/* Playing Phase - Game started message */}
+                {currentRoom.game_state.gamePhase === 'playing' && (
+                  <div className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                    Game Started! 
+                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) 
+                      ? " Your turn!" 
+                      : ` ${currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}'s turn`}
                   </div>
                 )}
                 
