@@ -348,32 +348,96 @@ export const useMultiplayer = () => {
 
   // Start the game (host only)
   const startGame = useCallback(async () => {
-    if (!currentRoom || !playerName.trim()) {
+    if (!currentRoom || !roomPlayers.length) {
       return;
     }
 
     try {
       console.log('Starting game for room:', currentRoom.id);
       
-      // Update room status to 'playing'
-      const { error: roomError } = await supabase
-        .from('game_rooms')
-        .update({ status: 'playing' })
-        .eq('id', currentRoom.id);
+      // Initialize the actual multiplayer game
+      const { initializeGame } = await import('./useMultiplayerGame');
+      
+      // Create a temporary instance to initialize the game
+      const gameHook = {
+        initializeGame: async (players: any[]) => {
+          console.log('Initializing multiplayer game with players:', players);
+          
+          // Import game utilities
+          const { createDeck } = await import('../utils/cardUtils');
+          
+          // Create deck and deal cards
+          const deck = createDeck();
+          const gamePlayers: any[] = [];
 
-      if (roomError) {
-        console.error('Room update error:', roomError);
-        throw roomError;
-      }
+          // Create players from room players
+          roomPlayers.forEach((roomPlayer) => {
+            gamePlayers.push({
+              id: roomPlayer.player_id,
+              name: roomPlayer.player_name,
+              hand: [],
+              faceDownCards: [],
+              faceUpCards: [],
+              isAI: false // All players are human in multiplayer
+            });
+          });
 
-      // For now, just update local state - we'll implement full game logic later
-      setGameState({ phase: 'starting' });
+          // Deal 6 cards to each player's hand
+          let deckIndex = 0;
+          for (let round = 0; round < 6; round++) {
+            for (let playerIndex = 0; playerIndex < gamePlayers.length; playerIndex++) {
+              gamePlayers[playerIndex].hand.push(deck[deckIndex++]);
+            }
+          }
+
+          // Deal 3 face-down cards to each player
+          for (let round = 0; round < 3; round++) {
+            for (let playerIndex = 0; playerIndex < gamePlayers.length; playerIndex++) {
+              gamePlayers[playerIndex].faceDownCards.push(deck[deckIndex++]);
+            }
+          }
+
+          const remainingDeck = deck.slice(deckIndex);
+
+          const initialGameState = {
+            room_id: currentRoom.id,
+            host_id: roomPlayers.find(p => p.is_host)?.player_id || '',
+            connected_players: roomPlayers.map(p => p.player_id),
+            players: gamePlayers,
+            currentPlayerIndex: 0,
+            pile: [],
+            deck: remainingDeck,
+            gamePhase: 'setup',
+            winner: null,
+            loser: null
+          };
+
+          // Save game state to database
+          const { error } = await supabase
+            .from('game_rooms')
+            .update({ 
+              game_state: initialGameState,
+              status: 'playing'
+            })
+            .eq('id', currentRoom.id);
+
+          if (error) {
+            console.error('Error saving game state:', error);
+            throw error;
+          }
+
+          console.log('Game initialized successfully');
+          return initialGameState;
+        }
+      };
+      
+      await gameHook.initializeGame(roomPlayers);
       
     } catch (error) {
       console.error('Error starting game:', error);
       alert('Failed to start game: ' + error.message);
     }
-  }, [currentRoom, playerName]);
+  }, [currentRoom, roomPlayers]);
 
   return {
     playerId,
