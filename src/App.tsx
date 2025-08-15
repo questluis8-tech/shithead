@@ -208,13 +208,28 @@ function App() {
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
-            <div className="w-20 h-28">
+            <div className="w-20 h-28 relative">
               {gameState.pile.length === 0 ? (
                 <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                   Empty
                 </div>
               ) : (
-                <Card card={topCard} className="w-20 h-28" />
+                <>
+                  {/* Show last 3 cards stacked with slight offsets */}
+                  {gameState.pile.slice(-3).map((card, index) => (
+                    <Card
+                      key={`pile-${card.id}`}
+                      card={card}
+                      className="w-20 h-28 absolute"
+                      style={{
+                        left: `${index * 2}px`,
+                        top: `${index * 1}px`,
+                        zIndex: index,
+                        transform: `rotate(${index === 0 ? -2 : index === 1 ? 1 : 0}deg)`
+                      }}
+                    />
+                  ))}
+                </>
               )}
             </div>
           </div>
