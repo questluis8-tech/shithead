@@ -1,13 +1,10 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '../lib/supabase';
 
 export const useMultiplayer = () => {
   const [playerId] = useState(() => uuidv4());
   const [playerName, setPlayerName] = useState('');
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -54,8 +51,6 @@ export const useMultiplayer = () => {
     playerName,
     setPlayerName,
     createRoom,
-    currentRoom,
-    isConnected
     currentRoom,
     isConnected
   };
