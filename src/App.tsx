@@ -98,6 +98,34 @@ function App() {
       </div>
     );
   }
+
+  // Show deal cards screen if no players exist yet
+  if (gameMode === 'singleplayer' && playerCount !== null && gameState.players.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
+          <h2 className="text-xl text-white mb-8">Ready to Start?</h2>
+          <button
+            onClick={dealCards}
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
+          >
+            Deal Cards
+          </button>
+          <button
+            onClick={() => {
+              setPlayerCount(null);
+              setGameMode('menu');
+            }}
+            className="mt-4 block mx-auto bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
 
@@ -478,16 +506,6 @@ function App() {
         {/* Game Controls - Fixed position below pile/deck */}
         <div className="flex justify-center">
           <div className="w-64 flex justify-center">
-          {/* Setup Phase - Deal Cards */}
-          {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
-            <button
-              onClick={dealCards}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
-            >
-              Deal Cards
-            </button>
-          )}
-          
           {/* Setup Phase - Confirm Face-Up Cards */}
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
             <button
@@ -534,16 +552,6 @@ function App() {
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Pick up Cards ({gameState.pile.length})
-            </button>
-          )}
-
-          {/* Game Over - New Game */}
-          {gameState.gamePhase === 'finished' && (
-            <button
-              onClick={dealCards}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
-            >
-              New Game
             </button>
           )}
           </div>
