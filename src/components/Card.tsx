@@ -66,7 +66,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div
       className={`
-        relative w-16 h-24 bg-white rounded-lg border-2 ${getBorderColor()}
+        relative bg-white rounded-lg border-2 ${getBorderColor()}
         transition-all duration-200 cursor-pointer select-none
         ${onClick && !disabled ? 'hover:scale-105 hover:-translate-y-1' : ''}
         ${selected ? 'ring-4 ring-yellow-400 ring-opacity-75 scale-105 -translate-y-2' : ''}
@@ -143,25 +143,25 @@ export const Card: React.FC<CardProps> = ({
       ) : (
         <>
           {/* Top-left corner */}
-          <div className={`absolute top-1 left-1 text-xs font-bold ${getSuitColor(card.suit)}`}>
+          <div className={`absolute top-0.5 left-0.5 sm:top-1 sm:left-1 text-xs font-bold ${getSuitColor(card.suit)}`}>
             <div>{getCardDisplay(card.rank)}</div>
-            <div className="text-lg leading-none">{getSuitSymbol(card.suit)}</div>
+            <div className="text-sm sm:text-lg leading-none">{getSuitSymbol(card.suit)}</div>
           </div>
           
           {/* Center symbol */}
-          <div className={`absolute inset-0 flex items-center justify-center text-2xl ${getSuitColor(card.suit)}`}>
+          <div className={`absolute inset-0 flex items-center justify-center text-lg sm:text-2xl ${getSuitColor(card.suit)}`}>
             {getSuitSymbol(card.suit)}
           </div>
           
           {/* Bottom-right corner (rotated) */}
-          <div className={`absolute bottom-1 right-1 text-xs font-bold transform rotate-180 ${getSuitColor(card.suit)}`}>
+          <div className={`absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 text-xs font-bold transform rotate-180 ${getSuitColor(card.suit)}`}>
             <div>{getCardDisplay(card.rank)}</div>
-            <div className="text-lg leading-none">{getSuitSymbol(card.suit)}</div>
+            <div className="text-sm sm:text-lg leading-none">{getSuitSymbol(card.suit)}</div>
           </div>
           
           {/* Special card indicators */}
           {isSpecialCard && (
-            <div className="absolute top-0 right-0 w-3 h-3 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1" />
+            <div className="absolute top-0 right-0 w-2 h-2 sm:w-3 sm:h-3 bg-purple-500 rounded-full transform translate-x-1 -translate-y-1" />
           )}
         </>
       )}
