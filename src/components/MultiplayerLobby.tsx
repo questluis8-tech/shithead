@@ -261,10 +261,61 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
             {/* Game Controls - Fixed position below pile/deck */}
             <div className="flex justify-center">
               <div className="w-64 flex justify-center">
+                {/* Setup Phase - Confirm Face-Up Cards */}
+                {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
+                  <button
+                    onClick={async () => {
+                      // Mark this player as ready
+                      const newGameState = { ...currentRoom.game_state };
+                      const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+                      if (playerIndex !== -1) {
+                        // Add a "ready" flag to track which players have confirmed
+                        if (!newGameState.playersReady) {
+                          newGameState.playersReady = [];
+                        }
+                        if (!newGameState.playersReady.includes(playerId)) {
+                          newGameState.playersReady.push(playerId);
+                        }
+                        
+                        // If all players are ready, move to swapping phase
+                        if (newGameState.playersReady.length === newGameState.players.length) {
+                          newGameState.gamePhase = 'swapping';
+                        }
+                        
+                        try {
+                          const { error } = await supabase
+                            .from('game_rooms')
+                            .update({ game_state: newGameState })
+                            .eq('id', currentRoom.id);
+                          
+                          if (error) {
+                            console.error('Error confirming face-up cards:', error);
+                          }
+                        } catch (error) {
+                          console.error('Error confirming face-up cards:', error);
+                        }
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+                  >
+                    Confirm Face-Up Cards
+                  </button>
+                )}
+                
                 {/* Setup Phase - Choose Face-Up Cards message */}
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
                   <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
                     Choose your 3 face-up cards
+                  </div>
+                )}
+                
+                {/* Setup Phase - Waiting for other players */}
+                {currentRoom.game_state.gamePhase === 'setup' && 
+                 humanPlayer.faceUpCards.length === 3 && 
+                 currentRoom.game_state.playersReady && 
+                 currentRoom.game_state.playersReady.includes(playerId) && (
+                  <div className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                    Waiting for other players...
                   </div>
                 )}
               </div>
