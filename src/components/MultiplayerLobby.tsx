@@ -94,6 +94,60 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 </div>
               </div>
               </div>
+
+              {/* Human Player - Bottom */}
+              <div className="mt-8">
+                <div className="text-center mb-4">
+                  <div className="text-lg font-bold text-yellow-300">
+                    {humanPlayer.name} (You)
+                  </div>
+                </div>
+                
+                {/* Face-down cards */}
+                {humanPlayer.faceDownCards.length > 0 && (
+                  <div className="flex gap-2 justify-center mb-2">
+                    {humanPlayer.faceDownCards.map((_, index) => (
+                      <Card
+                        key={`human-down-${index}`}
+                        card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                        faceDown={true}
+                        playerColor="blue"
+                        className="w-14 h-20"
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                {/* Face-up cards */}
+                <div className="flex gap-2 justify-center mb-2">
+                  {humanPlayer.faceUpCards.map((card) => (
+                    <Card
+                      key={card.id}
+                      card={card}
+                      className="w-14 h-20"
+                    />
+                  ))}
+                  {/* Empty slots during setup */}
+                  {gameState.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
+                    <div key={`empty-${index}`} className="w-14 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                      Empty
+                    </div>
+                  ))}
+                </div>
+
+                {/* Hand */}
+                {humanPlayer.hand.length > 0 && (
+                  <div className="flex gap-2 justify-center flex-wrap max-w-2xl mx-auto">
+                    {humanPlayer.hand.map((card) => (
+                      <Card
+                        key={card.id}
+                        card={card}
+                        className="w-14 h-20"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
               <button
                 onClick={() => {
                   leaveRoom();
