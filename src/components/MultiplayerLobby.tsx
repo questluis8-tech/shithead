@@ -375,12 +375,84 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 
                 {/* Playing Phase - Game started message */}
                 {currentRoom.game_state.gamePhase === 'playing' && (
-                  <div className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-center">
-                    Game Started! 
-                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) 
-                      ? " Your turn!" 
-                      : ` ${currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}'s turn`}
-                  </div>
+                  <>
+                    {/* Play Cards button */}
+                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length > 0 && (
+                      <button
+                        onClick={async () => {
+                          // Import card utilities
+                          const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
+                          
+                          const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
+                          const canPlay = canPlayCard(selectedCards[0], topCard);
+                          
+                          if (!canPlay) {
+                            alert("Can't play those cards!");
+                            return;
+                          }
+                          
+                          // Play the cards
+                          const newGameState = { ...currentRoom.game_state };
+                          const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+                          const player = { ...newGameState.players[playerIndex] };
+                          
+                          // Remove played cards from player's hand/faceUp cards
+                          selectedCards.forEach(card => {
+                            const handIndex = player.hand.findIndex(c => c.id === card.id);
+                            const faceUpIndex = player.faceUpCards.findIndex(c => c.id === card.id);
+                            
+                            if (handIndex !== -1) {
+                              player.hand.splice(handIndex, 1);
+                            } else if (faceUpIndex !== -1) {
+                              player.faceUpCards.splice(faceUpIndex, 1);
+                            }
+                          });
+                          
+                          // Add cards to pile
+                          const newPile = [...newGameState.pile, ...selectedCards];
+                          
+                          // Update player in game state
+                          newGameState.players[playerIndex] = player;
+                          newGameState.pile = newPile;
+                          
+                          // Move to next player
+                          newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                          
+                          try {
+                            const { error } = await supabase
+                              .from('game_rooms')
+                              .update({ game_state: newGameState })
+                              .eq('id', currentRoom.id);
+
+                            if (error) {
+                              console.error('Error playing cards:', error);
+                            } else {
+                              setSelectedCards([]);
+                            }
+                          } catch (error) {
+                            console.error('Error playing cards:', error);
+                          }
+                        }}
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                      >
+                        Play Cards ({selectedCards.length})
+                      </button>
+                    )}
+                    
+                    {/* Turn indicator */}
+                    {currentRoom.game_state.currentPlayerIndex !== currentRoom.game_state.players.findIndex(p => p.id === playerId) && (
+                      <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                        {currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}'s turn
+                      </div>
+                    )}
+                    
+                    {/* Your turn indicator */}
+                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length === 0 && (
+                      <div className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                        Your turn! Select cards to play
+                      </div>
+                    )}
+                  </>
                 )}
                 
                 {/* Setup Phase - Waiting for other players */}
