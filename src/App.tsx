@@ -20,6 +20,7 @@ function App() {
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [burnJustHappened, setBurnJustHappened] = React.useState(false);
+  const prevPileLength = React.useRef(gameState.pile.length);
 
   // Show fire effect when pile is cleared by 10 or burn
   React.useEffect(() => {
@@ -32,8 +33,6 @@ function App() {
 
   // Check for burns when pile changes
   React.useEffect(() => {
-    const prevPileLength = React.useRef(gameState.pile.length);
-    
     // If pile was cleared (had cards, now empty), it was a burn
     if (prevPileLength.current > 0 && gameState.pile.length === 0) {
       setBurnJustHappened(true);
