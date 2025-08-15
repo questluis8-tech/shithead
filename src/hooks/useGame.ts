@@ -751,12 +751,12 @@ export const useGame = () => {
             
             const hasTen = cardsToPlay.some(card => card.rank === 10);
             if (hasTen || burnPile) {
+              setLastAction('burn');
               return {
                 ...prev,
                 players: newPlayers,
                 pile: [],
-                deck: newDeck
-              setLastAction('burn');
+                deck: newDeck,
                 // Same player continues
               };
             }
