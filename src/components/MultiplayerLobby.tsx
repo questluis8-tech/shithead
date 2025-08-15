@@ -2,6 +2,7 @@ import React from 'react';
 import { supabase } from '../lib/supabase';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { Card } from './Card';
+import { canPlayCard, getEffectiveTopCard, shouldBurn } from '../utils/cardUtils';
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -411,9 +412,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && selectedCards.length > 0 && (
                       <button
                         onClick={async () => {
-                          // Import card utilities
-                          const { canPlayCard, getEffectiveTopCard, shouldBurn } = await import('../utils/cardUtils');
-                          
                           const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
                           const canPlay = canPlayCard(selectedCards[0], topCard);
                           
@@ -524,9 +522,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       return (
                       <button
                         onClick={async () => {
-                          // Import card utilities
-                          const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
-                          
                           // Player must pick up pile
                           const newGameState = { ...currentRoom.game_state };
                           const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
@@ -574,7 +569,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                         Your turn! 
                         {(() => {
                           // Check if player can play any cards
-                          const { canPlayCard, getEffectiveTopCard } = require('../utils/cardUtils');
                           const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
                           const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
                           const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
@@ -649,8 +643,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                               // Remove the face-down card
                               const revealedCard = player.faceDownCards.splice(index, 1)[0];
                               
-                              // Import card utilities
-                              const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
                               const topCard = getEffectiveTopCard(newGameState.pile);
                               
                               if (canPlayCard(revealedCard, topCard)) {
