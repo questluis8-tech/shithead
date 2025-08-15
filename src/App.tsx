@@ -117,10 +117,11 @@ function App() {
       </div>
 
       {/* Alice - Top Center */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
+      {gameState.players.length > 2 && (
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
-            Alice
+            {gameState.players[2]?.name}
           </div>
         </div>
         
@@ -168,13 +169,15 @@ function App() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Carol - Left Side */}
-      <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+      {gameState.players.length > 1 && (
+        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
-            Carol
+            {gameState.players[1]?.name}
           </div>
         </div>
         
@@ -222,13 +225,15 @@ function App() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Bob - Right Side */}
-      <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+      {gameState.players.length > 3 && (
+        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
-            Bob
+            {gameState.players[3]?.name}
           </div>
         </div>
         
@@ -276,7 +281,8 @@ function App() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Center Area - Pile, Deck, and Controls */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

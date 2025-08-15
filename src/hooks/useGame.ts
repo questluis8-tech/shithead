@@ -38,9 +38,9 @@ const drawToThreeCards = (player: Player, deck: Card[]): { updatedPlayer: Player
   return { updatedPlayer: newPlayer, updatedDeck: newDeck };
 };
 
-export const useGame = () => {
+export const useGame = (playerCount: number = 4) => {
   const [gameState, setGameState] = useState<GameState>({
-    players: createInitialPlayers(),
+    players: createInitialPlayers(playerCount),
     currentPlayerIndex: 0,
     pile: [],
     deck: [],
@@ -380,7 +380,7 @@ export const useGame = () => {
 
   const dealCards = useCallback(() => {
     const deck = createDeck();
-    const players = createInitialPlayers();
+    const players = createInitialPlayers(playerCount);
     
     // Deal 6 cards to each player's hand
     let deckIndex = 0;
@@ -427,7 +427,7 @@ export const useGame = () => {
     });
     
     setSelectedCards([]);
-  }, []);
+  }, [playerCount]);
 
   const confirmFaceUpCards = useCallback(() => {
     const humanPlayer = gameState.players[0];
