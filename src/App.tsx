@@ -239,23 +239,33 @@ function App() {
                 </div>
               ) : (
                 <div className="relative">
-                  {gameState.pile.slice(-3).map((card, index, arr) => {
-                    const total = arr.length;
-                    const middle = Math.floor(total / 2);
-                    const offset = (index - middle) * 8; // 8px horizontal spacing
-
+                  {/* Show last 3 cards with specific positioning */}
+                  {gameState.pile.slice(-3).map((card, index) => {
+                    let positionStyle = {};
+                    if (gameState.pile.length >= 2 && index === 1) {
+                      // Card 2 at 46%
+                      positionStyle = {
+                        position: 'absolute' as const,
+                        left: '46%',
+                        top: '0',
+                        transform: 'translateX(-50%)'
+                      };
+                    } else if (gameState.pile.length >= 3 && index === 2) {
+                      // Card 3 at 45%
+                      positionStyle = {
+                        position: 'absolute' as const,
+                        left: '45%',
+                        top: '0',
+                        transform: 'translateX(-50%)'
+                      };
+                    }
+                    
                     return (
                       <Card
                         key={card.id}
                         card={card}
                         className="w-20 h-28"
-                        style={{
-                          position: 'absolute',
-                          left: `calc(50% - 40px + ${offset}px)`, 
-                          // 50% centers in container, -40px centers card width (w-20 = ~80px)
-                          top: '0',
-                          zIndex: index // middle card will be naturally above left card
-                        }}
+                        style={positionStyle}
                       />
                     );
                   })}
