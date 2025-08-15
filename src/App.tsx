@@ -19,16 +19,28 @@ function App() {
   } = useGame();
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
-  const [tenJustPlayed, setTenJustPlayed] = React.useState(false);
+  const [burnJustHappened, setBurnJustHappened] = React.useState(false);
 
   // Show fire effect when pile is cleared by 10 or burn
   React.useEffect(() => {
-    if (tenJustPlayed) {
+    if (burnJustHappened) {
       setShowFireEffect(true);
-      setTenJustPlayed(false);
-      setTimeout(() => setShowFireEffect(false), 2000);
+      setBurnJustHappened(false);
+      setTimeout(() => setShowFireEffect(false), 1500);
     }
-  }, [tenJustPlayed]);
+  }, [burnJustHappened]);
+
+  // Check for burns when pile changes
+  React.useEffect(() => {
+    const prevPileLength = React.useRef(gameState.pile.length);
+    
+    // If pile was cleared (had cards, now empty), it was a burn
+    if (prevPileLength.current > 0 && gameState.pile.length === 0) {
+      setBurnJustHappened(true);
+    }
+    
+    prevPileLength.current = gameState.pile.length;
+  }, [gameState.pile.length]);
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
@@ -239,6 +251,15 @@ function App() {
 
       {/* Center Area - Pile, Deck, and Controls */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        {/* Fire flash for burns */}
+        {showFireEffect && (
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="text-6xl animate-bounce">
+              🔥
+            </div>
+          </div>
+        )}
+        
         {/* Pile and Deck - Fixed position */}
         <div className="flex items-center justify-center gap-8 mb-8">
           {/* Pile */}
@@ -269,49 +290,6 @@ function App() {
                       />
                     </div>
                   ))}
-                  
-                  {/* Fire Effect */}
-                  {showFireEffect && (
-                    <div className="absolute inset-0 pointer-events-none overflow-visible">
-                      {/* Fire particles */}
-                      {Array.from({ length: 12 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="absolute animate-bounce"
-                          style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 0.5}s`,
-                            animationDuration: `${0.5 + Math.random() * 0.5}s`
-                          }}
-                        >
-                          <span className="text-2xl">🔥</span>
-                        </div>
-                      ))}
-                      
-                      {/* Central explosion */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="animate-ping">
-                          <span className="text-4xl">💥</span>
-                        </div>
-                      </div>
-                      
-                      {/* Sparks */}
-                      {Array.from({ length: 8 }).map((_, i) => (
-                        <div
-                          key={`spark-${i}`}
-                          className="absolute animate-pulse"
-                          style={{
-                            left: `${50 + Math.cos(i * Math.PI / 4) * 40}%`,
-                            top: `${50 + Math.sin(i * Math.PI / 4) * 40}%`,
-                            animationDelay: `${i * 0.1}s`
-                          }}
-                        >
-                          <span className="text-lg">✨</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
