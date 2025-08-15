@@ -225,6 +225,12 @@ export const useMultiplayer = () => {
   // Fetch available rooms
   const fetchAvailableRooms = useCallback(async () => {
     try {
+      // First run cleanup to close old rooms
+      const { error: cleanupError } = await supabase.rpc('cleanup_old_rooms');
+      if (cleanupError) {
+        console.warn('Cleanup error (non-critical):', cleanupError);
+      }
+      
       const { data: rooms, error } = await supabase
         .from('game_rooms')
         .select('*')
