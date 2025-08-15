@@ -59,6 +59,17 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 <div>Phase: {currentRoom.game_state.gamePhase}</div>
                 <div>Players: {currentRoom.game_state.players.length}</div>
                 <div>Your hand: {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.length || 0} cards</div>
+              
+              {/* Test: Show just the first card */}
+              {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.[0] && (
+                <div className="mt-4">
+                  <div className="text-white text-sm mb-2">First card in your hand:</div>
+                  <Card 
+                    card={currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.[0]} 
+                    className="w-16 h-24"
+                  />
+                </div>
+              )}
               </div>
               <button
                 onClick={() => {
