@@ -70,6 +70,14 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
         >
           Back to Menu
         </button>
+        
+        {/* Simple room created message */}
+        {currentRoom && (
+          <div className="mt-4 p-4 bg-green-800 rounded-lg">
+            <p className="text-white">Room "{currentRoom.name}" created successfully!</p>
+            <p className="text-white text-sm">Room ID: {currentRoom.id}</p>
+          </div>
+        )}
       </div>
     </div>
   );
