@@ -18,6 +18,20 @@ function App() {
     playFaceDownCard
   } = useGame();
 
+  const [showFireEffect, setShowFireEffect] = React.useState(false);
+
+  // Show fire effect when pile is cleared by 10
+  React.useEffect(() => {
+    if (gameState.pile.length === 0 && gameState.gamePhase === 'playing') {
+      // Check if the last action was playing a 10
+      const lastCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+      if (lastCard?.rank === 10) {
+        setShowFireEffect(true);
+        setTimeout(() => setShowFireEffect(false), 2000);
+      }
+    }
+  }, [gameState.pile.length, gameState.gamePhase]);
+
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
   const effectiveTopCard = getEffectiveTopCard(gameState.pile);
@@ -238,7 +252,7 @@ function App() {
                   Empty
                 </div>
               ) : (
-                <div className="relative w-20 h-28">
+                <div className="relative w-20 h-28 overflow-visible">
                   {/* Show last 3 cards with specific positioning */}
                   {gameState.pile.slice(-3).map((card, index) => (
                     <div
@@ -257,6 +271,49 @@ function App() {
                       />
                     </div>
                   ))}
+                  
+                  {/* Fire Effect */}
+                  {showFireEffect && (
+                    <div className="absolute inset-0 pointer-events-none overflow-visible">
+                      {/* Fire particles */}
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute animate-bounce"
+                          style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 0.5}s`,
+                            animationDuration: `${0.5 + Math.random() * 0.5}s`
+                          }}
+                        >
+                          <span className="text-2xl">🔥</span>
+                        </div>
+                      ))}
+                      
+                      {/* Central explosion */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="animate-ping">
+                          <span className="text-4xl">💥</span>
+                        </div>
+                      </div>
+                      
+                      {/* Sparks */}
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <div
+                          key={`spark-${i}`}
+                          className="absolute animate-pulse"
+                          style={{
+                            left: `${50 + Math.cos(i * Math.PI / 4) * 40}%`,
+                            top: `${50 + Math.sin(i * Math.PI / 4) * 40}%`,
+                            animationDelay: `${i * 0.1}s`
+                          }}
+                        >
+                          <span className="text-lg">✨</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
