@@ -77,16 +77,20 @@ function App() {
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
           <h2 className="text-xl text-white mb-8">Choose Number of Players</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col items-center gap-4">
+            <div className="grid grid-cols-2 gap-4">
             {[2, 3, 4].map((count) => (
               <button
                 key={count}
                 onClick={() => setPlayerCount(count)}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 rounded-lg font-bold text-2xl transition-all transform hover:scale-105"
+                className={`bg-green-600 hover:bg-green-700 text-white px-8 py-6 rounded-lg font-bold text-2xl transition-all transform hover:scale-105 ${
+                  count === 4 ? 'col-span-2' : ''
+                }`}
               >
                 {count}
               </button>
             ))}
+            </div>
           </div>
           <button
             onClick={() => setGameMode('menu')}
