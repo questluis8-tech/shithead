@@ -241,23 +241,13 @@ function App() {
                 <div className="relative">
                   {/* Show last 3 cards with specific positioning */}
                   {gameState.pile.slice(-3).map((card, index) => {
-                    let positionStyle = {};
-                    if (gameState.pile.length >= 2 && index === 1) {
-                      // Card 2 at 46%
-                      positionStyle = {
-                        position: 'absolute' as const,
-                        left: '46%',
-                        top: '0',
-                        transform: 'translateX(-50%)'
-                      };
-                    } else if (gameState.pile.length >= 3 && index === 2) {
-                      // Card 3 at 45%
-                      positionStyle = {
-                        position: 'absolute' as const,
-                        left: '45%',
-                        top: '0',
-                        transform: 'translateX(-50%)'
-                      };
+                    const totalCards = gameState.pile.slice(-3).length;
+                    let leftPosition = '50%'; // Default center position
+                    
+                    if (totalCards >= 2 && index === 1) {
+                      leftPosition = '46%'; // Card 2 at 46%
+                    } else if (totalCards >= 3 && index === 2) {
+                      leftPosition = '45%'; // Card 3 at 45%
                     }
                     
                     return (
@@ -265,7 +255,12 @@ function App() {
                         key={card.id}
                         card={card}
                         className="w-20 h-28"
-                        style={positionStyle}
+                        style={{
+                          position: 'absolute',
+                          left: leftPosition,
+                          top: '0',
+                          transform: 'translateX(-50%)'
+                        }}
                       />
                     );
                   })}
