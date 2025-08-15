@@ -42,6 +42,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   );
 
   // Show simple game started message when game is playing
+  if (currentRoom && currentRoom.status === 'playing') {
     return <SimpleMultiplayerGame 
       currentRoom={currentRoom}
       roomPlayers={roomPlayers}
