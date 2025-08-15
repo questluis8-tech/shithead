@@ -355,8 +355,8 @@ function App() {
               {gameState.deck.length > 0 ? (
                 <div className="relative">
                   <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
-                  {/* Stack effect */}
-                  <div className="absolute -top-1 -left-1 w-20 h-28 bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-lg -z-10" />
+                  {/* Stack effect - behind the card */}
+                  <div className="absolute top-1 left-1 w-20 h-28 bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-500 rounded-lg -z-10" />
                 </div>
               ) : (
                 <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
