@@ -117,7 +117,7 @@ function App() {
       </div>
 
       {/* Alice - Top Center */}
-      {gameState.players.length === 4 && (
+      {gameState.players.length > 1 && (
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
