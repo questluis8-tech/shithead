@@ -434,7 +434,7 @@ export const useGame = (playerCount: number = 4) => {
     if (humanPlayer.faceUpCards.length === 3) {
       setGameState(prev => ({
         ...prev,
-        gamePhase: 'swapping'
+        gamePhase: 'playing'
       }));
     }
   }, [gameState.players]);

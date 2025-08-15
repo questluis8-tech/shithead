@@ -200,7 +200,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
             <div className="text-sm space-y-1">
               <div>Phase: {
                 currentRoom.game_state.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
-                currentRoom.game_state.gamePhase === 'swapping' ? 'Swap Cards (Optional)' : 
                 currentRoom.game_state.gamePhase === 'playing' ? 'Playing' :
                 'Game Over'
               }</div>
@@ -359,83 +358,52 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               <div className="w-64 flex justify-center">
                 {/* Setup Phase - Confirm Face-Up Cards */}
                 {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
-                  <button
-                    onClick={async () => {
-                      const newGameState = { ...currentRoom.game_state };
-                      const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
-                      if (playerIndex !== -1) {
-                        // Add a "ready" flag to track which players have confirmed
-                        if (!newGameState.playersReady) {
-                          newGameState.playersReady = [];
-                        }
-                        if (!newGameState.playersReady.includes(playerId)) {
-                          newGameState.playersReady.push(playerId);
-                        }
-                        
-                        // Check if all players are ready
-                        if (newGameState.playersReady.length === newGameState.players.length) {
-                          // Move to swapping phase
-                          newGameState.gamePhase = 'swapping';
-                        }
-                        
-                        try {
-                          const { error } = await supabase
-                            .from('game_rooms')
-                            .update({ game_state: newGameState })
-                            .eq('id', currentRoom.id);
+                  <>
+                    {!currentRoom.game_state.playersReady || !currentRoom.game_state.playersReady.includes(playerId) ? (
+                      <button
+                        onClick={async () => {
+                          const newGameState = { ...currentRoom.game_state };
+                          const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+                          if (playerIndex !== -1) {
+                            // Add a "ready" flag to track which players have confirmed
+                            if (!newGameState.playersReady) {
+                              newGameState.playersReady = [];
+                            }
+                            if (!newGameState.playersReady.includes(playerId)) {
+                              newGameState.playersReady.push(playerId);
+                            }
+                            
+                            // Check if all players are ready
+                            if (newGameState.playersReady.length === newGameState.players.length) {
+                              // Move directly to playing phase (skip swapping)
+                              newGameState.gamePhase = 'playing';
+                              newGameState.currentPlayerIndex = 0;
+                            }
+                            
+                            try {
+                              const { error } = await supabase
+                                .from('game_rooms')
+                                .update({ game_state: newGameState })
+                                .eq('id', currentRoom.id);
 
-                          if (error) {
-                            console.error('Error updating game state:', error);
+                              if (error) {
+                                console.error('Error updating game state:', error);
+                              }
+                            } catch (error) {
+                              console.error('Error updating game state:', error);
+                            }
                           }
-                        } catch (error) {
-                          console.error('Error updating game state:', error);
-                        }
-                      }
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
-                  >
-                    Confirm Face-Up Cards
-                  </button>
-                )}
-                
-                {/* Swapping Phase - Skip or Confirm */}
-                {currentRoom.game_state.gamePhase === 'swapping' && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={async () => {
-                        const newGameState = { ...currentRoom.game_state };
-                        if (!newGameState.swappingComplete) {
-                          newGameState.swappingComplete = [];
-                        }
-                        if (!newGameState.swappingComplete.includes(playerId)) {
-                          newGameState.swappingComplete.push(playerId);
-                        }
-                        
-                        // Check if all players are done swapping
-                        if (newGameState.swappingComplete.length === newGameState.players.length) {
-                          // Move to playing phase
-                          newGameState.gamePhase = 'playing';
-                          newGameState.currentPlayerIndex = 0;
-                        }
-                        
-                        try {
-                          const { error } = await supabase
-                            .from('game_rooms')
-                            .update({ game_state: newGameState })
-                            .eq('id', currentRoom.id);
-
-                          if (error) {
-                            console.error('Error updating game state:', error);
-                          }
-                        } catch (error) {
-                          console.error('Error updating game state:', error);
-                        }
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
-                    >
-                      Done Swapping
-                    </button>
-                  </div>
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                      >
+                        Confirm Face-Up Cards
+                      </button>
+                    ) : (
+                      <div className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                        Waiting for other players...
+                      </div>
+                    )}
+                  </>
                 )}
                 
                 {/* Playing Phase - Game started message */}
@@ -615,16 +583,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       </div>
                     )}
                   </>
-                )}
-                
-                {/* Setup Phase - Waiting for other players */}
-                {currentRoom.game_state.gamePhase === 'setup' && 
-                 humanPlayer.faceUpCards.length === 3 && 
-                 currentRoom.game_state.playersReady && 
-                 currentRoom.game_state.playersReady.includes(playerId) && (
-                  <div className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-bold text-center">
-                    Waiting for other players...
-                  </div>
                 )}
                 
                 {/* Game Over */}

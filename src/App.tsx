@@ -118,7 +118,6 @@ function App() {
         <div className="text-sm space-y-1">
           <div>Phase: {
             gameState.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
-            gameState.gamePhase === 'swapping' ? 'Swap Cards (Optional)' : 
             gameState.gamePhase === 'playing' ? 'Playing' :
             'Game Over'
           }</div>
@@ -509,16 +508,6 @@ function App() {
             </button>
           )}
           
-          {/* Swapping Phase - Start Game */}
-          {gameState.gamePhase === 'swapping' && (
-            <button
-              onClick={startGame}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
-            >
-              Start Game
-            </button>
-          )}
-
           {/* Playing Phase - Play Cards */}
           {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
             <button
