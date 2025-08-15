@@ -216,17 +216,15 @@ function App() {
               ) : (
                 <>
                   {/* Show last 3 cards with stacking effect */}
-                  {gameState.pile.slice(-3).map((card, index, array) => {
-                    const rotations = [-15, 8, -5];
+                  {gameState.pile.slice(-3).map((card, index) => {
                     const zIndex = index + 1; // Stack order (bottom to top)
                     
                     return (
                       <Card
                         key={`pile-${card.id}-${index}`}
                         card={card}
-                        className="w-20 h-28 absolute top-0 left-0 transition-transform duration-200"
+                        className="w-20 h-28 transition-transform duration-200"
                         style={{
-                          transform: `rotate(${rotations[index]}deg)`,
                           zIndex: zIndex
                         }}
                       />
