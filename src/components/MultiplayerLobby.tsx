@@ -8,7 +8,7 @@ interface MultiplayerLobbyProps {
 export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   onBackToMenu
 }) => {
-  const { playerName, setPlayerName, createRoom, currentRoom, isConnected } = useMultiplayer();
+  const { playerName, setPlayerName, createRoom, currentRoom, isConnected, roomPlayers } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
@@ -76,6 +76,18 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
           <div className="mt-4 p-4 bg-green-800 rounded-lg">
             <p className="text-white">Room "{currentRoom.name}" created successfully!</p>
             <p className="text-white text-sm">Room ID: {currentRoom.id}</p>
+            
+            <div className="mt-3">
+              <p className="text-white font-bold mb-2">Players ({roomPlayers.length}/{currentRoom.max_players}):</p>
+              <div className="space-y-1">
+                {roomPlayers.map((player) => (
+                  <div key={player.id} className="text-white text-sm flex items-center gap-2">
+                    <span>{player.player_name}</span>
+                    {player.is_host && <span className="text-yellow-300">(Host)</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ export const useMultiplayer = () => {
   const [playerName, setPlayerName] = useState('');
   const [currentRoom, setCurrentRoom] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [roomPlayers, setRoomPlayers] = useState([]);
 
   // Simple create room function for now
   const createRoom = useCallback(async (roomName: string, maxPlayers: number) => {
@@ -54,6 +55,18 @@ export const useMultiplayer = () => {
         throw playerError;
       }
 
+      // Fetch the room players
+      const { data: players, error: playersError } = await supabase
+        .from('room_players')
+        .select('*')
+        .eq('room_id', room.id);
+
+      if (playersError) {
+        console.error('Players fetch error:', playersError);
+      } else {
+        setRoomPlayers(players || []);
+      }
+
       setCurrentRoom(room);
       setIsConnected(true);
       
@@ -69,6 +82,7 @@ export const useMultiplayer = () => {
     setPlayerName,
     createRoom,
     currentRoom,
-    isConnected
+    isConnected,
+    roomPlayers
   };
 };
