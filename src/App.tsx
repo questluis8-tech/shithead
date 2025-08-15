@@ -98,34 +98,6 @@ function App() {
       </div>
     );
   }
-
-  // Show deal cards screen if no players exist yet
-  if (gameMode === 'singleplayer' && playerCount !== null && gameState.players.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
-          <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
-          <h2 className="text-xl text-white mb-8">Ready to Start?</h2>
-          <button
-            onClick={dealCards}
-            className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
-          >
-            Deal Cards
-          </button>
-          <button
-            onClick={() => {
-              setPlayerCount(null);
-              setGameMode('menu');
-            }}
-            className="mt-4 block mx-auto bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
-          >
-            Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
 
@@ -226,9 +198,9 @@ function App() {
           
           {/* Face-up cards */}
           <div className="flex gap-1">
-            {gameState.players[1]?.faceUpCards.map((card, index) => (
+            {gameState.players[2]?.faceUpCards.map((card, index) => (
               <Card
-                key={`bob-left-up-${index}`}
+                key={`carol-up-${index}`}
                 card={card}
                 className="w-14 h-20"
               />
@@ -237,18 +209,18 @@ function App() {
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
+            {gameState.players[2]?.hand.slice(0, Math.min(6, gameState.players[2]?.hand.length || 0)).map((_, index) => (
               <Card
-                key={`bob-left-hand-${index}`}
+                key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                playerColor="green"
+                playerColor="red"
                 className="w-12 h-16"
               />
             ))}
-            {(gameState.players[1]?.hand.length || 0) > 6 && (
+            {(gameState.players[2]?.hand.length || 0) > 6 && (
               <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
-                +{(gameState.players[1]?.hand.length || 0) - 6}
+                +{(gameState.players[2]?.hand.length || 0) - 6}
               </div>
             )}
           </div>
@@ -316,21 +288,21 @@ function App() {
       {gameState.players.length === 3 && (
         <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
-          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
-            {gameState.players[2]?.name}
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[1]?.name}
           </div>
         </div>
         
-        {/* Alice's cards - horizontal rows */}
+        {/* Bob's cards - horizontal rows */}
         <div className="flex flex-col items-center gap-2">
           {/* Face-down cards */}
           <div className="flex gap-2">
-            {gameState.players[2]?.faceDownCards.map((_, index) => (
+            {gameState.players[1]?.faceDownCards.map((_, index) => (
               <Card
-                key={`alice-right-down-${index}`}
+                key={`bob-right-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                playerColor="black"
+                playerColor="green"
                 className="w-14 h-20"
               />
             ))}
@@ -340,7 +312,7 @@ function App() {
           <div className="flex gap-2">
             {gameState.players[1]?.faceUpCards.map((card, index) => (
               <Card
-                key={`alice-right-up-${index}`}
+                key={`bob-right-up-${index}`}
                 card={card}
                 className="w-14 h-20"
               />
@@ -351,10 +323,10 @@ function App() {
           <div className="flex gap-2">
             {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
               <Card
-                key={`alice-right-hand-${index}`}
+                key={`bob-right-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                playerColor="black"
+                playerColor="green"
                 className="w-12 h-16"
               />
             ))}
@@ -383,10 +355,10 @@ function App() {
           <div className="flex gap-2">
             {gameState.players[3]?.faceDownCards.map((_, index) => (
               <Card
-                key={`bob-left-down-${index}`}
+                key={`carol-right-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
-                playerColor="green"
+                playerColor="red"
                 className="w-14 h-20"
               />
             ))}
@@ -506,6 +478,16 @@ function App() {
         {/* Game Controls - Fixed position below pile/deck */}
         <div className="flex justify-center">
           <div className="w-64 flex justify-center">
+          {/* Setup Phase - Deal Cards */}
+          {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              Deal Cards
+            </button>
+          )}
+          
           {/* Setup Phase - Confirm Face-Up Cards */}
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
             <button
@@ -552,6 +534,16 @@ function App() {
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
             >
               Pick up Cards ({gameState.pile.length})
+            </button>
+          )}
+
+          {/* Game Over - New Game */}
+          {gameState.gamePhase === 'finished' && (
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              New Game
             </button>
           )}
           </div>
