@@ -17,7 +17,9 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     availableRooms,
     currentRoom, 
     isConnected, 
-    roomPlayers 
+    roomPlayers,
+    gameState,
+    startGame
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
@@ -35,6 +37,23 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   React.useEffect(() => {
     fetchAvailableRooms();
   }, [fetchAvailableRooms]);
+
+  // Check if current player is the host
+  const isHost = currentRoom && roomPlayers.some(player => 
+    player.player_id === playerId && player.is_host
+  );
+
+  // Show game starting state
+  if (gameState?.phase === 'starting') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+          <h1 className="text-3xl font-bold text-white mb-6">Game Starting...</h1>
+          <div className="text-white">Please wait while the game initializes.</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
@@ -129,6 +148,27 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 ))}
               </div>
             </div>
+            
+            {/* Start Game Button (Host Only) */}
+            {isHost && roomPlayers.length >= 2 && (
+              <div className="mt-4">
+                <button
+                  onClick={startGame}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold transition-all w-full"
+                >
+                  Start Game ({roomPlayers.length} players)
+                </button>
+              </div>
+            )}
+            
+            {/* Waiting for more players message */}
+            {isHost && roomPlayers.length < 2 && (
+              <div className="mt-4 p-3 bg-yellow-800 bg-opacity-50 rounded-lg">
+                <p className="text-yellow-200 text-sm text-center">
+                  Waiting for more players to join (minimum 2 players needed)
+                </p>
+              </div>
+            )}
           </div>
         )}
         

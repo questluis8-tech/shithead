@@ -10,6 +10,7 @@ export const useMultiplayer = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [roomPlayers, setRoomPlayers] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [gameState, setGameState] = useState(null);
 
   // Real-time subscription for room updates
   React.useEffect(() => {
@@ -255,6 +256,35 @@ export const useMultiplayer = () => {
     }
   }, [playerId, playerName]);
 
+  // Start the game (host only)
+  const startGame = useCallback(async () => {
+    if (!currentRoom || !playerName.trim()) {
+      return;
+    }
+
+    try {
+      console.log('Starting game for room:', currentRoom.id);
+      
+      // Update room status to 'playing'
+      const { error: roomError } = await supabase
+        .from('game_rooms')
+        .update({ status: 'playing' })
+        .eq('id', currentRoom.id);
+
+      if (roomError) {
+        console.error('Room update error:', roomError);
+        throw roomError;
+      }
+
+      // For now, just update local state - we'll implement full game logic later
+      setGameState({ phase: 'starting' });
+      
+    } catch (error) {
+      console.error('Error starting game:', error);
+      alert('Failed to start game: ' + error.message);
+    }
+  }, [currentRoom, playerName]);
+
   return {
     playerId,
     playerName,
@@ -265,6 +295,8 @@ export const useMultiplayer = () => {
     availableRooms,
     currentRoom,
     isConnected,
-    roomPlayers
+    roomPlayers,
+    gameState,
+    startGame
   };
 };
