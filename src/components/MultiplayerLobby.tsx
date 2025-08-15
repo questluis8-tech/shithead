@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
+import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
@@ -18,11 +19,16 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     currentRoom, 
     isConnected, 
     roomPlayers,
-    gameState,
     startGame,
     playerId
   } = useMultiplayer();
 
+  // Add multiplayer game hook
+  const multiplayerGame = useMultiplayerGame(
+    currentRoom?.id || '',
+    playerId,
+    playerName
+  );
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
@@ -51,7 +57,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
           <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
-          <div className="text-white">Initializing game state, please wait...</div>
+          <div className="text-white">
+            Initializing game state, please wait...
+            {multiplayerGame.isLoading && <div>Loading...</div>}
+          </div>
         </div>
       </div>
     );
