@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
+import { MultiplayerGame } from './MultiplayerGame';
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -46,23 +47,28 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Show game starting state
   if (currentRoom?.status === 'playing') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-          <h1 className="text-3xl font-bold text-white mb-6">Game Started!</h1>
-          <p className="text-white mb-4">The game is now in progress.</p>
-          <button
-            onClick={() => {
-              leaveRoom();
-              onBackToMenu();
-            }}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
-          >
-            Leave Game
-          </button>
+    if (currentRoom.game_state) {
+      return (
+        <MultiplayerGame
+          gameState={currentRoom.game_state}
+          roomPlayers={roomPlayers}
+          playerId={playerId}
+          onLeaveRoom={() => {
+            leaveRoom();
+            onBackToMenu();
+          }}
+        />
+      );
+    } else {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
+            <p className="text-white mb-4">Setting up the game state...</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return (
