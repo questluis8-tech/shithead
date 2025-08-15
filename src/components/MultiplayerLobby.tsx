@@ -9,6 +9,9 @@ interface MultiplayerLobbyProps {
 export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   onBackToMenu
 }) => {
+  const [showFireEffect, setShowFireEffect] = React.useState(false);
+  const [showPickupEffect, setShowPickupEffect] = React.useState(false);
+  
   const { 
     playerName, 
     setPlayerName, 
@@ -256,6 +259,24 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
           {/* Center Area - Pile, Deck, and Controls */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {/* Fire flash for burns */}
+            {showFireEffect && (
+              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+                <div className="text-6xl animate-bounce">
+                  🔥
+                </div>
+              </div>
+            )}
+            
+            {/* Pickup effect */}
+            {showPickupEffect && (
+              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+                <div className="text-6xl animate-pulse">
+                  😰
+                </div>
+              </div>
+            )}
+            
             {/* Pile and Deck - Fixed position */}
             <div className="flex items-center justify-center gap-8 mb-8">
               {/* Pile */}
@@ -454,6 +475,11 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                           if (hasTen || burnPile) {
                             // Clear pile and same player goes again
                             newGameState.pile = [];
+                            
+                            // Show fire effect
+                            setShowFireEffect(true);
+                            setTimeout(() => setShowFireEffect(false), 1500);
+                            
                             // Don't change currentPlayerIndex - same player continues
                           } else {
                             // Normal play - add to pile and next player
@@ -516,6 +542,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                           const newGameState = { ...currentRoom.game_state };
                           const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
                           const player = { ...newGameState.players[playerIndex] };
+                          
+                          // Show pickup effect
+                          setShowPickupEffect(true);
+                          setTimeout(() => setShowPickupEffect(false), 1500);
                           
                           // Add all pile cards to hand
                           player.hand = [...player.hand, ...newGameState.pile];
@@ -640,6 +670,9 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                                 const hasTen = revealedCard.rank === 10;
                                 if (hasTen) {
                                   newGameState.pile = [];
+                                  // Show fire effect for 10
+                                  setShowFireEffect(true);
+                                  setTimeout(() => setShowFireEffect(false), 1500);
                                   // Same player continues
                                 } else {
                                   // Next player's turn
@@ -657,6 +690,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                                 }
                               } else {
                                 // Can't play - pick up pile + revealed card
+                                // Show pickup effect
+                                setShowPickupEffect(true);
+                                setTimeout(() => setShowPickupEffect(false), 1500);
+                                
                                 player.hand = [...player.hand, ...newGameState.pile, revealedCard];
                                 newGameState.pile = [];
                                 newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
