@@ -112,6 +112,40 @@ export const useGame = () => {
             players: newPlayers
           };
         });
+      } else if (event.key === 'f' && gameState.gamePhase === 'playing') {
+        // Give Bob three 4s and human player one 4 for burn testing
+        setGameState(prev => {
+          const newPlayers = prev.players.map((player, index) => {
+            if (index === 3) { // Bob (index 3)
+              const suits = ['hearts', 'diamonds', 'clubs'] as const;
+              const newCards = suits.map((suit, i) => ({
+                suit,
+                rank: 4,
+                id: `debug-bob-4-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+              }));
+              return {
+                ...player,
+                hand: [...player.hand, ...newCards]
+              };
+            } else if (index === 0) { // Human player
+              const fourCard = {
+                suit: 'spades' as const,
+                rank: 4,
+                id: `debug-human-4-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              };
+              return {
+                ...player,
+                hand: [...player.hand, fourCard]
+              };
+            }
+            return player;
+          });
+          
+          return {
+            ...prev,
+            players: newPlayers
+          };
+        });
       }
     };
 
