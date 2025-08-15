@@ -63,15 +63,6 @@ export const useMultiplayer = () => {
     return () => clearInterval(pollInterval);
   }, [currentRoom?.id, fetchRoomData]);
 
-  // Function to fetch current room players and room info
-  const fetchRoomData = useCallback(async () => {
-    if (!currentRoom) return;
-
-    try {
-      console.log('Fetching room data for room:', currentRoom.id);
-    }
-  }
-  )
   // Real-time subscription for room updates
   useEffect(() => {
     if (!currentRoom) return;
