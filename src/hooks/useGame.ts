@@ -38,6 +38,7 @@ export const useGame = () => {
   
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [jumpInWindow, setJumpInWindow] = useState<{ rank: number; timeoutId: NodeJS.Timeout } | null>(null);
+  const [lastAction, setLastAction] = useState<'burn' | 'pickup' | null>(null);
 
   // Debug keybind to clear hand and face-up cards
   useEffect(() => {
@@ -211,6 +212,7 @@ export const useGame = () => {
                          newCurrentPlayer.faceUpCards.length === 0 && 
                          newCurrentPlayer.faceDownCards.length === 0;
           
+          setLastAction('burn');
           return {
             ...prev,
             players: newPlayers,
@@ -257,6 +259,7 @@ export const useGame = () => {
           index === prev.currentPlayerIndex ? newCurrentPlayerWithCards : player
         );
         
+        setLastAction('pickup');
         return {
           ...prev,
           players: newPlayersWithCards,
@@ -569,6 +572,8 @@ export const useGame = () => {
                        updatedPlayer.faceUpCards.length === 0 && 
                        updatedPlayer.faceDownCards.length === 0;
         
+        setLastAction('burn');
+        setLastAction('burn');
         return {
           ...prev,
           players: newPlayers,
@@ -612,6 +617,7 @@ export const useGame = () => {
   }, [selectedCards, canPlaySelected]);
 
   const pickupCards = useCallback(() => {
+    setLastAction('pickup');
     setGameState(prev => {
       // Create completely new state to avoid any reference issues
       const newState = {
@@ -750,6 +756,7 @@ export const useGame = () => {
                 players: newPlayers,
                 pile: [],
                 deck: newDeck
+              setLastAction('burn');
                 // Same player continues
               };
             }
@@ -801,6 +808,7 @@ export const useGame = () => {
           });
         } else {
           // AI must pick up pile
+          setLastAction('pickup');
           setGameState(prev => {
             return {
               ...prev,
@@ -845,6 +853,8 @@ export const useGame = () => {
     pickupCards,
     canPlayAnyCard: canPlayAnyCard(),
     playFaceDownCard,
-    jumpInWindow
+    jumpInWindow,
+    lastAction,
+    clearLastAction: () => setLastAction(null)
   };
 };
