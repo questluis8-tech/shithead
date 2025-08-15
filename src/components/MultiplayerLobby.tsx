@@ -52,6 +52,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
+  if (multiplayerGame.gameState && multiplayerGame.gameState.status === 'playing') {
     return (
       <MultiplayerGame
         gameState={multiplayerGame.gameState}
