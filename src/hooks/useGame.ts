@@ -476,11 +476,18 @@ export const useGame = () => {
       // Check for 10 (clears pile)
       const hasTen = selectedCards.some(card => card.rank === 10);
       if (hasTen || burnPile) {
+        // Check win condition before clearing pile
+        const hasWon = updatedPlayer.hand.length === 0 && 
+                       updatedPlayer.faceUpCards.length === 0 && 
+                       updatedPlayer.faceDownCards.length === 0;
+        
         return {
           ...prev,
           players: newPlayers,
           pile: [],
           deck: newDeck,
+          gamePhase: hasWon ? 'finished' : prev.gamePhase,
+          winner: hasWon ? updatedPlayer.id : prev.winner
           // Same player goes again
         };
       }
