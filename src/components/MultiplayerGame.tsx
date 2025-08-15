@@ -1,6 +1,9 @@
 import React from 'react';
+import { Card } from './Card';
 import { MultiplayerGameState } from '../types/multiplayer';
 import { RoomPlayer } from '../types/multiplayer';
+import { Card as CardType } from '../types/game';
+import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from '../utils/cardUtils';
 import { LogOut, Users } from 'lucide-react';
 
 interface MultiplayerGameProps {
@@ -43,7 +46,6 @@ export const MultiplayerGame: React.FC<MultiplayerGameProps> = ({
           <div>Your name: {humanPlayer.name}</div>
           <div>Phase: {gameState.gamePhase}</div>
           <div>Players: {gameState.players.length}</div>
-          <div>Your hand: {humanPlayer.hand.length} cards</div>
         </div>
       </div>
 
