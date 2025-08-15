@@ -37,6 +37,23 @@ export const useMultiplayer = () => {
       }
 
       console.log('Room created:', room);
+      
+      // Add the host as the first player
+      const { error: playerError } = await supabase
+        .from('room_players')
+        .insert({
+          room_id: room.id,
+          player_id: playerId,
+          player_name: playerName,
+          player_index: 0,
+          is_host: true
+        });
+
+      if (playerError) {
+        console.error('Player creation error:', playerError);
+        throw playerError;
+      }
+
       setCurrentRoom(room);
       setIsConnected(true);
       
