@@ -12,6 +12,7 @@ interface CardProps {
   disabled?: boolean;
   selected?: boolean;
   playerColor?: 'red' | 'blue' | 'black' | 'green';
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -23,7 +24,8 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   disabled = false,
   selected = false,
-  playerColor = 'blue'
+  playerColor = 'blue',
+  style
 }) => {
   const handleClick = () => {
     if (!disabled && onClick) {
@@ -77,6 +79,7 @@ export const Card: React.FC<CardProps> = ({
       onClick={handleClick}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
+      style={style}
     >
       {faceDown ? (
         <div className={`absolute inset-0 ${getCardBackColor()} rounded-lg border-2 border-yellow-600`}>

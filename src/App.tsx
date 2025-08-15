@@ -208,13 +208,32 @@ function App() {
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
-            <div className="w-20 h-28">
+            <div className="w-20 h-28 relative">
               {gameState.pile.length === 0 ? (
                 <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                   Empty
                 </div>
               ) : (
-                <Card card={topCard} className="w-20 h-28" />
+                <>
+                  {/* Show last 3 cards with stacking effect */}
+                  {gameState.pile.slice(-3).map((card, index) => {
+                    const rotations = [-8, 4, -2]; // Different rotations for each card
+                    const zIndexes = [1, 2, 3]; // Stack order
+                    const actualIndex = gameState.pile.length >= 3 ? index : index + (3 - gameState.pile.length);
+                    
+                    return (
+                      <Card
+                        key={`pile-${card.id}-${index}`}
+                        card={card}
+                        className="w-20 h-28 absolute top-0 left-0 transition-transform duration-200"
+                        style={{
+                          transform: `rotate(${rotations[actualIndex]}deg)`,
+                          zIndex: zIndexes[index]
+                        }}
+                      />
+                    );
+                  })}
+                </>
               )}
             </div>
           </div>
