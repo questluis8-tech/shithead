@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
+import { MultiplayerGame } from './MultiplayerGame';
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -46,24 +47,40 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Show game starting state
   if (currentRoom?.status === 'playing') {
+    // Check if game state is loaded
+    if (currentRoom.game_state && currentRoom.game_state.players && currentRoom.game_state.players.length > 0) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
           <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-            <h1 className="text-3xl font-bold text-white mb-6">Game Started!</h1>
-            <div className="text-white mb-4">Phase: {currentRoom.game_state?.gamePhase}</div>
-            <div className="text-white mb-4">Your hand: {currentRoom.game_state?.players.find(p => p.id === playerId)?.hand.length} cards</div>
+            <h1 className="text-3xl font-bold text-white mb-6">Multiplayer Game</h1>
+            <div className="text-white">
+              <div>Your name: {humanPlayer.name}</div>
+              <div>Phase: {gameState.gamePhase}</div>
+              <div>Players: {gameState.players.length}</div>
+              <div>Your hand: {humanPlayer.hand.length} cards</div>
+            </div>
             <button
               onClick={() => {
                 leaveRoom();
                 onBackToMenu();
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all mt-4"
             >
               Leave Game
             </button>
           </div>
         </div>
       );
+    } else {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
+            <div className="text-white">Game is starting, please wait...</div>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (

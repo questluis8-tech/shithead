@@ -1,9 +1,11 @@
 import React from 'react';
+import { MultiplayerGameState } from '../types/multiplayer';
+import { RoomPlayer } from '../types/multiplayer';
 import { LogOut, Users } from 'lucide-react';
 
 interface MultiplayerGameProps {
-  gameState: any;
-  roomPlayers: any[];
+  gameState: MultiplayerGameState;
+  roomPlayers: RoomPlayer[];
   playerId: string;
   onLeaveRoom: () => void;
 }
