@@ -398,7 +398,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       <button
                         onClick={async () => {
                           // Import card utilities
-                          const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
+                          const { canPlayCard, getEffectiveTopCard, shouldBurn } = await import('../utils/cardUtils');
                           
                           const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
                           const canPlay = canPlayCard(selectedCards[0], topCard);
@@ -412,6 +412,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                           const newGameState = { ...currentRoom.game_state };
                           const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
                           const player = { ...newGameState.players[playerIndex] };
+                          let newDeck = [...newGameState.deck];
                           
                           // Remove played cards from player's hand/faceUp cards
                           selectedCards.forEach(card => {
@@ -425,15 +426,50 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             }
                           });
                           
+                          // Draw cards to maintain 3 in hand (if deck has cards)
+                          const cardsToDraw = Math.min(3 - player.hand.length, newDeck.length);
+                          for (let i = 0; i < cardsToDraw; i++) {
+                            const drawnCard = newDeck.shift();
+                            if (drawnCard) {
+                              player.hand.push(drawnCard);
+                            }
+                          }
+                          
                           // Add cards to pile
                           const newPile = [...newGameState.pile, ...selectedCards];
                           
+                          // Check for special effects
+                          let burnPile = false;
+                          if (shouldBurn(newPile)) {
+                            burnPile = true;
+                          }
+                          
+                          // Check for 10 (clears pile)
+                          const hasTen = selectedCards.some(card => card.rank === 10);
+                          
                           // Update player in game state
                           newGameState.players[playerIndex] = player;
-                          newGameState.pile = newPile;
+                          newGameState.deck = newDeck;
                           
-                          // Move to next player
-                          newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                          if (hasTen || burnPile) {
+                            // Clear pile and same player goes again
+                            newGameState.pile = [];
+                            // Don't change currentPlayerIndex - same player continues
+                          } else {
+                            // Normal play - add to pile and next player
+                            newGameState.pile = newPile;
+                            newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                          }
+                          
+                          // Check win condition
+                          const hasWon = player.hand.length === 0 && 
+                                         player.faceUpCards.length === 0 && 
+                                         player.faceDownCards.length === 0;
+                          
+                          if (hasWon) {
+                            newGameState.gamePhase = 'finished';
+                            newGameState.winner = playerId;
+                          }
                           
                           try {
                             const { error } = await supabase
@@ -453,6 +489,58 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                         className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
                       >
                         Play Cards ({selectedCards.length})
+                      </button>
+                    )}
+                    
+                    {/* Pick up cards button */}
+                    {currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && 
+                     selectedCards.length === 0 && 
+                     currentRoom.game_state.pile.length > 0 && (
+                      <button
+                        onClick={async () => {
+                          // Import card utilities
+                          const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
+                          
+                          // Check if player can play any card
+                          const topCard = getEffectiveTopCard(currentRoom.game_state.pile);
+                          const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
+                          const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
+                                                    humanPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
+                          
+                          if (canPlayFromHand || canPlayFromFaceUp) {
+                            // Player can play cards, don't show pickup button
+                            return;
+                          }
+                          
+                          // Player must pick up pile
+                          const newGameState = { ...currentRoom.game_state };
+                          const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+                          const player = { ...newGameState.players[playerIndex] };
+                          
+                          // Add all pile cards to hand
+                          player.hand = [...player.hand, ...newGameState.pile];
+                          
+                          // Update game state
+                          newGameState.players[playerIndex] = player;
+                          newGameState.pile = [];
+                          newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                          
+                          try {
+                            const { error } = await supabase
+                              .from('game_rooms')
+                              .update({ game_state: newGameState })
+                              .eq('id', currentRoom.id);
+
+                            if (error) {
+                              console.error('Error picking up cards:', error);
+                            }
+                          } catch (error) {
+                            console.error('Error picking up cards:', error);
+                          }
+                        }}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                      >
+                        Pick up Cards ({currentRoom.game_state.pile.length})
                       </button>
                     )}
                     
@@ -481,6 +569,25 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     Waiting for other players...
                   </div>
                 )}
+                
+                {/* Game Over */}
+                {currentRoom.game_state.gamePhase === 'finished' && (
+                  <div className="text-center">
+                    <div className="bg-purple-600 text-white px-6 py-3 rounded-lg font-bold mb-4">
+                      {currentRoom.game_state.winner === playerId ? 'You Won! 🏆' : 
+                       `${currentRoom.game_state.players.find(p => p.id === currentRoom.game_state.winner)?.name} Won!`}
+                    </div>
+                    <button
+                      onClick={() => {
+                        leaveRoom();
+                        onBackToMenu();
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+                    >
+                      Back to Menu
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -507,6 +614,72 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                       faceDown={true}
                       playerColor="blue"
+                      onClick={
+                        humanPlayer.hand.length === 0 && 
+                        humanPlayer.faceUpCards.length === 0 && 
+                        currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) && 
+                        currentRoom.game_state.gamePhase === 'playing'
+                          ? async () => {
+                              // Play face-down card
+                              const newGameState = { ...currentRoom.game_state };
+                              const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+                              const player = { ...newGameState.players[playerIndex] };
+                              
+                              // Remove the face-down card
+                              const revealedCard = player.faceDownCards.splice(index, 1)[0];
+                              
+                              // Import card utilities
+                              const { canPlayCard, getEffectiveTopCard } = await import('../utils/cardUtils');
+                              const topCard = getEffectiveTopCard(newGameState.pile);
+                              
+                              if (canPlayCard(revealedCard, topCard)) {
+                                // Can play the card
+                                newGameState.pile = [...newGameState.pile, revealedCard];
+                                
+                                // Check for special effects
+                                const hasTen = revealedCard.rank === 10;
+                                if (hasTen) {
+                                  newGameState.pile = [];
+                                  // Same player continues
+                                } else {
+                                  // Next player's turn
+                                  newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                                }
+                                
+                                // Check win condition
+                                const hasWon = player.hand.length === 0 && 
+                                               player.faceUpCards.length === 0 && 
+                                               player.faceDownCards.length === 0;
+                                
+                                if (hasWon) {
+                                  newGameState.gamePhase = 'finished';
+                                  newGameState.winner = playerId;
+                                }
+                              } else {
+                                // Can't play - pick up pile + revealed card
+                                player.hand = [...player.hand, ...newGameState.pile, revealedCard];
+                                newGameState.pile = [];
+                                newGameState.currentPlayerIndex = (newGameState.currentPlayerIndex + 1) % newGameState.players.length;
+                              }
+                              
+                              // Update player in game state
+                              newGameState.players[playerIndex] = player;
+                              
+                              try {
+                                const { error } = await supabase
+                                  .from('game_rooms')
+                                  .update({ game_state: newGameState })
+                                  .eq('id', currentRoom.id);
+
+                                if (error) {
+                                  console.error('Error playing face-down card:', error);
+                                }
+                              } catch (error) {
+                                console.error('Error playing face-down card:', error);
+                              }
+                            }
+                          : undefined
+                      }
                       className="w-16 h-24"
                     />
                   ))}
