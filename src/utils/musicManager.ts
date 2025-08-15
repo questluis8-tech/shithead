@@ -14,26 +14,26 @@ class MusicManager {
     }
   }
 
-  private createElectronicChord(frequencies: number[], startTime: number, duration: number) {
+  private createJazzChord(frequencies: number[], startTime: number, duration: number) {
     if (!this.audioContext || !this.gainNode) return;
 
     frequencies.forEach((freq, index) => {
-      // Main oscillator
+      // Main jazz chord tone
       const osc = this.audioContext!.createOscillator();
       const oscGain = this.audioContext!.createGain();
       
-      // Create a bright, electronic tone
-      osc.type = 'sawtooth';
+      // Warm jazz tone
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, startTime);
       
-      // Add slight detuning for richness
-      const detune = (Math.random() - 0.5) * 5;
+      // Add slight detuning for jazz warmth
+      const detune = (Math.random() - 0.5) * 3;
       osc.detune.setValueAtTime(detune, startTime);
       
-      // Sharp attack, sustained release for electronic feel
+      // Smooth jazz envelope - gentle attack and release
       oscGain.gain.setValueAtTime(0, startTime);
-      oscGain.gain.linearRampToValueAtTime(0.2 / frequencies.length, startTime + 0.05);
-      oscGain.gain.setValueAtTime(0.2 / frequencies.length, startTime + duration - 0.1);
+      oscGain.gain.linearRampToValueAtTime(0.15 / frequencies.length, startTime + 0.2);
+      oscGain.gain.setValueAtTime(0.15 / frequencies.length, startTime + duration - 0.5);
       oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
       
       osc.connect(oscGain);
@@ -44,88 +44,88 @@ class MusicManager {
       
       this.oscillators.push(osc);
       
-      // Add harmonic for electronic richness
-      const harmonic = this.audioContext!.createOscillator();
-      const harmonicGain = this.audioContext!.createGain();
+      // Add subtle triangle wave for jazz warmth
+      const warmth = this.audioContext!.createOscillator();
+      const warmthGain = this.audioContext!.createGain();
       
-      harmonic.type = 'square';
-      harmonic.frequency.setValueAtTime(freq * 2, startTime);
+      warmth.type = 'triangle';
+      warmth.frequency.setValueAtTime(freq * 0.5, startTime); // Sub-harmonic for bass warmth
       
-      harmonicGain.gain.setValueAtTime(0, startTime);
-      harmonicGain.gain.linearRampToValueAtTime(0.05 / frequencies.length, startTime + 0.05);
-      harmonicGain.gain.setValueAtTime(0.05 / frequencies.length, startTime + duration - 0.1);
-      harmonicGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      warmthGain.gain.setValueAtTime(0, startTime);
+      warmthGain.gain.linearRampToValueAtTime(0.08 / frequencies.length, startTime + 0.3);
+      warmthGain.gain.setValueAtTime(0.08 / frequencies.length, startTime + duration - 0.5);
+      warmthGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
       
-      harmonic.connect(harmonicGain);
-      harmonicGain.connect(this.gainNode!);
+      warmth.connect(warmthGain);
+      warmthGain.connect(this.gainNode!);
       
-      harmonic.start(startTime);
-      harmonic.stop(startTime + duration);
+      warmth.start(startTime);
+      warmth.stop(startTime + duration);
       
-      this.oscillators.push(harmonic);
+      this.oscillators.push(warmth);
     });
   }
 
-  private playElectronicProgression() {
+  private playJazzProgression() {
     if (!this.audioContext || !this.isPlaying) return;
 
     const currentTime = this.audioContext.currentTime;
-    const chordDuration = 2; // 2 seconds per chord for more energy
+    const chordDuration = 4; // 4 seconds per chord for smooth jazz feel
     
-    // Electronic chord progression in A minor (energetic)
+    // Sophisticated jazz chord progression (ii-V-I-vi in C major)
     const chords = [
-      [220.00, 277.18, 329.63], // A minor
-      [246.94, 311.13, 369.99], // F major
-      [261.63, 329.63, 392.00], // C major
-      [293.66, 369.99, 440.00], // G major
+      [146.83, 174.61, 220.00, 261.63], // Dm7 (ii7)
+      [196.00, 246.94, 293.66, 349.23], // G7 (V7)
+      [130.81, 164.81, 196.00, 246.94], // Cmaj7 (Imaj7)
+      [220.00, 261.63, 329.63, 392.00], // Am7 (vi7)
     ];
     
     chords.forEach((chord, index) => {
       const startTime = currentTime + (index * chordDuration);
-      this.createElectronicChord(chord, startTime, chordDuration * 0.8);
+      this.createJazzChord(chord, startTime, chordDuration * 0.9);
     });
     
     // Schedule next progression
     setTimeout(() => {
       if (this.isPlaying) {
-        this.playElectronicProgression();
+        this.playJazzProgression();
       }
     }, chordDuration * chords.length * 1000);
   }
 
-  private addElectronicBeats() {
+  private addJazzRhythm() {
     if (!this.audioContext || !this.gainNode || !this.isPlaying) return;
 
     const currentTime = this.audioContext.currentTime;
-    const beatInterval = 0.375; // 160 BPM - more energetic
+    const beatInterval = 0.5; // 120 BPM - smooth jazz tempo
     
-    // Electronic kick and snare pattern
-    for (let i = 0; i < 16; i++) {
+    // Subtle jazz rhythm pattern
+    for (let i = 0; i < 32; i++) {
       const beatTime = currentTime + (i * beatInterval);
       
-      if (i % 4 === 0) {
-        // Electronic kick (punchy low frequency)
-        this.createElectronicDrumHit(80, beatTime, 0.15, 'sine');
-      } else if (i % 4 === 2) {
-        // Electronic snare (bright and sharp)
-        this.createElectronicDrumHit(400, beatTime, 0.08, 'square');
+      if (i % 8 === 0) {
+        // Soft jazz kick (warm and mellow)
+        this.createJazzDrumHit(60, beatTime, 0.3, 'sine');
+      } else if (i % 8 === 4) {
+        // Gentle snare (brushed sound)
+        this.createJazzDrumHit(200, beatTime, 0.15, 'triangle');
       }
       
-      // Electronic hi-hat (crisp and frequent)
-      if (i % 2 === 1) {
-        this.createElectronicDrumHit(12000, beatTime, 0.03, 'sawtooth');
+      // Subtle hi-hat (soft and jazzy)
+      if (i % 4 === 2) {
+        this.createJazzDrumHit(8000, beatTime, 0.05, 'triangle');
       }
     }
     
     // Schedule next drum pattern
     setTimeout(() => {
       if (this.isPlaying) {
-        this.addElectronicBeats();
+        this.addJazzRhythm();
       }
-    }, 16 * beatInterval * 1000);
+    }, 32 * beatInterval * 1000);
   }
 
-  private createElectronicDrumHit(frequency: number, startTime: number, duration: number, type: OscillatorType) {
+  private createJazzDrumHit(frequency: number, startTime: number, duration: number, type: OscillatorType) {
     if (!this.audioContext || !this.gainNode) return;
 
     const osc = this.audioContext.createOscillator();
@@ -134,9 +134,9 @@ class MusicManager {
     osc.type = type;
     osc.frequency.setValueAtTime(frequency, startTime);
     
-    // Sharp attack and quick decay for electronic drums
+    // Smooth attack and gentle decay for jazz drums
     oscGain.gain.setValueAtTime(0, startTime);
-    oscGain.gain.linearRampToValueAtTime(0.15, startTime + 0.005);
+    oscGain.gain.linearRampToValueAtTime(0.08, startTime + 0.02);
     oscGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
     
     osc.connect(oscGain);
@@ -161,18 +161,18 @@ class MusicManager {
       
       this.isPlaying = true;
       
-      // Start the electronic progression
-      this.playElectronicProgression();
+      // Start the jazz progression
+      this.playJazzProgression();
       
-      // Start beats with slight delay
+      // Start jazz rhythm with slight delay
       setTimeout(() => {
         if (this.isPlaying) {
-          this.addElectronicBeats();
+          this.addJazzRhythm();
         }
-      }, 1000);
+      }, 2000);
       
     } catch (error) {
-      console.warn('Could not start electronic music:', error);
+      console.warn('Could not start jazz music:', error);
     }
   }
 
