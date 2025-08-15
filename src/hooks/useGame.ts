@@ -350,6 +350,7 @@ export const useGame = () => {
                      updatedPlayer.faceUpCards.length === 0 && 
                      updatedPlayer.faceDownCards.length === 0;
       
+      setLastAction('burn');
       return {
         ...prev,
         players: newPlayers,
