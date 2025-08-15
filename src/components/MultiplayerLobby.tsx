@@ -52,6 +52,11 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
+  // Test rendering the game component
+  if (multiplayerGame.gameState) {
+    return <div className="min-h-screen bg-red-500 text-white p-8">Game would render here</div>;
+  }
+
   if (multiplayerGame.gameState && multiplayerGame.gameState.status === 'playing') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
