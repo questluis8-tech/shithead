@@ -1,6 +1,5 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
-import { useMultiplayerGame } from '../hooks/useMultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
@@ -19,16 +18,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     currentRoom, 
     isConnected, 
     roomPlayers,
+    gameState,
     startGame,
     playerId
   } = useMultiplayer();
-
-  // Add multiplayer game hook
-  const multiplayerGame = useMultiplayerGame(
-    currentRoom?.id || '',
-    playerId,
-    playerName
-  );
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
@@ -51,15 +44,13 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
-  // Check if game has started
-  if (multiplayerGame.gameState) {
+  // Show game starting state
+  if (currentRoom?.status === 'playing') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Game Started!</h2>
-          <p className="text-white">Game state loaded successfully</p>
-          <p className="text-white text-sm mt-2">Phase: {multiplayerGame.gameState.gamePhase}</p>
-          <p className="text-white text-sm">Players: {multiplayerGame.gameState.players.length}</p>
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+          <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
+          <div className="text-white">Game is starting, please wait...</div>
         </div>
       </div>
     );
