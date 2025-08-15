@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGame } from './hooks/useGame';
 import { Card } from './components/Card';
+import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
 function App() {
@@ -59,7 +60,7 @@ function App() {
               SINGLE PLAYER
             </button>
             <button
-              onClick={() => alert('Multiplayer coming soon!')}
+              onClick={() => setGameMode('multiplayer')}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
             >
               MULTIPLAYER
@@ -67,6 +68,15 @@ function App() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // Show multiplayer lobby
+  if (gameMode === 'multiplayer') {
+    return (
+      <MultiplayerLobby 
+        onBackToMenu={() => setGameMode('menu')}
+      />
     );
   }
 
