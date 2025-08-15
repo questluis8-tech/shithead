@@ -237,6 +237,70 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               </button>
             </div>
 
+            {/* Other Players positioned around the table */}
+            {currentRoom.game_state.players
+              .filter(player => player.id !== playerId)
+              .map((player, index) => {
+                const playerIndex = currentRoom.game_state.players.findIndex(p => p.id === player.id);
+                const isCurrentPlayer = currentRoom.game_state.currentPlayerIndex === playerIndex;
+                
+                // Position players around the table (top for now, we'll add more positions later)
+                return (
+                  <div
+                    key={player.id}
+                    className="absolute top-8 left-1/2 transform -translate-x-1/2"
+                  >
+                    <div className="text-center mb-2">
+                      <div className={`text-sm font-bold ${isCurrentPlayer ? 'text-yellow-300' : 'text-white'}`}>
+                        {player.name}
+                      </div>
+                    </div>
+                    
+                    {/* Face-down cards */}
+                    <div className="flex gap-2 justify-center mb-1">
+                      {player.faceDownCards.map((_, cardIndex) => (
+                        <Card
+                          key={`${player.id}-down-${cardIndex}`}
+                          card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                          faceDown={true}
+                          playerColor="black"
+                          className="w-12 h-16"
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* Face-up cards */}
+                    <div className="flex gap-2 justify-center mb-1">
+                      {player.faceUpCards.map((card, cardIndex) => (
+                        <Card
+                          key={`${player.id}-up-${cardIndex}`}
+                          card={card}
+                          className="w-12 h-16"
+                        />
+                      ))}
+                    </div>
+                    
+                    {/* Hand (face-down for other players) */}
+                    <div className="flex gap-1 justify-center">
+                      {player.hand.slice(0, Math.min(6, player.hand.length)).map((_, cardIndex) => (
+                        <Card
+                          key={`${player.id}-hand-${cardIndex}`}
+                          card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                          faceDown={true}
+                          playerColor="black"
+                          className="w-10 h-14"
+                        />
+                      ))}
+                      {player.hand.length > 6 && (
+                        <div className="w-10 h-14 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                          +{player.hand.length - 6}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
             {/* Available Rooms */}
             {availableRooms.length > 0 && (
               <div className="mb-6">
