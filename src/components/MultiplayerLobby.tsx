@@ -60,16 +60,39 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 <div>Players: {currentRoom.game_state.players.length}</div>
                 <div>Your hand: {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.length || 0} cards</div>
               
-              {/* Test: Show just the first card */}
-              {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.[0] && (
-                <div className="mt-4">
-                  <div className="text-white text-sm mb-2">First card in your hand:</div>
-                  <Card 
-                    card={currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.[0]} 
-                    className="w-16 h-24"
-                  />
+              {/* Center Area - Pile and Deck */}
+              <div className="mt-8 flex items-center justify-center gap-8">
+                {/* Pile */}
+                <div className="text-center">
+                  <h3 className="text-white font-bold mb-2">Pile ({currentRoom.game_state.pile.length})</h3>
+                  <div className="w-20 h-28">
+                    {currentRoom.game_state.pile.length === 0 ? (
+                      <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
+                        Empty
+                      </div>
+                    ) : (
+                      <Card
+                        card={currentRoom.game_state.pile[currentRoom.game_state.pile.length - 1]}
+                        className="w-20 h-28"
+                      />
+                    )}
+                  </div>
                 </div>
-              )}
+
+                {/* Deck */}
+                <div className="text-center">
+                  <h3 className="text-white font-bold mb-2">Deck ({currentRoom.game_state.deck.length})</h3>
+                  <div className="w-20 h-28">
+                    {currentRoom.game_state.deck.length > 0 ? (
+                      <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
+                    ) : (
+                      <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                        Empty
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               </div>
               <button
                 onClick={() => {
