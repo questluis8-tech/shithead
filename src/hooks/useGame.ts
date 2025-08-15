@@ -570,31 +570,56 @@ export const useGame = () => {
         
         // Simple AI: play lowest valid card
         let cardToPlay = null;
+        let cardsToPlay: Card[] = [];
         
         // Try hand cards first
         if (currentPlayer.hand.length > 0) {
           cardToPlay = currentPlayer.hand.find(card => canPlayCard(card, topCard));
+          
+          if (cardToPlay) {
+            // 90% of the time, try to play all cards of the same rank
+            if (Math.random() < 0.9) {
+              cardsToPlay = currentPlayer.hand.filter(card => 
+                card.rank === cardToPlay.rank && canPlayCard(card, topCard)
+              );
+            } else {
+              cardsToPlay = [cardToPlay];
+            }
+          }
         } else if (currentPlayer.faceUpCards.length > 0) {
           // Only try face-up cards if hand is empty
           cardToPlay = currentPlayer.faceUpCards.find(card => canPlayCard(card, topCard));
+          
+          if (cardToPlay) {
+            // 90% of the time, try to play all cards of the same rank
+            if (Math.random() < 0.9) {
+              cardsToPlay = currentPlayer.faceUpCards.filter(card => 
+                card.rank === cardToPlay.rank && canPlayCard(card, topCard)
+              );
+            } else {
+              cardsToPlay = [cardToPlay];
+            }
+          }
         }
         
-        if (cardToPlay) {
+        if (cardsToPlay.length > 0) {
           setGameState(prev => {
             const newPlayers = [...prev.players];
             const aiPlayer = newPlayers[prev.currentPlayerIndex];
-            const newPile = [...prev.pile, cardToPlay];
+            const newPile = [...prev.pile, ...cardsToPlay];
             let newDeck = [...prev.deck];
             
-            // Remove card from AI player
-            const handIndex = aiPlayer.hand.findIndex(c => c.id === cardToPlay.id);
-            const faceUpIndex = aiPlayer.faceUpCards.findIndex(c => c.id === cardToPlay.id);
-            
-            if (handIndex !== -1) {
-              aiPlayer.hand.splice(handIndex, 1);
-            } else if (faceUpIndex !== -1) {
-              aiPlayer.faceUpCards.splice(faceUpIndex, 1);
-            }
+            // Remove played cards from AI player
+            cardsToPlay.forEach(card => {
+              const handIndex = aiPlayer.hand.findIndex(c => c.id === card.id);
+              const faceUpIndex = aiPlayer.faceUpCards.findIndex(c => c.id === card.id);
+              
+              if (handIndex !== -1) {
+                aiPlayer.hand.splice(handIndex, 1);
+              } else if (faceUpIndex !== -1) {
+                aiPlayer.faceUpCards.splice(faceUpIndex, 1);
+              }
+            });
             
             // Draw cards to maintain 3 in hand (if deck has cards)
             const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
@@ -607,7 +632,7 @@ export const useGame = () => {
               burnPile = true;
             }
             
-            const hasTen = cardToPlay.rank === 10;
+            const hasTen = cardsToPlay.some(card => card.rank === 10);
             if (hasTen || burnPile) {
               return {
                 ...prev,
