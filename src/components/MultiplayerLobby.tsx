@@ -46,7 +46,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
         
         <div className="flex gap-4">
           <button
-            onClick={() => console.log('Create room:', roomName)}
+            onClick={() => createRoom(roomName, 4)}
             disabled={!playerName.trim() || !roomName.trim()}
             className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-bold transition-all flex-1"
           >
