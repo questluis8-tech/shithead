@@ -12,6 +12,7 @@ function App() {
   const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
   const [playerCount, setPlayerCount] = React.useState<number | null>(null);
   const [musicEnabled, setMusicEnabled] = React.useState(false);
+  const [musicMuted, setMusicMuted] = React.useState(false);
 
   const {
     gameState,
@@ -81,21 +82,23 @@ function App() {
         <div className="absolute top-4 right-4 z-10">
           <button
             onClick={() => {
-              musicManager.toggle();
-              setMusicEnabled(musicManager.isActive());
+              if (!musicEnabled) {
+                musicManager.start();
+                setMusicEnabled(true);
+              } else {
+                musicManager.toggleMute();
+                setMusicMuted(musicManager.isMuted());
+              }
             }}
             className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
           >
-            {musicEnabled ? '🎵' : '🔇'}
+            {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
             <span className="text-sm">Lo-Fi</span>
           </button>
         </div>
         
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
-          <div className="text-sm text-white opacity-75 mb-6">
-            {musicEnabled ? '🎵 Lo-fi beats playing' : 'Click anywhere to start lo-fi music'}
-          </div>
           <div className="space-y-4">
             <button
               onClick={() => setGameMode('singleplayer')}
@@ -160,17 +163,22 @@ function App() {
         <div className="flex flex-col gap-2">
           <button
             onClick={() => {
-              musicManager.toggle();
-              setMusicEnabled(musicManager.isActive());
+              if (!musicEnabled) {
+                musicManager.start();
+                setMusicEnabled(true);
+              } else {
+                musicManager.toggleMute();
+                setMusicMuted(musicManager.isMuted());
+              }
             }}
             className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
           >
-            {musicEnabled ? '🎵' : '🔇'}
+            {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
             <span className="text-sm">Lo-Fi</span>
           </button>
           
           {/* Volume Control */}
-          {musicEnabled && (
+          {musicEnabled && !musicMuted && (
             <div className="bg-black bg-opacity-50 backdrop-blur-sm p-2 rounded-lg">
               <input
                 type="range"

@@ -185,6 +185,30 @@ class MusicManager {
     return this.isPlaying;
   }
 
+  mute() {
+    if (this.gainNode) {
+      this.gainNode.gain.setValueAtTime(0, this.audioContext?.currentTime || 0);
+    }
+  }
+  
+  unmute() {
+    if (this.gainNode) {
+      this.gainNode.gain.setValueAtTime(this.volume, this.audioContext?.currentTime || 0);
+    }
+  }
+  
+  isMuted(): boolean {
+    return this.gainNode ? this.gainNode.gain.value === 0 : false;
+  }
+  
+  toggleMute() {
+    if (this.isMuted()) {
+      this.unmute();
+    } else {
+      this.mute();
+    }
+  }
+  
   toggle() {
     if (this.isPlaying) {
       this.stop();

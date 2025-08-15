@@ -32,6 +32,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   const [selectedCards, setSelectedCards] = React.useState([]);
   const [isClosingRooms, setIsClosingRooms] = React.useState(false);
   const [musicEnabled, setMusicEnabled] = React.useState(musicManager.isActive());
+  const [musicMuted, setMusicMuted] = React.useState(false);
 
   // Handle card clicks for setup phase
   const handleCardClick = React.useCallback(async (card, source) => {
@@ -192,17 +193,22 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
-                    musicManager.toggle();
-                    setMusicEnabled(musicManager.isActive());
+                    if (!musicEnabled) {
+                      musicManager.start();
+                      setMusicEnabled(true);
+                    } else {
+                      musicManager.toggleMute();
+                      setMusicMuted(musicManager.isMuted());
+                    }
                   }}
                   className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
                 >
-                  {musicEnabled ? '🎵' : '🔇'}
+                  {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
                   <span className="text-sm">Lo-Fi</span>
                 </button>
                 
                 {/* Volume Control */}
-                {musicEnabled && (
+                {musicEnabled && !musicMuted && (
                   <div className="bg-black bg-opacity-50 backdrop-blur-sm p-2 rounded-lg">
                     <input
                       type="range"
@@ -835,12 +841,22 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       <div className="absolute top-4 right-4 z-10">
         <button
           onClick={() => {
-            musicManager.toggle();
-            setMusicEnabled(musicManager.isActive());
+            if (!musicEnabled) {
+              musicManager.start();
+              setMusicEnabled(true);
+            } else {
+              musicManager.toggleMute();
+              setMusicMuted(musicManager.isMuted());
+            }
+              setMusicEnabled(true);
+            } else {
+              musicManager.toggleMute();
+              setMusicMuted(musicManager.isMuted());
+            }
           }}
           className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
         >
-          {musicEnabled ? '🎵' : '🔇'}
+          {!musicEnabled ? '🔇' : musicMuted ? '🔇' : '🎵'}
           <span className="text-sm">Lo-Fi</span>
         </button>
       </div>
