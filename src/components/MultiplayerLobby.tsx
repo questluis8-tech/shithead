@@ -28,19 +28,19 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Handle card clicks for setup phase
   const handleCardClick = React.useCallback(async (card, source) => {
-    if (!currentRoom?.game_state || (currentRoom.game_state.gamePhase !== 'setup' && currentRoom.game_state.gamePhase !== 'swapping')) {
+    if (!currentRoom?.game_state) {
       return;
     }
 
     const humanPlayer = currentRoom.game_state.players.find(p => p.id === playerId);
     if (!humanPlayer) return;
 
-    // Create new game state
-    const newGameState = { ...currentRoom.game_state };
-    const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
-    const player = { ...newGameState.players[playerIndex] };
-
     if (currentRoom.game_state.gamePhase === 'setup' && source === 'hand') {
+      // Create new game state
+      const newGameState = { ...currentRoom.game_state };
+      const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+      const player = { ...newGameState.players[playerIndex] };
+      
       // Move card from hand to face-up (if we have less than 3 face-up cards)
       if (player.faceUpCards.length >= 3) return;
       
@@ -49,61 +49,78 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
         const cardToMove = player.hand.splice(handIndex, 1)[0];
         player.faceUpCards.push(cardToMove);
       }
+      
+      // Update the player in the game state
+      newGameState.players[playerIndex] = player;
+
+      try {
+        // Save updated game state to database
+        const { error } = await supabase
+          .from('game_rooms')
+          .update({ game_state: newGameState })
+          .eq('id', currentRoom.id);
+
+        if (error) {
+          console.error('Error updating game state:', error);
+        }
+      } catch (error) {
+        console.error('Error updating game state:', error);
+      }
     } else if (currentRoom.game_state.gamePhase === 'setup' && source === 'faceUp') {
+      // Create new game state
+      const newGameState = { ...currentRoom.game_state };
+      const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+      const player = { ...newGameState.players[playerIndex] };
+      
       // Move card back from face-up to hand
       const faceUpIndex = player.faceUpCards.findIndex(c => c.id === card.id);
       if (faceUpIndex !== -1) {
         const cardToMove = player.faceUpCards.splice(faceUpIndex, 1)[0];
         player.hand.push(cardToMove);
       }
-    }
-    
-    // Swapping phase logic
-    if (currentRoom.game_state.gamePhase === 'swapping') {
-      // Simple swap: click hand card then face-up card to swap them
-      const isSelected = selectedCards.some(c => c.id === card.id);
-      if (isSelected) {
-        setSelectedCards(prev => prev.filter(c => c.id !== card.id));
-        return;
-      } else {
-        const newSelection = [...selectedCards, card];
-        
-        // If we have one hand card and one face-up card selected, perform swap
-        const handCards = newSelection.filter(c => humanPlayer.hand.some(hc => hc.id === c.id));
-        const faceUpCards = newSelection.filter(c => humanPlayer.faceUpCards.some(fc => fc.id === c.id));
-        
-        if (handCards.length === 1 && faceUpCards.length === 1) {
-          // Perform the swap
-          const handIndex = player.hand.findIndex(c => c.id === handCards[0].id);
-          const faceUpIndex = player.faceUpCards.findIndex(c => c.id === faceUpCards[0].id);
-          
-          if (handIndex !== -1 && faceUpIndex !== -1) {
-            [player.hand[handIndex], player.faceUpCards[faceUpIndex]] = 
-            [player.faceUpCards[faceUpIndex], player.hand[handIndex]];
-          }
-          
-          setSelectedCards([]); // Clear selection after swap
-        } else {
-          setSelectedCards(newSelection);
+      
+      // Update the player in the game state
+      newGameState.players[playerIndex] = player;
+
+      try {
+        // Save updated game state to database
+        const { error } = await supabase
+          .from('game_rooms')
+          .update({ game_state: newGameState })
+          .eq('id', currentRoom.id);
+
+        if (error) {
+          console.error('Error updating game state:', error);
         }
-      }
-    }
-
-    // Update the player in the game state
-    newGameState.players[playerIndex] = player;
-
-    try {
-      // Save updated game state to database
-      const { error } = await supabase
-        .from('game_rooms')
-        .update({ game_state: newGameState })
-        .eq('id', currentRoom.id);
-
-      if (error) {
+      } catch (error) {
         console.error('Error updating game state:', error);
       }
-    } catch (error) {
-      console.error('Error updating game state:', error);
+    } else if (currentRoom.game_state.gamePhase === 'playing') {
+      // Handle card selection for playing
+      const currentPlayerIndex = currentRoom.game_state.players.findIndex(p => p.id === playerId);
+      
+      // Only allow card selection if it's the player's turn
+      if (currentRoom.game_state.currentPlayerIndex !== currentPlayerIndex) {
+        return;
+      }
+      
+      // Can't play face-up cards if hand is not empty
+      if (source === 'faceUp' && humanPlayer.hand.length > 0) {
+        return;
+      }
+      
+      setSelectedCards(prev => {
+        const isSelected = prev.some(c => c.id === card.id);
+        if (isSelected) {
+          return prev.filter(c => c.id !== card.id);
+        } else {
+          // Only allow selecting cards of the same rank
+          if (prev.length === 0 || prev[0].rank === card.rank) {
+            return [...prev, card];
+          }
+          return [card]; // Start new selection
+        }
+      });
     }
   }, [currentRoom, playerId, selectedCards]);
 
