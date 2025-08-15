@@ -84,7 +84,7 @@ function App() {
                 key={count}
                 onClick={() => setPlayerCount(count)}
                 className={`bg-green-600 hover:bg-green-700 text-white px-8 py-6 rounded-lg font-bold text-2xl transition-all transform hover:scale-105 ${
-                  count === 4 ? 'col-span-2' : ''
+                  count === 4 ? 'col-span-2 py-3' : 'py-6'
                 }`}
               >
                 {count}
