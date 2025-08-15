@@ -22,13 +22,10 @@ function App() {
 
   // Show fire effect when pile is cleared by 10
   React.useEffect(() => {
+    // Check if a 10 was just played (pile is empty but we're still playing)
     if (gameState.pile.length === 0 && gameState.gamePhase === 'playing') {
-      // Check if the last action was playing a 10
-      const lastCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
-      if (lastCard?.rank === 10) {
-        setShowFireEffect(true);
-        setTimeout(() => setShowFireEffect(false), 2000);
-      }
+      setShowFireEffect(true);
+      setTimeout(() => setShowFireEffect(false), 2000);
     }
   }, [gameState.pile.length, gameState.gamePhase]);
 
