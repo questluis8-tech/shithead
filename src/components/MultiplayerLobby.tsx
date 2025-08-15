@@ -4,6 +4,7 @@ import { useMultiplayer } from '../hooks/useMultiplayer';
 import { Card } from './Card';
 import { canPlayCard, getEffectiveTopCard, shouldBurn } from '../utils/cardUtils';
 import { musicManager } from '../utils/musicManager';
+import { soundManager } from '../utils/soundManager';
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
 }
@@ -419,6 +420,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             newGameState.currentPlayerIndex = 0;
                           }
                           
+                          soundManager.cardPlay();
+                          
                           try {
                             const { error } = await supabase
                               .from('game_rooms')
@@ -458,6 +461,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             alert("Can't play those cards!");
                             return;
                           }
+                          
+                          soundManager.cardPlay();
                           
                           // Play the cards
                           const newGameState = { ...currentRoom.game_state };
@@ -507,6 +512,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                             newGameState.pile = [];
                             
                             // Show fire effect
+                            soundManager.cardBurn();
                             setShowFireEffect(true);
                             setTimeout(() => setShowFireEffect(false), 1500);
                             
@@ -570,6 +576,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       return (
                         <button
                           onClick={async () => {
+                            soundManager.cardPickup();
+                            
                             // Player must pick up pile
                             const newGameState = { ...currentRoom.game_state };
                             const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
@@ -711,6 +719,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                               
                               const topCard = getEffectiveTopCard(newGameState.pile);
                               
+                              soundManager.cardPlay();
+                              
                               if (canPlayCard(revealedCard, topCard)) {
                                 // Can play the card
                                 newGameState.pile = [...newGameState.pile, revealedCard];
@@ -720,6 +730,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                                 if (hasTen) {
                                   newGameState.pile = [];
                                   // Show fire effect for 10
+                                  soundManager.cardBurn();
                                   setShowFireEffect(true);
                                   setTimeout(() => setShowFireEffect(false), 1500);
                                   // Same player continues
@@ -740,6 +751,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                               } else {
                                 // Can't play - pick up pile + revealed card
                                 // Show pickup effect
+                                soundManager.cardPickup();
                                 setShowPickupEffect(true);
                                 setTimeout(() => setShowPickupEffect(false), 1500);
                                 
@@ -779,6 +791,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     key={card.id}
                     card={card}
                     onClick={() => handleCardClick(card, 'faceUp')}
+                    onMouseDown={() => soundManager.cardPlay()}
                     selected={selectedCards.some(c => c.id === card.id)}
                     disabled={humanPlayer.hand.length > 0 && currentRoom.game_state.gamePhase === 'playing'}
                     className="w-16 h-24"
@@ -800,6 +813,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       key={card.id}
                       card={card}
                       onClick={() => handleCardClick(card, 'hand')}
+                      onMouseDown={() => soundManager.cardPlay()}
                       selected={selectedCards.some(c => c.id === card.id)}
                       className="w-16 h-24"
                     />
