@@ -11,6 +11,47 @@ export const useMultiplayer = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [gameState, setGameState] = useState(null);
 
+  // Function to leave room
+  const leaveRoom = useCallback(async () => {
+    if (!currentRoom) return;
+
+    try {
+      console.log('Leaving room:', currentRoom.id);
+      
+      // Remove player from room_players
+      const { error: deleteError } = await supabase
+        .from('room_players')
+        .delete()
+        .eq('room_id', currentRoom.id)
+        .eq('player_id', playerId);
+
+      if (deleteError) {
+        console.error('Error leaving room:', deleteError);
+        throw deleteError;
+      }
+
+      // Update room player count
+      const { error: updateError } = await supabase
+        .from('game_rooms')
+        .update({ current_players: currentRoom.current_players - 1 })
+        .eq('id', currentRoom.id);
+
+      if (updateError) {
+        console.error('Error updating room count:', updateError);
+      }
+
+      // Reset local state
+      setCurrentRoom(null);
+      setIsConnected(false);
+      setRoomPlayers([]);
+      setGameState(null);
+      
+    } catch (error) {
+      console.error('Error leaving room:', error);
+      alert('Failed to leave room: ' + error.message);
+    }
+  }, [currentRoom, playerId]);
+
   // Function to fetch current room players and room info
   const fetchRoomData = useCallback(async () => {
     if (!currentRoom) return;
@@ -346,6 +387,7 @@ export const useMultiplayer = () => {
     isConnected,
     roomPlayers,
     gameState,
-    startGame
+    startGame,
+    leaveRoom
   };
 };
