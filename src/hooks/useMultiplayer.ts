@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
+import { createDeck, canPlayCard, shouldBurn, getEffectiveTopCard } from '../utils/cardUtils';
+import { Card, Player } from '../types/game';
+import { MultiplayerGameState } from '../types/multiplayer';
 
 export const useMultiplayer = () => {
   const [playerId] = useState(() => uuidv4());
@@ -10,6 +13,7 @@ export const useMultiplayer = () => {
   const [roomPlayers, setRoomPlayers] = useState([]);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [gameState, setGameState] = useState(null);
+  const [selectedCards, setSelectedCards] = useState([]);
 
   // Function to fetch current room players and room info
   const fetchRoomData = useCallback(async () => {
@@ -314,10 +318,54 @@ export const useMultiplayer = () => {
     try {
       console.log('Starting game for room:', currentRoom.id);
       
+      // Create initial game state
+      const deck = createDeck();
+      const players = roomPlayers.map((roomPlayer, index) => ({
+        id: roomPlayer.player_id,
+        name: roomPlayer.player_name,
+        hand: [],
+        faceDownCards: [],
+        faceUpCards: [],
+        isAI: false // All players are human in multiplayer
+      }));
+
+      // Deal 6 cards to each player's hand
+      let deckIndex = 0;
+      for (let round = 0; round < 6; round++) {
+        for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+          players[playerIndex].hand.push(deck[deckIndex++]);
+        }
+      }
+
+      // Deal 3 face-down cards to each player
+      for (let round = 0; round < 3; round++) {
+        for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+          players[playerIndex].faceDownCards.push(deck[deckIndex++]);
+        }
+      }
+
+      const remainingDeck = deck.slice(deckIndex);
+
+      const initialGameState = {
+        room_id: currentRoom.id,
+        host_id: currentRoom.host_id,
+        connected_players: roomPlayers.map(p => p.player_id),
+        players,
+        currentPlayerIndex: 0,
+        pile: [],
+        deck: remainingDeck,
+        gamePhase: 'setup' as const,
+        winner: null,
+        loser: null
+      };
+
       // Update room status to 'playing'
       const { error: roomError } = await supabase
         .from('game_rooms')
-        .update({ status: 'playing' })
+        .update({ 
+          status: 'playing',
+          game_state: initialGameState
+        })
         .eq('id', currentRoom.id);
 
       if (roomError) {
@@ -325,8 +373,8 @@ export const useMultiplayer = () => {
         throw roomError;
       }
 
-      // For now, just update local state - we'll implement full game logic later
-      setGameState({ phase: 'starting' });
+      // Set local game state
+      setGameState(initialGameState);
       
     } catch (error) {
       console.error('Error starting game:', error);
@@ -334,6 +382,300 @@ export const useMultiplayer = () => {
     }
   }, [currentRoom, playerName]);
 
+  // Multiplayer game actions
+  const handleCardClick = useCallback((card: Card, source: 'hand' | 'faceUp') => {
+    if (!gameState || gameState.gamePhase !== 'setup' && gameState.gamePhase !== 'swapping' && gameState.gamePhase !== 'playing') return;
+    
+    const currentPlayer = gameState.players.find(p => p.id === playerId);
+    if (!currentPlayer) return;
+
+    if (gameState.gamePhase === 'setup') {
+      // Handle choosing face-up cards from hand
+      if (source === 'hand') {
+        if (currentPlayer.faceUpCards.length >= 3) return;
+        
+        const newGameState = { ...gameState };
+        const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+        const player = newGameState.players[playerIndex];
+        
+        const handIndex = player.hand.findIndex(c => c.id === card.id);
+        if (handIndex !== -1) {
+          const cardToMove = player.hand.splice(handIndex, 1)[0];
+          player.faceUpCards.push(cardToMove);
+        }
+        
+        setGameState(newGameState);
+      } else if (source === 'faceUp') {
+        // Move card back from face-up to hand
+        const newGameState = { ...gameState };
+        const playerIndex = newGameState.players.findIndex(p => p.id === playerId);
+        const player = newGameState.players[playerIndex];
+        
+        const faceUpIndex = player.faceUpCards.findIndex(c => c.id === card.id);
+        if (faceUpIndex !== -1) {
+          const cardToMove = player.faceUpCards.splice(faceUpIndex, 1)[0];
+          player.hand.push(cardToMove);
+        }
+        
+        setGameState(newGameState);
+      }
+    } else if (gameState.gamePhase === 'playing') {
+      // Handle card selection for playing
+      const isMyTurn = gameState.currentPlayerIndex === gameState.players.findIndex(p => p.id === playerId);
+      if (!isMyTurn) return;
+      
+      // Can't play face-up cards if hand is not empty
+      if (source === 'faceUp' && currentPlayer.hand.length > 0) return;
+      
+      setSelectedCards(prev => {
+        const isSelected = prev.some(c => c.id === card.id);
+  const confirmFaceUpCards = useCallback(async () => {
+    if (!gameState || !currentRoom) return;
+    
+    const currentPlayer = gameState.players.find(p => p.id === playerId);
+    if (!currentPlayer || currentPlayer.faceUpCards.length !== 3) return;
+
+    try {
+      // Update game state in database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: gameState })
+        .eq('id', currentRoom.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error confirming face-up cards:', error);
+    }
+  }, [gameState, currentRoom, playerId]);
+        if (isSelected) {
+  const startGamePhase = useCallback(async () => {
+    if (!gameState || !currentRoom) return;
+    
+    const newGameState = {
+      ...gameState,
+      gamePhase: 'playing' as const
+    };
+
+    try {
+      // Update game state in database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: newGameState })
+        .eq('id', currentRoom.id);
+
+      if (error) throw error;
+      
+      setGameState(newGameState);
+    } catch (error) {
+      console.error('Error starting game phase:', error);
+    }
+  }, [gameState, currentRoom]);
+          return prev.filter(c => c.id !== card.id);
+  const canPlaySelected = useCallback(() => {
+    if (!gameState || selectedCards.length === 0) return false;
+    const topCard = getEffectiveTopCard(gameState.pile);
+    return canPlayCard(selectedCards[0], topCard);
+  }, [selectedCards, gameState]);
+        } else {
+  const playCards = useCallback(async () => {
+    if (!gameState || !currentRoom || !canPlaySelected()) return;
+    
+    const newGameState = { ...gameState };
+    const currentPlayerIndex = newGameState.currentPlayerIndex;
+    const currentPlayer = newGameState.players[currentPlayerIndex];
+    
+    // Remove played cards from player's hand/faceUp cards
+    selectedCards.forEach(card => {
+      const handIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
+      const faceUpIndex = currentPlayer.faceUpCards.findIndex(c => c.id === card.id);
+      
+      if (handIndex !== -1) {
+        currentPlayer.hand.splice(handIndex, 1);
+      } else if (faceUpIndex !== -1) {
+        currentPlayer.faceUpCards.splice(faceUpIndex, 1);
+      }
+    });
+    
+    // Add cards to pile
+    newGameState.pile.push(...selectedCards);
+    
+    // Check for special effects
+    const hasTen = selectedCards.some(card => card.rank === 10);
+    const burnPile = shouldBurn(newGameState.pile);
+    
+    if (hasTen || burnPile) {
+      newGameState.pile = [];
+      // Same player continues
+    } else {
+      // Next player's turn
+      newGameState.currentPlayerIndex = (currentPlayerIndex + 1) % newGameState.players.length;
+    }
+    
+    // Check win condition
+    const hasWon = currentPlayer.hand.length === 0 && 
+                   currentPlayer.faceUpCards.length === 0 && 
+                   currentPlayer.faceDownCards.length === 0;
+    
+    if (hasWon) {
+      newGameState.gamePhase = 'finished';
+      newGameState.winner = currentPlayer.id;
+    }
+
+    try {
+      // Update game state in database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: newGameState })
+        .eq('id', currentRoom.id);
+
+      if (error) throw error;
+      
+      setGameState(newGameState);
+      setSelectedCards([]);
+    } catch (error) {
+      console.error('Error playing cards:', error);
+    }
+  }, [gameState, currentRoom, selectedCards, canPlaySelected]);
+          // Only allow selecting cards of the same rank
+  const pickupCards = useCallback(async () => {
+    if (!gameState || !currentRoom) return;
+    
+    const newGameState = { ...gameState };
+    const currentPlayerIndex = newGameState.currentPlayerIndex;
+    const currentPlayer = newGameState.players[currentPlayerIndex];
+    
+    // Add pile cards to player's hand
+    currentPlayer.hand.push(...newGameState.pile);
+    newGameState.pile = [];
+    
+    // Next player's turn
+    newGameState.currentPlayerIndex = (currentPlayerIndex + 1) % newGameState.players.length;
+
+    try {
+      // Update game state in database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: newGameState })
+        .eq('id', currentRoom.id);
+
+      if (error) throw error;
+      
+      setGameState(newGameState);
+      setSelectedCards([]);
+    } catch (error) {
+      console.error('Error picking up cards:', error);
+    }
+  }, [gameState, currentRoom]);
+          if (prev.length === 0 || prev[0].rank === card.rank) {
+  const playFaceDownCard = useCallback(async (cardIndex: number) => {
+    if (!gameState || !currentRoom) return;
+    
+    const newGameState = { ...gameState };
+    const currentPlayerIndex = newGameState.currentPlayerIndex;
+    const currentPlayer = newGameState.players[currentPlayerIndex];
+    
+    if (cardIndex >= currentPlayer.faceDownCards.length) return;
+    
+    const revealedCard = currentPlayer.faceDownCards[cardIndex];
+    currentPlayer.faceDownCards.splice(cardIndex, 1);
+    
+    const topCard = getEffectiveTopCard(newGameState.pile);
+    
+    if (canPlayCard(revealedCard, topCard)) {
+      // Can play the card
+      newGameState.pile.push(revealedCard);
+      
+      const hasTen = revealedCard.rank === 10;
+      const burnPile = shouldBurn(newGameState.pile);
+      
+      if (hasTen || burnPile) {
+        newGameState.pile = [];
+        // Same player continues
+      } else {
+        // Next player's turn
+        newGameState.currentPlayerIndex = (currentPlayerIndex + 1) % newGameState.players.length;
+      }
+      
+      // Check win condition
+      const hasWon = currentPlayer.hand.length === 0 && 
+                     currentPlayer.faceUpCards.length === 0 && 
+                     currentPlayer.faceDownCards.length === 0;
+      
+      if (hasWon) {
+        newGameState.gamePhase = 'finished';
+        newGameState.winner = currentPlayer.id;
+      }
+    } else {
+      // Can't play the card - must pick up pile + revealed card
+      currentPlayer.hand.push(...newGameState.pile, revealedCard);
+      newGameState.pile = [];
+      newGameState.currentPlayerIndex = (currentPlayerIndex + 1) % newGameState.players.length;
+    }
+            return [...prev, card];
+    try {
+      // Update game state in database
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ game_state: newGameState })
+        .eq('id', currentRoom.id);
+          }
+      if (error) throw error;
+      
+      setGameState(newGameState);
+    } catch (error) {
+      console.error('Error playing face-down card:', error);
+    }
+  }, [gameState, currentRoom]);
+          return [card]; // Start new selection
+  const canPlayAnyCard = useCallback(() => {
+    if (!gameState || gameState.gamePhase !== 'playing') return true;
+    
+    const currentPlayer = gameState.players.find(p => p.id === playerId);
+    if (!currentPlayer) return true;
+    
+    const isMyTurn = gameState.currentPlayerIndex === gameState.players.findIndex(p => p.id === playerId);
+    if (!isMyTurn) return true;
+    
+    const topCard = getEffectiveTopCard(gameState.pile);
+    
+    // Check if any card in hand can be played
+    const canPlayFromHand = currentPlayer.hand.some(card => canPlayCard(card, topCard));
+    
+    // Check if any face-up card can be played (when hand is empty)
+    const canPlayFromFaceUp = currentPlayer.hand.length === 0 && 
+                              currentPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
+    
+    return canPlayFromHand || canPlayFromFaceUp;
+  }, [gameState, playerId]);
+        }
+  const leaveRoom = useCallback(async () => {
+    if (!currentRoom) return;
+
+    try {
+      // Remove player from room
+      await supabase
+        .from('room_players')
+        .delete()
+        .eq('room_id', currentRoom.id)
+        .eq('player_id', playerId);
+      });
+      // Update room player count
+      await supabase
+        .from('game_rooms')
+        .update({ current_players: currentRoom.current_players - 1 })
+        .eq('id', currentRoom.id);
+    }
+      // Reset local state
+      setCurrentRoom(null);
+      setIsConnected(false);
+      setRoomPlayers([]);
+      setGameState(null);
+      setSelectedCards([]);
+    } catch (error) {
+      console.error('Error leaving room:', error);
+    }
+  }, [currentRoom, playerId]);
+  }, [gameState, playerId]);
   return {
     playerId,
     playerName,
@@ -346,6 +688,16 @@ export const useMultiplayer = () => {
     isConnected,
     roomPlayers,
     gameState,
-    startGame
+    startGame,
+    selectedCards,
+    handleCardClick,
+    confirmFaceUpCards,
+    startGamePhase,
+    playCards,
+    canPlaySelected: canPlaySelected(),
+    pickupCards,
+    playFaceDownCard,
+    canPlayAnyCard: canPlayAnyCard(),
+    leaveRoom
   };
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMultiplayer } from '../hooks/useMultiplayer';
+import { MultiplayerGame } from './MultiplayerGame';
 
 interface MultiplayerLobbyProps {
   onBackToMenu: () => void;
@@ -20,7 +21,17 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     roomPlayers,
     gameState,
     startGame,
-    playerId
+    playerId,
+    selectedCards,
+    handleCardClick,
+    confirmFaceUpCards,
+    startGamePhase,
+    playCards,
+    canPlaySelected,
+    pickupCards,
+    playFaceDownCard,
+    canPlayAnyCard,
+    leaveRoom
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
@@ -44,15 +55,24 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
-  // Show game starting state
-  if (gameState?.phase === 'starting') {
+  // Show multiplayer game if game state exists
+  if (gameState && currentRoom) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-          <h1 className="text-3xl font-bold text-white mb-6">Game Starting...</h1>
-          <div className="text-white">Please wait while the game initializes.</div>
-        </div>
-      </div>
+      <MultiplayerGame
+        gameState={gameState}
+        roomPlayers={roomPlayers}
+        playerId={playerId}
+        selectedCards={selectedCards}
+        onCardClick={handleCardClick}
+        onPlayCards={playCards}
+        onPickupCards={pickupCards}
+        onPlayFaceDownCard={playFaceDownCard}
+        onConfirmFaceUpCards={confirmFaceUpCards}
+        onStartGame={startGamePhase}
+        onLeaveRoom={leaveRoom}
+        canPlaySelected={canPlaySelected}
+        canPlayAnyCard={canPlayAnyCard}
+      />
     );
   }
 
