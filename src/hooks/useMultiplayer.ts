@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 
 export const useMultiplayer = () => {
   const [playerName, setPlayerName] = useState('');
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   // Simple create room function for now
   const createRoom = useCallback(async (roomName: string, maxPlayers: number) => {
@@ -12,6 +15,8 @@ export const useMultiplayer = () => {
   return {
     playerName,
     setPlayerName,
-    createRoom
+    createRoom,
+    currentRoom,
+    isConnected
   };
 };
