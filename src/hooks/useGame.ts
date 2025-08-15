@@ -712,9 +712,11 @@ export const useGame = () => {
       }
     }
     
+    // Only run AI logic if it's actually an AI player's turn (not after jump-ins)
     if (gameState.gamePhase === 'playing' && 
         gameState.currentPlayerIndex !== 0 && 
-        !gameState.winner) {
+        !gameState.winner &&
+        !jumpInWindow) { // Don't run AI logic during jump-in window
       
       const timer = setTimeout(() => {
         const currentPlayer = gameState.players[gameState.currentPlayerIndex];
