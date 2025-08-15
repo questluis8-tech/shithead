@@ -240,26 +240,52 @@ function App() {
               ) : (
                 <div className="relative">
                   {/* Show last 3 cards with specific positioning */}
-                  {gameState.pile.slice(-3).map((card, index) => {
-                    let positionStyle = {};
-                    if (gameState.pile.length >= 2 && index === 1) {
-                      // Card 2 at 46%
-                      positionStyle = {
-                        position: 'absolute' as const,
-                        left: '46%',
-                        top: '0',
-                        transform: 'translateX(-50%)'
-                      };
-                    } else if (gameState.pile.length >= 3 && index === 2) {
-                      // Card 3 at 45%
-                      positionStyle = {
-                        position: 'absolute' as const,
-                        left: '45%',
-                        top: '0',
-                        transform: 'translateX(-50%)'
-                      };
-                    }
+                  {gameState.pile.slice(-3).map((card, index, slicedArray) => {
+                    let positionStyle: React.CSSProperties = {};
                     
+                    // Card positioning based on how many cards we're showing
+                    if (slicedArray.length === 1) {
+                      // Only 1 card - center position (default)
+                      positionStyle = {};
+                    } else if (slicedArray.length === 2) {
+                      if (index === 0) {
+                        // First card - center position (default)
+                        positionStyle = {};
+                      } else if (index === 1) {
+                        // Second card at 46%
+                        positionStyle = {
+                          position: 'absolute',
+                          left: '46%',
+                          top: '0',
+                          transform: 'translateX(-50%)',
+                          zIndex: 1
+                        };
+                      }
+                    } else if (slicedArray.length === 3) {
+                      if (index === 0) {
+                        // First card - center position (default)
+                        positionStyle = {};
+                      } else if (index === 1) {
+                        // Second card at 46%
+                        positionStyle = {
+                          position: 'absolute',
+                          left: '46%',
+                          top: '0',
+                          transform: 'translateX(-50%)',
+                          zIndex: 1
+                        };
+                      } else if (index === 2) {
+                        // Third card at 45%
+                        positionStyle = {
+                          position: 'absolute',
+                          left: '45%',
+                          top: '0',
+                          transform: 'translateX(-50%)',
+                          zIndex: 2
+                        };
+                      }
+                    }
+
                     return (
                       <Card
                         key={card.id}
