@@ -19,7 +19,7 @@ function App() {
     jumpInWindow,
     lastAction,
     clearLastAction
-  } = useGame();
+  } = useGame(playerCount || 4);
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
