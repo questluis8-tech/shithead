@@ -216,19 +216,18 @@ function App() {
               ) : (
                 <>
                   {/* Show last 3 cards with stacking effect */}
-                  {gameState.pile.slice(-3).map((card, index) => {
-                    const rotations = [-8, 4, -2]; // Different rotations for each card
-                    const zIndexes = [1, 2, 3]; // Stack order
-                    const actualIndex = gameState.pile.length >= 3 ? index : index + (3 - gameState.pile.length);
+                  {gameState.pile.slice(-3).map((card, index, array) => {
+                    const rotations = [-15, 8, -5]; // More rotation so cards are visible underneath
+                    const zIndex = index + 1; // Stack order (bottom to top)
                     
                     return (
                       <Card
                         key={`pile-${card.id}-${index}`}
                         card={card}
-                        className="w-20 h-28 absolute top-0 left-0 transition-transform duration-200"
+                        className="w-20 h-28 absolute inset-0 transition-transform duration-200"
                         style={{
-                          transform: `rotate(${rotations[actualIndex]}deg)`,
-                          zIndex: zIndexes[index]
+                          transform: `rotate(${rotations[index]}deg)`,
+                          zIndex: zIndex
                         }}
                       />
                     );
