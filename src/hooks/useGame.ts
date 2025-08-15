@@ -1,897 +1,15 @@
-import { useState, useCallback, useEffect } from 'react';
-import { GameState, Player, Card } from '../types/game';
-import { createDeck, canPlayCard, shouldBurn, getEffectiveTopCard } from '../utils/cardUtils';
+import React from 'react';
+import { useGame } from './hooks/useGame';
+import { Card } from './components/Card';
+import { getCardDisplay, getSuitSymbol, getEffectiveTopCard } from './utils/cardUtils';
 
-const createInitialPlayers = (playerCount: number): Player[] => {
-  const players: Player[] = [
-    { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false }
-  ];
-  
-  const aiNames = ['Alice', 'Bob', 'Carol'];
-  for (let i = 0; i < playerCount - 1; i++) {
-    players.push({
-      id: `ai${i + 1}`,
-      name: aiNames[i],
-      hand: [],
-      faceDownCards: [],
-      faceUpCards: [],
-      isAI: true
-    });
-  }
-  
-  return players;
-};
+function App() {
+  const [showFireEffect, setShowFireEffect] = React.useState(false);
+  const [showPickupEffect, setShowPickupEffect] = React.useState(false);
+  const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
+  const [playerCount, setPlayerCount] = React.useState<number | null>(null);
 
-const drawToThreeCards = (player: Player, deck: Card[]): { updatedPlayer: Player, updatedDeck: Card[] } => {
-  const newPlayer = { ...player, hand: [...player.hand] };
-  const newDeck = [...deck];
-  
-  const cardsToDraw = Math.min(3 - newPlayer.hand.length, newDeck.length);
-  
-  for (let i = 0; i < cardsToDraw; i++) {
-    const drawnCard = newDeck.shift();
-    if (drawnCard) {
-      newPlayer.hand.push(drawnCard);
-    }
-  }
-  
-  return { updatedPlayer: newPlayer, updatedDeck: newDeck };
-};
-
-export const useGame = (playerCount: number = 4) => {
-  const [gameState, setGameState] = useState<GameState>({
-    players: createInitialPlayers(playerCount),
-    currentPlayerIndex: 0,
-    pile: [],
-    deck: [],
-    gamePhase: 'setup',
-    winner: null,
-    loser: null
-  });
-  
-  const [selectedCards, setSelectedCards] = useState<Card[]>([]);
-  const [jumpInWindow, setJumpInWindow] = useState<{ rank: number; timeoutId: NodeJS.Timeout } | null>(null);
-  const [lastAction, setLastAction] = useState<'burn' | 'pickup' | null>(null);
-
-  // Debug keybind to clear hand and face-up cards
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === '`' && gameState.gamePhase === 'playing') {
-        setGameState(prev => {
-          const newPlayers = prev.players.map((player, index) => {
-            if (index === 0) { // Human player only
-              return {
-                ...player,
-                hand: [],
-                faceUpCards: []
-              };
-            }
-            return player;
-          });
-          
-          return {
-            ...prev,
-            players: newPlayers
-          };
-        });
-        setSelectedCards([]);
-      } else if (event.key === 'Control' && gameState.gamePhase === 'playing') {
-        // Add an ace to human player's hand for testing
-        setGameState(prev => {
-          const newPlayers = prev.players.map((player, index) => {
-            if (index === 0) { // Human player only
-              const aceCard = {
-                suit: 'spades' as const,
-                rank: 14, // Ace
-                id: `debug-ace-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-              };
-              return {
-                ...player,
-                hand: [...player.hand, aceCard]
-              };
-            }
-            return player;
-          });
-          
-          return {
-            ...prev,
-            players: newPlayers
-          };
-        });
-      } else if (event.key === 'Alt' && gameState.gamePhase === 'playing') {
-        // Add 10 cards to second player's hand for testing
-        setGameState(prev => {
-          const newPlayers = prev.players.map((player, index) => {
-            if (index === 1) { // Second player (Alice in 2p, Carol in 3p+)
-              const newCards = [];
-              for (let i = 0; i < 10; i++) {
-                const suits = ['hearts', 'diamonds', 'clubs', 'spades'] as const;
-                const randomSuit = suits[Math.floor(Math.random() * suits.length)];
-                const randomRank = Math.floor(Math.random() * 13) + 2; // 2-14
-                newCards.push({
-                  suit: randomSuit,
-                  rank: randomRank,
-                  id: `debug-p2-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
-                });
-              }
-              return {
-                ...player,
-                hand: [...player.hand, ...newCards]
-              };
-            }
-            return player;
-          });
-          
-          return {
-            ...prev,
-            players: newPlayers
-          };
-        });
-      } else if (event.key === 'f' && gameState.gamePhase === 'playing') {
-        // Give Bob three Aces and human player one Ace for burn testing
-        setGameState(prev => {
-          const newPlayers = prev.players.map((player, index) => {
-            if (index === 3) { // Bob (index 3)
-              const suits = ['hearts', 'diamonds', 'clubs'] as const;
-              const newCards = suits.map((suit, i) => ({
-                suit,
-                rank: 14, // Ace
-                id: `debug-bob-ace-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
-              }));
-              return {
-                ...player,
-                hand: [...player.hand, ...newCards]
-              };
-            } else if (index === 0) { // Human player
-              const aceCard = {
-                suit: 'spades' as const,
-                rank: 14, // Ace
-                id: `debug-human-ace-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-              };
-              return {
-                ...player,
-                hand: [...player.hand, aceCard]
-              };
-            }
-            return player;
-          });
-          
-          return {
-            ...prev,
-            players: newPlayers
-          };
-        });
-      } else if (event.key === 'p' && gameState.gamePhase === 'playing') {
-        // Give second player three Jacks and human player one Jack for jump-in testing
-        setGameState(prev => {
-          const newPlayers = prev.players.map((player, index) => {
-            if (index === 1) { // Second player
-              const suits = ['hearts', 'diamonds', 'clubs'] as const;
-              const newCards = suits.map((suit, i) => ({
-                suit,
-                rank: 11, // Jack
-                id: `debug-p2-jack-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
-              }));
-              return {
-                ...player,
-                hand: newCards // Replace hand with just the 3 Jacks
-              };
-            } else if (index === 0) { // Human player
-              const jackCard = {
-                suit: 'spades' as const,
-                rank: 11, // Jack
-                id: `debug-human-jack-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-              };
-              return {
-                ...player,
-                hand: [...player.hand, jackCard]
-              };
-            }
-            return player;
-          });
-          
-          return {
-            ...prev,
-            players: newPlayers
-          };
-        });
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [gameState.gamePhase]);
-
-  const playFaceDownCard = useCallback((cardIndex: number) => {
-    console.log('=== playFaceDownCard START ===');
-    console.log('Called with cardIndex:', cardIndex);
-    console.log('Current gameState.players[0].faceDownCards.length:', gameState.players[0].faceDownCards.length);
-    
-    setGameState(prev => {
-      console.log('=== INSIDE setGameState ===');
-      console.log('prev.players[0].faceDownCards.length:', prev.players[0].faceDownCards.length);
-      console.log('Attempting to remove card at index:', cardIndex);
-      
-      // Create completely new state objects to avoid mutations
-      const currentPlayer = prev.players[prev.currentPlayerIndex];
-      
-      if (cardIndex >= currentPlayer.faceDownCards.length) {
-        console.error('Invalid cardIndex:', cardIndex, 'faceDownCards.length:', currentPlayer.faceDownCards.length);
-        return prev; // Return unchanged state
-      }
-      
-      // Create new arrays without mutating the original
-      const revealedCard = currentPlayer.faceDownCards[cardIndex];
-      const newFaceDownCards = currentPlayer.faceDownCards.filter((_, index) => index !== cardIndex);
-      
-      console.log('Revealed card:', revealedCard);
-      console.log('Remaining faceDownCards after filter:', newFaceDownCards.length);
-      
-      const topCard = getEffectiveTopCard(prev.pile);
-      console.log('Top card on pile:', topCard);
-      
-      // Create new player object
-      const newCurrentPlayer = {
-        ...currentPlayer,
-        faceDownCards: newFaceDownCards
-      };
-      
-      const newPlayers = prev.players.map((player, index) => 
-        index === prev.currentPlayerIndex ? newCurrentPlayer : player
-      );
-      
-      if (canPlayCard(revealedCard, topCard)) {
-        console.log('Card CAN be played');
-        // Can play the card
-        const newPile = [...prev.pile, revealedCard];
-        
-        // Check for special effects
-        let burnPile = false;
-        if (shouldBurn(newPile)) {
-          burnPile = true;
-        }
-        
-        const hasTen = revealedCard.rank === 10;
-        console.log('Has ten or burn pile:', hasTen || burnPile);
-        if (hasTen || burnPile) {
-          // Check win condition
-          const hasWon = newCurrentPlayer.hand.length === 0 && 
-                         newCurrentPlayer.faceUpCards.length === 0 && 
-                         newCurrentPlayer.faceDownCards.length === 0;
-          
-          setLastAction('burn');
-          return {
-            ...prev,
-            players: newPlayers,
-            pile: [],
-            gamePhase: hasWon ? 'finished' : prev.gamePhase,
-            winner: hasWon ? newCurrentPlayer.id : prev.winner
-            // Same player continues
-          };
-        }
-        
-        // Check win condition
-        const hasWon = newCurrentPlayer.hand.length === 0 && 
-                       newCurrentPlayer.faceUpCards.length === 0 && 
-                       newCurrentPlayer.faceDownCards.length === 0;
-        
-        if (hasWon) {
-          console.log('Player has won!');
-          return {
-            ...prev,
-            players: newPlayers,
-            pile: newPile,
-            gamePhase: 'finished',
-            winner: newCurrentPlayer.id
-          };
-        }
-        
-        // Next player's turn
-        console.log('Moving to next player');
-        return {
-          ...prev,
-          players: newPlayers,
-          pile: newPile,
-          currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
-        };
-      } else {
-        console.log('Card CANNOT be played - picking up pile');
-        // Can't play the card - must pick up pile + revealed card
-        const newCurrentPlayerWithCards = {
-          ...newCurrentPlayer,
-          hand: [...newCurrentPlayer.hand, ...prev.pile, revealedCard]
-        };
-        
-        const newPlayersWithCards = prev.players.map((player, index) => 
-          index === prev.currentPlayerIndex ? newCurrentPlayerWithCards : player
-        );
-        
-        setLastAction('pickup');
-        return {
-          ...prev,
-          players: newPlayersWithCards,
-          pile: [],
-          currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
-        };
-      }
-    });
-    
-    console.log('=== playFaceDownCard END ===');
-  }, []);
-
-  const canJumpIn = useCallback((playerIndex: number, rank: number): boolean => {
-    if (!jumpInWindow || jumpInWindow.rank !== rank) return false;
-    
-    const player = gameState.players[playerIndex];
-    const matchingCards = player.hand.filter(card => card.rank === rank);
-    
-    // Need at least 1 card to jump in, and total must make 4 in a row
-    return matchingCards.length >= 1;
-  }, [jumpInWindow, gameState.players]);
-
-  const performJumpIn = useCallback((playerIndex: number, rank: number) => {
-    if (!canJumpIn(playerIndex, rank)) return;
-    
-    // Clear the jump-in window
-    if (jumpInWindow?.timeoutId) {
-      clearTimeout(jumpInWindow.timeoutId);
-    }
-    setJumpInWindow(null);
-    
-    setGameState(prev => {
-      const newPlayers = [...prev.players];
-      const jumpingPlayer = newPlayers[playerIndex];
-      
-      // Get all matching cards from hand
-      const matchingCards = jumpingPlayer.hand.filter(card => card.rank === rank);
-      
-      // Remove matching cards from hand
-      jumpingPlayer.hand = jumpingPlayer.hand.filter(card => card.rank !== rank);
-      
-      // Add cards to pile
-      const newPile = [...prev.pile, ...matchingCards];
-      let newDeck = [...prev.deck];
-      
-      // Draw cards to maintain 3 in hand (if deck has cards)
-      const { updatedPlayer, updatedDeck } = drawToThreeCards(jumpingPlayer, newDeck);
-      newPlayers[playerIndex] = updatedPlayer;
-      newDeck = updatedDeck;
-      
-      // Jump-in always burns the pile (4 of same rank)
-      // Check win condition before clearing pile
-      const hasWon = updatedPlayer.hand.length === 0 && 
-                     updatedPlayer.faceUpCards.length === 0 && 
-                     updatedPlayer.faceDownCards.length === 0;
-      
-      setLastAction('burn');
-      return {
-        ...prev,
-        players: newPlayers,
-        pile: [], // Burn the pile
-        deck: newDeck,
-        currentPlayerIndex: playerIndex, // Jumping player gets the turn
-        gamePhase: hasWon ? 'finished' : prev.gamePhase,
-        winner: hasWon ? updatedPlayer.id : prev.winner
-      };
-    });
-    
-    setSelectedCards([]);
-  }, [canJumpIn, jumpInWindow]);
-
-  const dealCards = useCallback(() => {
-    const deck = createDeck();
-    const players = createInitialPlayers(playerCount);
-    
-    // Deal 6 cards to each player's hand
-    let deckIndex = 0;
-    for (let round = 0; round < 6; round++) {
-      for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
-        players[playerIndex].hand.push(deck[deckIndex++]);
-      }
-    }
-    
-    // Deal 3 face-down cards to each player
-    for (let round = 0; round < 3; round++) {
-      for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
-        players[playerIndex].faceDownCards.push(deck[deckIndex++]);
-      }
-    }
-    
-    // AI players automatically choose their 3 worst cards as face-up
-    for (let playerIndex = 1; playerIndex < players.length; playerIndex++) {
-      const aiPlayer = players[playerIndex];
-      // Sort hand by rank (ascending) and take 3 lowest cards
-      const sortedHand = [...aiPlayer.hand].sort((a, b) => a.rank - b.rank);
-      const faceUpCards = sortedHand.slice(0, 3);
-      
-      // Remove chosen cards from hand and add to face-up
-      faceUpCards.forEach(card => {
-        const handIndex = aiPlayer.hand.findIndex(c => c.id === card.id);
-        if (handIndex !== -1) {
-          aiPlayer.hand.splice(handIndex, 1);
-          aiPlayer.faceUpCards.push(card);
-        }
-      });
-    }
-    
-    const remainingDeck = deck.slice(deckIndex);
-    
-    setGameState({
-      players,
-      currentPlayerIndex: 0,
-      pile: [],
-      deck: remainingDeck,
-      gamePhase: 'setup', // Human player needs to choose face-up cards
-      winner: null,
-      loser: null
-    });
-    
-    setSelectedCards([]);
-  }, [playerCount]);
-
-  const confirmFaceUpCards = useCallback(() => {
-    const humanPlayer = gameState.players[0];
-    if (humanPlayer.faceUpCards.length === 3) {
-      setGameState(prev => ({
-        ...prev,
-        gamePhase: 'swapping'
-      }));
-    }
-  }, [gameState.players]);
-
-  const startGame = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      gamePhase: 'playing'
-    }));
-  }, []);
-
-  const handleCardClick = useCallback((card: Card, source: 'hand' | 'faceUp') => {
-    // Check for jump-in first (available to all players during any turn)
-    if (gameState.gamePhase === 'playing' && jumpInWindow) {
-      const humanPlayerIndex = 0;
-      if (canJumpIn(humanPlayerIndex, card.rank) && card.rank === jumpInWindow.rank) {
-        performJumpIn(humanPlayerIndex, card.rank);
-        return;
-      }
-    }
-    
-    if (gameState.gamePhase === 'setup' && gameState.currentPlayerIndex === 0) {
-      // Handle choosing face-up cards from hand
-      if (source === 'hand') {
-        setGameState(prev => {
-          const newPlayers = [...prev.players];
-          const humanPlayer = newPlayers[0];
-          
-          // If we already have 3 face-up cards, can't add more
-          if (humanPlayer.faceUpCards.length >= 3) {
-            return prev;
-          }
-          
-          // Move card from hand to face-up
-          const handIndex = humanPlayer.hand.findIndex(c => c.id === card.id);
-          if (handIndex !== -1) {
-            const cardToMove = humanPlayer.hand.splice(handIndex, 1)[0];
-            humanPlayer.faceUpCards.push(cardToMove);
-          }
-          
-          return { ...prev, players: newPlayers };
-        });
-      } else if (source === 'faceUp') {
-        // Move card back from face-up to hand
-        setGameState(prev => {
-          const newPlayers = [...prev.players];
-          const humanPlayer = newPlayers[0];
-          
-          const faceUpIndex = humanPlayer.faceUpCards.findIndex(c => c.id === card.id);
-          if (faceUpIndex !== -1) {
-            const cardToMove = humanPlayer.faceUpCards.splice(faceUpIndex, 1)[0];
-            humanPlayer.hand.push(cardToMove);
-          }
-          
-          return { ...prev, players: newPlayers };
-        });
-      }
-    } else if (gameState.gamePhase === 'swapping' && gameState.currentPlayerIndex === 0) {
-      // Handle card swapping during swapping phase
-      if (source === 'hand' || source === 'faceUp') {
-        // Simple swap: click hand card then face-up card to swap them
-        setSelectedCards(prev => {
-          const isSelected = prev.some(c => c.id === card.id);
-          if (isSelected) {
-            return prev.filter(c => c.id !== card.id);
-          } else {
-            const newSelection = [...prev, card];
-            
-            // If we have one hand card and one face-up card selected, perform swap
-            const handCards = newSelection.filter(c => gameState.players[0].hand.some(hc => hc.id === c.id));
-            const faceUpCards = newSelection.filter(c => gameState.players[0].faceUpCards.some(fc => fc.id === c.id));
-            
-            if (handCards.length === 1 && faceUpCards.length === 1) {
-              // Perform the swap
-              setGameState(prev => {
-                const newPlayers = [...prev.players];
-                const humanPlayer = newPlayers[0];
-                
-                const handIndex = humanPlayer.hand.findIndex(c => c.id === handCards[0].id);
-                const faceUpIndex = humanPlayer.faceUpCards.findIndex(c => c.id === faceUpCards[0].id);
-                
-                if (handIndex !== -1 && faceUpIndex !== -1) {
-                  [humanPlayer.hand[handIndex], humanPlayer.faceUpCards[faceUpIndex]] = 
-                  [humanPlayer.faceUpCards[faceUpIndex], humanPlayer.hand[handIndex]];
-                }
-                
-                return { ...prev, players: newPlayers };
-              });
-              
-              return []; // Clear selection after swap
-            }
-            
-            return newSelection;
-          }
-        });
-      }
-    } else if (gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0) {
-      // Handle card selection for playing
-      const humanPlayer = gameState.players[0];
-      
-      // Can't play face-up cards if hand is not empty
-      if (source === 'faceUp' && humanPlayer.hand.length > 0) {
-        return;
-      }
-      
-      setSelectedCards(prev => {
-        const isSelected = prev.some(c => c.id === card.id);
-        if (isSelected) {
-          return prev.filter(c => c.id !== card.id);
-        } else {
-          // Only allow selecting cards of the same rank
-          if (prev.length === 0 || prev[0].rank === card.rank) {
-            return [...prev, card];
-          }
-          return [card]; // Start new selection
-        }
-      });
-    }
-  }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.players]);
-
-  const canPlaySelected = useCallback(() => {
-    if (selectedCards.length === 0) return false;
-    const topCard = getEffectiveTopCard(gameState.pile);
-    return canPlayCard(selectedCards[0], topCard);
-  }, [selectedCards, gameState.pile]);
-
-  const playCards = useCallback(() => {
-    if (!canPlaySelected()) return;
-    
-    setGameState(prev => {
-      const newPlayers = [...prev.players];
-      const currentPlayer = newPlayers[prev.currentPlayerIndex];
-      const newPile = [...prev.pile, ...selectedCards];
-      let newDeck = [...prev.deck];
-      
-      // Remove played cards from player's hand/faceUp cards
-      selectedCards.forEach(card => {
-        const handIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
-        const faceUpIndex = currentPlayer.faceUpCards.findIndex(c => c.id === card.id);
-        
-        if (handIndex !== -1) {
-          currentPlayer.hand.splice(handIndex, 1);
-        } else if (faceUpIndex !== -1) {
-          currentPlayer.faceUpCards.splice(faceUpIndex, 1);
-        }
-      });
-      
-      // Draw cards to maintain 3 in hand (if deck has cards)
-      const { updatedPlayer, updatedDeck } = drawToThreeCards(currentPlayer, newDeck);
-      newPlayers[prev.currentPlayerIndex] = updatedPlayer;
-      newDeck = updatedDeck;
-      
-      // Check for burn (4 of same rank)
-      let burnPile = false;
-      if (shouldBurn(newPile)) {
-        burnPile = true;
-      }
-      
-      // Check for 10 (clears pile)
-      const hasTen = selectedCards.some(card => card.rank === 10);
-      
-      // Open jump-in window if pile has 3 of same rank
-      if (newPile.length >= 3) {
-        const lastThree = newPile.slice(-3);
-        if (lastThree.every(c => c.rank === lastThree[0].rank)) {
-          // Clear any existing jump-in window
-          if (jumpInWindow?.timeoutId) {
-            clearTimeout(jumpInWindow.timeoutId);
-          }
-          
-          // Open new jump-in window for 2 seconds
-          const timeoutId = setTimeout(() => {
-            setJumpInWindow(null);
-          }, 2000);
-          
-          setJumpInWindow({ rank: lastThree[0].rank, timeoutId });
-        }
-      }
-      
-      if (hasTen || burnPile) {
-        // Check win condition before clearing pile
-        const hasWon = updatedPlayer.hand.length === 0 && 
-                       updatedPlayer.faceUpCards.length === 0 && 
-                       updatedPlayer.faceDownCards.length === 0;
-        
-        setLastAction('burn');
-        setLastAction('burn');
-        return {
-          ...prev,
-          players: newPlayers,
-          pile: [],
-          deck: newDeck,
-          gamePhase: hasWon ? 'finished' : prev.gamePhase,
-          winner: hasWon ? updatedPlayer.id : prev.winner
-          // Same player goes again
-        };
-      }
-      
-      // Check win condition
-      const hasWon = updatedPlayer.hand.length === 0 && 
-                   updatedPlayer.faceUpCards.length === 0 && 
-                   updatedPlayer.faceDownCards.length === 0;
-      
-      if (hasWon) {
-        return {
-          ...prev,
-          players: newPlayers,
-          pile: newPile,
-          deck: newDeck,
-          gamePhase: 'finished',
-          winner: updatedPlayer.id
-        };
-      }
-      
-      // Next player's turn
-      let nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
-      
-      return {
-        ...prev,
-        players: newPlayers,
-        pile: newPile,
-        deck: newDeck,
-        currentPlayerIndex: nextPlayerIndex
-      };
-    });
-    
-    setSelectedCards([]);
-  }, [selectedCards, canPlaySelected]);
-
-  const pickupCards = useCallback(() => {
-    setLastAction('pickup');
-    setGameState(prev => {
-      // Create completely new state to avoid any reference issues
-      const newState = {
-        ...prev,
-        players: prev.players.map((player, index) => {
-          if (index === prev.currentPlayerIndex) {
-            // Current player picks up all pile cards
-            return {
-              ...player,
-              hand: [...player.hand, ...prev.pile]
-            };
-          }
-          return { ...player };
-        }),
-        pile: [], // Clear the pile
-        currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
-      };
-      
-      return newState;
-    });
-    
-    setSelectedCards([]);
-  }, [gameState.pile, gameState.players]);
-
-  const canPlayAnyCard = useCallback(() => {
-    if (gameState.gamePhase !== 'playing' || gameState.currentPlayerIndex !== 0) {
-      return true; // Not player's turn, so don't show pickup
-    }
-    
-    const humanPlayer = gameState.players[0];
-    const topCard = getEffectiveTopCard(gameState.pile);
-    
-    // Check if any card in hand can be played
-    const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
-    
-    // Check if any face-up card can be played (when hand is empty)
-    const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
-                              humanPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
-    
-    return canPlayFromHand || canPlayFromFaceUp;
-  }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.players, gameState.pile]);
-  // AI turn logic
-  useEffect(() => {
-    // AI Jump-in logic - check if any AI can jump in
-    if (gameState.gamePhase === 'playing' && jumpInWindow) {
-      // Check each AI player (skip human player at index 0)
-      for (let i = 1; i < gameState.players.length; i++) {
-        if (canJumpIn(i, jumpInWindow.rank)) {
-          // 70% chance AI will jump in
-          if (Math.random() < 0.7) {
-            setTimeout(() => {
-              performJumpIn(i, jumpInWindow.rank);
-            }, 500 + Math.random() * 1000); // Random delay 0.5-1.5s
-            return;
-          }
-        }
-      }
-    }
-    
-    // Only run AI logic if it's actually an AI player's turn (not after jump-ins)
-    if (gameState.gamePhase === 'playing' && 
-        gameState.currentPlayerIndex !== 0 && 
-        !gameState.winner &&
-        !jumpInWindow) { // Don't run AI logic during jump-in window
-      
-      const timer = setTimeout(() => {
-        const currentPlayer = gameState.players[gameState.currentPlayerIndex];
-        const topCard = getEffectiveTopCard(gameState.pile);
-        
-        // Simple AI: play lowest valid card
-        let cardToPlay = null;
-        let cardsToPlay: Card[] = [];
-        
-        // Try hand cards first
-        if (currentPlayer.hand.length > 0) {
-          cardToPlay = currentPlayer.hand.find(card => canPlayCard(card, topCard));
-          
-          if (cardToPlay) {
-            // 90% of the time, try to play all cards of the same rank
-            if (Math.random() < 0.9) {
-              cardsToPlay = currentPlayer.hand.filter(card => 
-                card.rank === cardToPlay.rank && canPlayCard(card, topCard)
-              );
-            } else {
-              cardsToPlay = [cardToPlay];
-            }
-          }
-        } else if (currentPlayer.faceUpCards.length > 0) {
-          // Only try face-up cards if hand is empty
-          cardToPlay = currentPlayer.faceUpCards.find(card => canPlayCard(card, topCard));
-          
-          if (cardToPlay) {
-            // 90% of the time, try to play all cards of the same rank
-            if (Math.random() < 0.9) {
-              cardsToPlay = currentPlayer.faceUpCards.filter(card => 
-                card.rank === cardToPlay.rank && canPlayCard(card, topCard)
-              );
-            } else {
-              cardsToPlay = [cardToPlay];
-            }
-          }
-        }
-        
-        if (cardsToPlay.length > 0) {
-          setGameState(prev => {
-            const newPlayers = [...prev.players];
-            const aiPlayer = newPlayers[prev.currentPlayerIndex];
-            const newPile = [...prev.pile, ...cardsToPlay];
-            let newDeck = [...prev.deck];
-            
-            // Remove played cards from AI player
-            cardsToPlay.forEach(card => {
-              const handIndex = aiPlayer.hand.findIndex(c => c.id === card.id);
-              const faceUpIndex = aiPlayer.faceUpCards.findIndex(c => c.id === card.id);
-              
-              if (handIndex !== -1) {
-                aiPlayer.hand.splice(handIndex, 1);
-              } else if (faceUpIndex !== -1) {
-                aiPlayer.faceUpCards.splice(faceUpIndex, 1);
-              }
-            });
-            
-            // Draw cards to maintain 3 in hand (if deck has cards)
-            const { updatedPlayer, updatedDeck } = drawToThreeCards(aiPlayer, newDeck);
-            newPlayers[prev.currentPlayerIndex] = updatedPlayer;
-            newDeck = updatedDeck;
-            
-            // Check for special effects
-            let burnPile = false;
-            if (shouldBurn(newPile)) {
-              burnPile = true;
-            }
-            
-            const hasTen = cardsToPlay.some(card => card.rank === 10);
-            if (hasTen || burnPile) {
-              setLastAction('burn');
-              return {
-                ...prev,
-                players: newPlayers,
-                pile: [],
-                deck: newDeck,
-                // Same player continues
-              };
-            }
-            
-            // Check win condition
-            const hasWon = updatedPlayer.hand.length === 0 && 
-                           updatedPlayer.faceUpCards.length === 0 && 
-                           updatedPlayer.faceDownCards.length === 0;
-            
-            if (hasWon) {
-              return {
-                ...prev,
-                players: newPlayers,
-                pile: newPile,
-                deck: newDeck,
-                gamePhase: 'finished',
-                winner: updatedPlayer.id
-              };
-            }
-            
-            // Next player
-            const nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
-            
-            // Open jump-in window if pile has 3 of same rank
-            if (newPile.length >= 3) {
-              const lastThree = newPile.slice(-3);
-              if (lastThree.every(c => c.rank === lastThree[0].rank)) {
-                // Clear any existing jump-in window
-                if (jumpInWindow?.timeoutId) {
-                  clearTimeout(jumpInWindow.timeoutId);
-                }
-                
-                // Open new jump-in window for 2 seconds
-                const timeoutId = setTimeout(() => {
-                  setJumpInWindow(null);
-                }, 2000);
-                
-                setJumpInWindow({ rank: lastThree[0].rank, timeoutId });
-              }
-            }
-            
-            return {
-              ...prev,
-              players: newPlayers,
-              pile: newPile,
-              deck: newDeck,
-              currentPlayerIndex: nextPlayerIndex
-            };
-          });
-        } else {
-          // AI must pick up pile
-          setLastAction('pickup');
-          setGameState(prev => {
-            return {
-              ...prev,
-              players: prev.players.map((player, index) => {
-                if (index === prev.currentPlayerIndex) {
-                  return {
-                    ...player,
-                    hand: [...player.hand, ...prev.pile]
-                  };
-                }
-                return player;
-              }),
-              pile: [],
-              currentPlayerIndex: (prev.currentPlayerIndex + 1) % prev.players.length
-            };
-          });
-        }
-      }, 1500); // AI delay for realism
-      
-      return () => clearTimeout(timer);
-    }
-  }, [gameState.gamePhase, gameState.currentPlayerIndex, gameState.pile, gameState.players, gameState.winner, jumpInWindow, canJumpIn, performJumpIn]);
-
-  // Cleanup jump-in window on unmount
-  useEffect(() => {
-    return () => {
-      if (jumpInWindow?.timeoutId) {
-        clearTimeout(jumpInWindow.timeoutId);
-      }
-    };
-  }, [jumpInWindow]);
-
-  return {
+  const {
     gameState,
     selectedCards,
     dealCards,
@@ -899,12 +17,654 @@ export const useGame = (playerCount: number = 4) => {
     startGame,
     handleCardClick,
     playCards,
-    canPlaySelected: canPlaySelected(),
+    canPlaySelected,
     pickupCards,
-    canPlayAnyCard: canPlayAnyCard(),
+    canPlayAnyCard,
     playFaceDownCard,
     jumpInWindow,
     lastAction,
-    clearLastAction: () => setLastAction(null)
-  };
-};
+    clearLastAction
+  } = useGame(playerCount || 4);
+
+  // Show effects based on last action
+  React.useEffect(() => {
+    if (lastAction === 'burn') {
+      setShowFireEffect(true);
+      setTimeout(() => setShowFireEffect(false), 1500);
+      clearLastAction();
+    }
+    
+    if (lastAction === 'pickup') {
+      setShowPickupEffect(true);
+      setTimeout(() => setShowPickupEffect(false), 1500);
+      clearLastAction();
+    }
+  }, [lastAction, clearLastAction]);
+
+  const humanPlayer = gameState.players[0];
+  const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
+  const effectiveTopCard = getEffectiveTopCard(gameState.pile);
+
+  // Show menu screen
+  if (gameMode === 'menu') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
+          <div className="space-y-4">
+            <button
+              onClick={() => setGameMode('singleplayer')}
+              className="w-full bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
+            >
+              SINGLE PLAYER
+            </button>
+            <button
+              onClick={() => {/* Do nothing for now */}}
+              className="w-full bg-gray-600 text-gray-400 px-8 py-4 rounded-lg font-bold text-xl cursor-not-allowed"
+            >
+              MULTIPLAYER
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show player count selection screen
+  if (gameMode === 'singleplayer' && playerCount === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
+          <h2 className="text-xl text-white mb-8">Choose Number of Players</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {[2, 3, 4].map((count) => (
+              <button
+                key={count}
+                onClick={() => setPlayerCount(count)}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 rounded-lg font-bold text-2xl transition-all transform hover:scale-105"
+              >
+                {count}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setGameMode('menu')}
+            className="mt-6 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+
+      {/* Game Info Panel - Top Left */}
+      <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
+        <h1 className="text-xl font-bold mb-2">Shithead</h1>
+        <div className="text-sm space-y-1">
+          <div>Phase: {
+            gameState.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
+            gameState.gamePhase === 'swapping' ? 'Swap Cards (Optional)' : 
+            gameState.gamePhase === 'playing' ? 'Playing' :
+            'Game Over'
+          }</div>
+          <div>Current: {gameState.players[gameState.currentPlayerIndex]?.name}</div>
+          <div>Pile: {gameState.pile.length} cards</div>
+        </div>
+      </div>
+
+      {/* Alice - Top Center */}
+      {gameState.players.length === 4 && (
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
+        <div className="text-center mb-2">
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[1]?.name}
+          </div>
+        </div>
+        
+        {/* Alice's cards - horizontal rows */}
+        <div className="flex flex-col items-center gap-2">
+          {/* Face-down cards */}
+          <div className="flex gap-2">
+            {gameState.players[1]?.faceDownCards.map((_, index) => (
+              <Card
+                key={`alice-down-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="black"
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Face-up cards */}
+          <div className="flex gap-2">
+            {gameState.players[1]?.faceUpCards.map((card, index) => (
+              <Card
+                key={`alice-up-${index}`}
+                card={card}
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Hand (face-down) */}
+          <div className="flex gap-2">
+            {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
+              <Card
+                key={`alice-hand-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="black"
+                className="w-12 h-16"
+              />
+            ))}
+            {(gameState.players[1]?.hand.length || 0) > 6 && (
+              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                +{(gameState.players[1]?.hand.length || 0) - 6}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Second AI Player - Left Side (Carol in 3p, Alice in 4p) */}
+      {gameState.players.length === 3 && (
+        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className="text-center mb-2">
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[2]?.name}
+          </div>
+        </div>
+        
+        {/* Carol's cards - horizontal rows */}
+        <div className="flex flex-col items-center gap-1">
+          {/* Face-down cards */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.faceDownCards.map((_, index) => (
+              <Card
+                key={`carol-down-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="red"
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Face-up cards */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.faceUpCards.map((card, index) => (
+              <Card
+                key={`carol-up-${index}`}
+                card={card}
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Hand (face-down) */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.hand.slice(0, Math.min(6, gameState.players[2]?.hand.length || 0)).map((_, index) => (
+              <Card
+                key={`carol-hand-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="red"
+                className="w-12 h-16"
+              />
+            ))}
+            {(gameState.players[2]?.hand.length || 0) > 6 && (
+              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                +{(gameState.players[2]?.hand.length || 0) - 6}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Alice - Left Side (4 player only) */}
+      {gameState.players.length > 3 && (
+        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className="text-center mb-2">
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[2]?.name}
+          </div>
+        </div>
+        
+        {/* Alice's cards - horizontal rows */}
+        <div className="flex flex-col items-center gap-1">
+          {/* Face-down cards */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.faceDownCards.map((_, index) => (
+              <Card
+                key={`alice-left-down-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="black"
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Face-up cards */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.faceUpCards.map((card, index) => (
+              <Card
+                key={`alice-left-up-${index}`}
+                card={card}
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Hand (face-down) */}
+          <div className="flex gap-1">
+            {gameState.players[2]?.hand.slice(0, Math.min(6, gameState.players[2]?.hand.length || 0)).map((_, index) => (
+              <Card
+                key={`alice-left-hand-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="black"
+                className="w-12 h-16"
+              />
+            ))}
+            {(gameState.players[2]?.hand.length || 0) > 6 && (
+              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                +{(gameState.players[2]?.hand.length || 0) - 6}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Third AI Player - Right Side (Bob in 3p, Carol in 4p) */}
+      {gameState.players.length === 3 && (
+        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className="text-center mb-2">
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[2]?.name}
+          </div>
+        </div>
+        
+        {/* Bob's cards - horizontal rows */}
+        <div className="flex flex-col items-center gap-2">
+          {/* Face-down cards */}
+          <div className="flex gap-2">
+            {gameState.players[2]?.faceDownCards.map((_, index) => (
+              <Card
+                key={`bob-right-down-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="green"
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Face-up cards */}
+          <div className="flex gap-2">
+            {gameState.players[1]?.faceUpCards.map((card, index) => (
+              <Card
+                key={`bob-right-up-${index}`}
+                card={card}
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Hand (face-down) */}
+          <div className="flex gap-2">
+            {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
+              <Card
+                key={`bob-right-hand-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="green"
+                className="w-12 h-16"
+              />
+            ))}
+            {(gameState.players[1]?.hand.length || 0) > 6 && (
+              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                +{(gameState.players[1]?.hand.length || 0) - 6}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Carol - Right Side (4 player only) */}
+      {gameState.players.length > 3 && (
+        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className="text-center mb-2">
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[3]?.name}
+          </div>
+        </div>
+        
+        {/* Carol's cards - horizontal rows */}
+        <div className="flex flex-col items-center gap-2">
+          {/* Face-down cards */}
+          <div className="flex gap-2">
+            {gameState.players[3]?.faceDownCards.map((_, index) => (
+              <Card
+                key={`carol-right-down-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="red"
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Face-up cards */}
+          <div className="flex gap-2">
+            {gameState.players[3]?.faceUpCards.map((card, index) => (
+              <Card
+                key={`carol-right-up-${index}`}
+                card={card}
+                className="w-14 h-20"
+              />
+            ))}
+          </div>
+          
+          {/* Hand (face-down) */}
+          <div className="flex gap-2">
+            {gameState.players[3]?.hand.slice(0, Math.min(6, gameState.players[3]?.hand.length || 0)).map((_, index) => (
+              <Card
+                key={`carol-right-hand-${index}`}
+                card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                faceDown={true}
+                playerColor="red"
+                className="w-12 h-16"
+              />
+            ))}
+            {(gameState.players[3]?.hand.length || 0) > 6 && (
+              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                +{(gameState.players[3]?.hand.length || 0) - 6}
+              </div>
+            )}
+          </div>
+        </div>
+        </div>
+      )}
+
+      {/* Center Area - Pile, Deck, and Controls */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        {/* Fire flash for burns */}
+        {showFireEffect && (
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="text-6xl animate-bounce">
+              🔥
+            </div>
+          </div>
+        )}
+        
+        {/* Pickup effect */}
+        {showPickupEffect && (
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="text-6xl animate-pulse">
+              😰
+            </div>
+          </div>
+        )}
+        
+        {/* Jump-in indicator */}
+        {jumpInWindow && (
+          <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-20">
+            <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+              JUMP-IN!
+            </div>
+          </div>
+        )}
+        
+        {/* Pile and Deck - Fixed position */}
+        <div className="flex items-center justify-center gap-8 mb-8">
+          {/* Pile */}
+          <div className="text-center">
+            <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
+            <div className="w-20 h-28">
+              {gameState.pile.length === 0 ? (
+                <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
+                  Empty
+                </div>
+              ) : (
+                <div className="relative w-20 h-28 overflow-visible">
+                  {/* Show last 3 cards with specific positioning */}
+                  {gameState.pile.slice(-3).map((card, index) => (
+                    <div
+                      key={card.id}
+                      className="absolute top-0"
+                      style={{
+                        left: `${index * 12}px`,
+                        top: `${index * 3}px`,
+                        zIndex: index,
+                        transform: `rotate(${index * 5 - 5}deg)`
+                      }}
+                    >
+                      <Card
+                        card={card}
+                        className="w-20 h-28"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Deck */}
+          <div className="text-center">
+            <h3 className="text-white font-bold mb-2">Deck ({gameState.deck.length})</h3>
+            <div className="w-20 h-28">
+              {gameState.deck.length > 0 ? (
+                <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
+              ) : (
+                <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                  Empty
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Game Controls - Fixed position below pile/deck */}
+        <div className="flex justify-center">
+          <div className="w-64 flex justify-center">
+          {/* Setup Phase - Deal Cards */}
+          {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              Deal Cards
+            </button>
+          )}
+          
+          {/* Setup Phase - Confirm Face-Up Cards */}
+          {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length === 3 && (
+            <button
+              onClick={confirmFaceUpCards}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              Confirm Face-Up Cards
+            </button>
+          )}
+          
+          {/* Swapping Phase - Start Game */}
+          {gameState.gamePhase === 'swapping' && (
+            <button
+              onClick={startGame}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              Start Game
+            </button>
+          )}
+
+          {/* Playing Phase - Play Cards */}
+          {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && selectedCards.length > 0 && (
+            <button
+              onClick={playCards}
+              disabled={!canPlaySelected}
+              className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                canPlaySelected
+                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              Play Cards ({selectedCards.length})
+            </button>
+          )}
+
+          {/* Playing Phase - Pick up Cards */}
+          {gameState.gamePhase === 'playing' && 
+           gameState.currentPlayerIndex === 0 && 
+           selectedCards.length === 0 && 
+           !canPlayAnyCard && 
+           gameState.pile.length > 0 && (
+            <button
+              onClick={pickupCards}
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              Pick up Cards ({gameState.pile.length})
+            </button>
+          )}
+
+          {/* Game Over - New Game */}
+          {gameState.gamePhase === 'finished' && (
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+            >
+              New Game
+            </button>
+          )}
+          </div>
+        </div>
+      </div>
+
+      {/* Human Player - Bottom */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="text-center mb-4">
+          <div className={`text-lg font-bold ${gameState.currentPlayerIndex === 0 ? 'text-yellow-300' : 'text-white'}`}>
+            You
+          </div>
+          {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
+            <div className="text-sm text-white opacity-75">Choose face-up cards</div>
+          )}
+        </div>
+        
+        {/* Human player cards - stacked vertically */}
+        <div className="flex flex-col items-center gap-2">
+          {/* Face-down cards */}
+          {humanPlayer.faceDownCards.length > 0 && (
+            <div className="flex gap-2">
+              {humanPlayer.faceDownCards.map((_, index) => (
+                <Card
+                  key={`human-down-${index}`}
+                  card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                  faceDown={true}
+                  playerColor="blue"
+                  onClick={
+                    humanPlayer.hand.length === 0 && 
+                    humanPlayer.faceUpCards.length === 0 && 
+                    gameState.currentPlayerIndex === 0 && 
+                    gameState.gamePhase === 'playing'
+                      ? () => playFaceDownCard(index)
+                      : undefined
+                  }
+                  className={`w-16 h-24 ${
+                    humanPlayer.hand.length === 0 && 
+                    humanPlayer.faceUpCards.length === 0 && 
+                    gameState.currentPlayerIndex === 0 && 
+                    gameState.gamePhase === 'playing'
+                      ? 'cursor-pointer hover:scale-105'
+                      : ''
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          
+          {/* Face-up cards */}
+          <div className="flex gap-2">
+            {humanPlayer.faceUpCards.map((card) => (
+              <Card
+                key={card.id}
+                card={card}
+                onClick={() => handleCardClick(card, 'faceUp')}
+                selected={selectedCards.some(c => c.id === card.id)}
+                disabled={humanPlayer.hand.length > 0 && gameState.gamePhase === 'playing'}
+                className="w-16 h-24"
+              />
+            ))}
+            {/* Empty slots during setup */}
+            {gameState.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
+              <div key={`empty-${index}`} className="w-16 h-24 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                Empty
+              </div>
+            ))}
+          </div>
+
+          {/* Hand */}
+          {humanPlayer.hand.length > 0 && (
+            <div className="flex gap-2 flex-wrap justify-center max-w-2xl">
+              {humanPlayer.hand.map((card) => (
+                <Card
+                  key={card.id}
+                  card={card}
+                  onClick={() => handleCardClick(card, 'hand')}
+                  selected={selectedCards.some(c => c.id === card.id)}
+                  className={`w-16 h-24 ${
+                    jumpInWindow && card.rank === jumpInWindow.rank 
+                      ? 'ring-4 ring-yellow-400 ring-opacity-75 animate-pulse' 
+                      : ''
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Game Over Modal */}
+      {gameState.gamePhase === 'finished' && gameState.winner && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 text-center max-w-md mx-4 shadow-2xl">
+            <div className="mb-6">
+              {gameState.winner === 'human' ? (
+                <div className="text-green-600">
+                  <div className="text-6xl mb-4">🏆</div>
+                  <h2 className="text-3xl font-bold">Victory!</h2>
+                  <p className="text-lg mt-2">Congratulations! You won!</p>
+                </div>
+              ) : (
+                <div className="text-red-600">
+                  <div className="text-6xl mb-4">😞</div>
+                  <h2 className="text-3xl font-bold">Game Over</h2>
+                  <p className="text-lg mt-2">{gameState.players.find(p => p.id === gameState.winner)?.name} won this round!</p>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={dealCards}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
