@@ -28,6 +28,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
   const [selectedCards, setSelectedCards] = React.useState([]);
+  const [isClosingRooms, setIsClosingRooms] = React.useState(false);
 
   // Handle card clicks for setup phase
   const handleCardClick = React.useCallback(async (card, source) => {
@@ -140,6 +141,32 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   // Fetch available rooms when component mounts
   React.useEffect(() => {
     fetchAvailableRooms();
+  }, [fetchAvailableRooms]);
+
+  // Function to close all available rooms
+  const closeAllRooms = React.useCallback(async () => {
+    setIsClosingRooms(true);
+    try {
+      // Update all waiting rooms to finished status
+      const { error } = await supabase
+        .from('game_rooms')
+        .update({ status: 'finished' })
+        .eq('status', 'waiting');
+
+      if (error) {
+        console.error('Error closing rooms:', error);
+        alert('Failed to close rooms: ' + error.message);
+      } else {
+        console.log('All waiting rooms closed successfully');
+        // Refresh the available rooms list
+        fetchAvailableRooms();
+      }
+    } catch (error) {
+      console.error('Error closing rooms:', error);
+      alert('Failed to close rooms: ' + error.message);
+    } finally {
+      setIsClosingRooms(false);
+    }
   }, [fetchAvailableRooms]);
 
   // Check if current player is the host
@@ -834,6 +861,13 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
               >
                 Refresh
+              </button>
+              <button
+                onClick={closeAllRooms}
+                disabled={isClosingRooms}
+                className="bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-bold transition-all"
+              >
+                {isClosingRooms ? 'Closing...' : 'Close All'}
               </button>
             </div>
 
