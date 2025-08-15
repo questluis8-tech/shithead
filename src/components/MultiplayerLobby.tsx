@@ -453,7 +453,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                       card={card}
                       onClick={() => handleCardClick(card, 'hand')}
                       selected={selectedCards.some(c => c.id === card.id)}
-                      disabled={currentRoom.game_state.gamePhase === 'playing'}
                       className="w-16 h-24"
                     />
                   ))}
