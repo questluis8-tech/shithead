@@ -1,140 +1,223 @@
-import React from 'react';
-import { useMultiplayer } from './hooks/useMultiplayer';
-import { MultiplayerLobby } from './components/MultiplayerLobby';
-import { MultiplayerGame } from './components/MultiplayerGame';
-import { canPlayCard, getEffectiveTopCard } from './utils/cardUtils';
-import { Card } from './types/game';
+import React, { useState } from 'react';
+import { useGame } from './hooks/useGame';
+import { GameBoard } from './components/GameBoard';
+import { GameControls } from './components/GameControls';
+import { GameOverModal } from './components/GameOverModal';
+import { Card } from './components/Card';
+import { getEffectiveTopCard } from './utils/cardUtils';
+import { soundManager } from './utils/soundManager';
 
 function App() {
+  const [playerCount, setPlayerCount] = useState(4);
+  const [showPlayerSelect, setShowPlayerSelect] = useState(true);
+  
   const {
-    playerId,
-    playerName,
-    setPlayerName,
-    currentRoom,
-    roomPlayers,
     gameState,
-    availableRooms,
-    isConnected,
     selectedCards,
-    setSelectedCards,
-    createRoom,
-    joinRoom,
-    leaveRoom,
-    fetchAvailableRooms,
     dealCards,
-    playCards,
-    pickupCards,
-    playFaceDownCard,
     confirmFaceUpCards,
-    startGame
-  } = useMultiplayer();
+    startGame,
+    handleCardClick,
+    playCards,
+    canPlaySelected,
+    pickupCards,
+    canPlayAnyCard,
+    playFaceDownCard,
+    jumpInWindow,
+    lastAction,
+    clearLastAction
+  } = useGame(playerCount);
 
-  // Handle card clicks
-  const handleCardClick = React.useCallback((card: Card, source: 'hand' | 'faceUp') => {
-    if (!gameState) return;
-    
-    const humanPlayer = gameState.players.find(p => p.id === playerId);
-    if (!humanPlayer) return;
-
-    if (gameState.gamePhase === 'setup' && gameState.currentPlayerIndex === 0) {
-      // Handle choosing face-up cards from hand
-      if (source === 'hand') {
-        if (humanPlayer.faceUpCards.length >= 3) return;
-        
-        // Move card from hand to face-up (this would need to be handled by the host)
-        // For now, just update local selection
-        setSelectedCards(prev => {
-          const isSelected = prev.some(c => c.id === card.id);
-          if (isSelected) {
-            return prev.filter(c => c.id !== card.id);
-          } else if (prev.length < 3 - humanPlayer.faceUpCards.length) {
-            return [...prev, card];
-          }
-          return prev;
-        });
-      }
-    } else if (gameState.gamePhase === 'playing') {
-      // Handle card selection for playing
-      if (source === 'faceUp' && humanPlayer.hand.length > 0) return;
-      
-      setSelectedCards(prev => {
-        const isSelected = prev.some(c => c.id === card.id);
-        if (isSelected) {
-          return prev.filter(c => c.id !== card.id);
-        } else {
-          // Only allow selecting cards of the same rank
-          if (prev.length === 0 || prev[0].rank === card.rank) {
-            return [...prev, card];
-          }
-          return [card]; // Start new selection
-        }
-      });
+  // Clear last action after showing it briefly
+  React.useEffect(() => {
+    if (lastAction) {
+      const timer = setTimeout(() => {
+        clearLastAction();
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-  }, [gameState, playerId, setSelectedCards]);
+  }, [lastAction, clearLastAction]);
 
-  // Check if selected cards can be played
-  const canPlaySelected = React.useMemo(() => {
-    if (!gameState || selectedCards.length === 0) return false;
-    const topCard = getEffectiveTopCard(gameState.pile);
-    return canPlayCard(selectedCards[0], topCard);
-  }, [selectedCards, gameState]);
+  // Play sound effects
+  React.useEffect(() => {
+    if (lastAction === 'burn') {
+      soundManager.burn();
+    }
+  }, [lastAction]);
 
-  // Check if player can play any card
-  const canPlayAnyCard = React.useMemo(() => {
-    if (!gameState) return true;
-    
-    const humanPlayer = gameState.players.find(p => p.id === playerId);
-    if (!humanPlayer) return true;
-    
-    const topCard = getEffectiveTopCard(gameState.pile);
-    
-    // Check if any card in hand can be played
-    const canPlayFromHand = humanPlayer.hand.some(card => canPlayCard(card, topCard));
-    
-    // Check if any face-up card can be played (when hand is empty)
-    const canPlayFromFaceUp = humanPlayer.hand.length === 0 && 
-                              humanPlayer.faceUpCards.some(card => canPlayCard(card, topCard));
-    
-    return canPlayFromHand || canPlayFromFaceUp;
-  }, [gameState, playerId]);
+  const handleStartGame = () => {
+    setShowPlayerSelect(false);
+    dealCards();
+  };
 
-  // Show lobby if not in a game
-  if (!gameState || gameState.gamePhase === 'setup') {
+  const handleExitGame = () => {
+    setShowPlayerSelect(true);
+  };
+
+  if (showPlayerSelect) {
     return (
-      <MultiplayerLobby
-        playerName={playerName}
-        setPlayerName={setPlayerName}
-        availableRooms={availableRooms}
-        currentRoom={currentRoom}
-        roomPlayers={roomPlayers}
-        isConnected={isConnected}
-        onCreateRoom={createRoom}
-        onJoinRoom={joinRoom}
-        onLeaveRoom={leaveRoom}
-        onRefreshRooms={fetchAvailableRooms}
-        onStartGame={dealCards}
-        playerId={playerId}
-      />
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-2xl mx-4">
+          <h1 className="text-6xl font-bold text-white mb-8">💩 Shithead 💩</h1>
+          <p className="text-xl text-gray-300 mb-8">The classic card game</p>
+          
+          <div className="mb-8">
+            <label className="block text-white text-lg mb-4">Number of Players:</label>
+            <div className="flex gap-2 justify-center">
+              {[2, 3, 4, 5, 6].map(count => (
+                <button
+                  key={count}
+                  onClick={() => setPlayerCount(count)}
+                  className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                    playerCount === count
+                      ? 'bg-yellow-600 text-white'
+                      : 'bg-gray-600 hover:bg-gray-500 text-white'
+                  }`}
+                >
+                  {count}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <button
+            onClick={handleStartGame}
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
+          >
+            Start Game
+          </button>
+        </div>
+      </div>
     );
   }
 
-  // Show game
   return (
-    <MultiplayerGame
-      gameState={gameState}
-      roomPlayers={roomPlayers}
-      playerId={playerId}
-      selectedCards={selectedCards}
-      onCardClick={handleCardClick}
-      onPlayCards={() => playCards(selectedCards)}
-      onPickupCards={pickupCards}
-      onPlayFaceDownCard={playFaceDownCard}
-      onConfirmFaceUpCards={confirmFaceUpCards}
-      onStartGame={startGame}
-      onLeaveRoom={leaveRoom}
-      canPlaySelected={canPlaySelected}
-      canPlayAnyCard={canPlayAnyCard}
-    />
+    <div className="relative">
+      {/* Last Action Notification */}
+      {lastAction && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+          <div className={`text-6xl font-bold animate-bounce ${
+            lastAction === 'burn' ? 'text-red-500' : 'text-blue-500'
+          }`}>
+            {lastAction === 'burn' ? '🔥 BURN! 🔥' : '📚 PICKUP! 📚'}
+          </div>
+        </div>
+      )}
+
+      {/* Jump-in Window Notification */}
+      {jumpInWindow && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none">
+          <div className="bg-purple-600 text-white px-6 py-3 rounded-lg font-bold text-xl animate-pulse">
+            🚀 JUMP IN AVAILABLE! Play {jumpInWindow.rank === 11 ? 'J' : jumpInWindow.rank === 12 ? 'Q' : jumpInWindow.rank === 13 ? 'K' : jumpInWindow.rank === 14 ? 'A' : jumpInWindow.rank}
+          </div>
+        </div>
+      )}
+
+      <GameBoard
+        players={gameState.players}
+        currentPlayerIndex={gameState.currentPlayerIndex}
+        pile={gameState.pile}
+        onCardClick={handleCardClick}
+        selectedCards={selectedCards}
+        gamePhase={gameState.gamePhase}
+      />
+      
+      <GameControls
+        gamePhase={gameState.gamePhase}
+        selectedCards={selectedCards}
+        onDealCards={dealCards}
+        onStartGame={startGame}
+        onPlayCards={playCards}
+        canPlaySelected={canPlaySelected}
+      />
+
+      {/* Setup Phase - Choose face-up cards */}
+      {gameState.gamePhase === 'setup' && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-center">
+            <p className="text-white mb-4">Choose 3 cards from your hand to be face-up</p>
+            {gameState.players[0].faceUpCards.length === 3 && (
+              <button
+                onClick={confirmFaceUpCards}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+              >
+                Confirm Selection
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Swapping Phase */}
+      {gameState.gamePhase === 'swapping' && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-center">
+            <p className="text-white mb-4">You can swap cards between your hand and face-up cards</p>
+            <button
+              onClick={startGame}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+            >
+              Start Playing
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Playing Phase - Action buttons */}
+      {gameState.gamePhase === 'playing' && gameState.currentPlayerIndex === 0 && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 flex gap-4">
+            {selectedCards.length > 0 && (
+              <button
+                onClick={playCards}
+                disabled={!canPlaySelected}
+                className={`px-6 py-2 rounded-lg font-bold transition-all ${
+                  canPlaySelected
+                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Play Cards ({selectedCards.length})
+              </button>
+            )}
+            
+            {selectedCards.length === 0 && !canPlayAnyCard && gameState.pile.length > 0 && (
+              <button
+                onClick={pickupCards}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+              >
+                Pick up Cards ({gameState.pile.length})
+              </button>
+            )}
+
+            {/* Face-down card buttons when hand and face-up are empty */}
+            {gameState.players[0].hand.length === 0 && 
+             gameState.players[0].faceUpCards.length === 0 && 
+             gameState.players[0].faceDownCards.length > 0 && (
+              <div className="flex gap-2">
+                {gameState.players[0].faceDownCards.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => playFaceDownCard(index)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                  >
+                    Play Face-Down #{index + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <GameOverModal
+        winner={gameState.winner}
+        loser={gameState.loser}
+        players={gameState.players}
+        onNewGame={dealCards}
+        onExitGame={handleExitGame}
+      />
+    </div>
   );
 }
 
