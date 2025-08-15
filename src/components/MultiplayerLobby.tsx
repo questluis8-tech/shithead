@@ -50,12 +50,15 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     // Check if game state is loaded
     if (currentRoom.game_state && currentRoom.game_state.players && currentRoom.game_state.players.length > 0) {
       return (
-        <MultiplayerGame
-          gameState={currentRoom.game_state}
-          roomPlayers={roomPlayers}
-          playerId={playerId}
-          onLeaveRoom={onBackToMenu}
-        />
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-6">Game Loaded!</h1>
+            <div className="text-white">
+              <div>Players: {currentRoom.game_state.players.length}</div>
+              <div>Phase: {currentRoom.game_state.gamePhase}</div>
+            </div>
+          </div>
+        </div>
       );
     } else {
       return (
