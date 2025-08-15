@@ -848,11 +848,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               musicManager.toggleMute();
               setMusicMuted(musicManager.isMuted());
             }
-              setMusicEnabled(true);
-            } else {
-              musicManager.toggleMute();
-              setMusicMuted(musicManager.isMuted());
-            }
           }}
           className="bg-black bg-opacity-50 backdrop-blur-sm p-3 rounded-lg text-white hover:bg-opacity-75 transition-all flex items-center gap-2"
         >
