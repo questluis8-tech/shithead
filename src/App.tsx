@@ -71,10 +71,14 @@ function App() {
       });
     }
   }, [gameState, playerId, setSelectedCards]);
-}
 
   // Check if selected cards can be played
   const canPlaySelected = React.useMemo(() => {
+    if (!gameState || selectedCards.length === 0) return false;
+    const topCard = getEffectiveTopCard(gameState.pile);
+    return canPlayCard(selectedCards[0], topCard);
+  }, [selectedCards, gameState]);
+
   // Check if player can play any card
   const canPlayAnyCard = React.useMemo(() => {
     if (!gameState) return true;
@@ -93,7 +97,7 @@ function App() {
     
     return canPlayFromHand || canPlayFromFaceUp;
   }, [gameState, playerId]);
-    if (!gameState || selectedCards.length === 0) return false;
+
   // Show lobby if not in a game
   if (!gameState || gameState.gamePhase === 'setup') {
     return (
@@ -113,7 +117,7 @@ function App() {
       />
     );
   }
-    const topCard = getEffectiveTopCard(gameState.pile);
+
   // Show game
   return (
     <MultiplayerGame
@@ -132,6 +136,6 @@ function App() {
       canPlayAnyCard={canPlayAnyCard}
     />
   );
-    return canPlayCard(selectedCards[0], topCard);
-  }, [selectedCards, gameState]);
+}
+
 export default App;
