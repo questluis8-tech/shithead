@@ -12,6 +12,19 @@ export const useMultiplayer = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [gameState, setGameState] = useState(null);
 
+  // Add polling as fallback for real-time updates
+  React.useEffect(() => {
+    if (!currentRoom) return;
+
+    // Poll every 2 seconds as fallback
+    const pollInterval = setInterval(() => {
+      console.log('Polling for room updates...');
+      fetchRoomData();
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [currentRoom?.id, fetchRoomData]);
+
   // Function to fetch current room players and room info
   const fetchRoomData = useCallback(async () => {
     if (!currentRoom) return;
