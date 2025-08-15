@@ -37,17 +37,21 @@ export const useMultiplayer = () => {
       )
       .subscribe();
 
+    // Also fetch room players immediately when setting up subscription
+    fetchRoomPlayers();
+
     return () => {
       console.log('Cleaning up real-time subscription');
       supabase.removeChannel(playersSubscription);
     };
-  }, [currentRoom?.id]);
+  }, [currentRoom?.id, fetchRoomPlayers]);
 
   // Function to fetch current room players
   const fetchRoomPlayers = useCallback(async () => {
     if (!currentRoom) return;
 
     try {
+      console.log('Fetching room players for room:', currentRoom.id);
       const { data: players, error } = await supabase
         .from('room_players')
         .select('*')
