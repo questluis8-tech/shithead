@@ -63,114 +63,233 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
       }
       
       return (
-        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-            <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-              <h1 className="text-3xl font-bold text-white mb-6">Multiplayer Game</h1>
-              <div className="text-white mb-4">
-                <div>Your name: {currentRoom.game_state.players.find(p => p.id === playerId)?.name}</div>
-                <div>Phase: {currentRoom.game_state.gamePhase}</div>
-                <div>Players: {currentRoom.game_state.players.length}</div>
-                <div>Your hand: {currentRoom.game_state.players.find(p => p.id === playerId)?.hand?.length || 0} cards</div>
-              
-              {/* Center Area - Pile and Deck */}
-              <div className="mt-8 flex items-center justify-center gap-8">
-                {/* Pile */}
-                <div className="text-center">
-                  <h3 className="text-white font-bold mb-2">Pile ({currentRoom.game_state.pile.length})</h3>
-                  <div className="w-20 h-28">
-                    {currentRoom.game_state.pile.length === 0 ? (
-                      <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
-                        Empty
-                      </div>
-                    ) : (
-                      <Card
-                        card={currentRoom.game_state.pile[currentRoom.game_state.pile.length - 1]}
-                        className="w-20 h-28"
-                      />
-                    )}
-                  </div>
-                </div>
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+          {/* Game Info Panel - Top Left */}
+          <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
+            <h1 className="text-xl font-bold mb-2">Shithead (Multiplayer)</h1>
+            <div className="text-sm space-y-1">
+              <div>Phase: {
+                currentRoom.game_state.gamePhase === 'setup' ? 'Choose Face-Up Cards' : 
+                currentRoom.game_state.gamePhase === 'swapping' ? 'Swap Cards (Optional)' : 
+                currentRoom.game_state.gamePhase === 'playing' ? 'Playing' :
+                'Game Over'
+              }</div>
+              <div>Current: {currentRoom.game_state.players[currentRoom.game_state.currentPlayerIndex]?.name}</div>
+              <div>Pile: {currentRoom.game_state.pile.length} cards</div>
+            </div>
+          </div>
 
-                {/* Deck */}
-                <div className="text-center">
-                  <h3 className="text-white font-bold mb-2">Deck ({currentRoom.game_state.deck.length})</h3>
-                  <div className="w-20 h-28">
-                    {currentRoom.game_state.deck.length > 0 ? (
-                      <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
-                    ) : (
-                      <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
-                        Empty
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              </div>
-
-              {/* Human Player - Bottom */}
-              <div className="mt-8">
-                <div className="text-center mb-4">
-                  <div className="text-lg font-bold text-yellow-300">
-                    {humanPlayer.name} (You)
+          {/* Other Players - positioned around the table like single player */}
+          {currentRoom.game_state.players.filter(p => p.id !== playerId).map((player, index) => {
+            const totalOthers = currentRoom.game_state.players.length - 1;
+            let position = '';
+            
+            if (totalOthers === 1) {
+              // 2 players total - other player at top center
+              position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
+            } else if (totalOthers === 2) {
+              // 3 players total - one at top, one at left
+              if (index === 0) position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
+              if (index === 1) position = 'absolute left-12 top-1/2 transform -translate-y-1/2';
+            } else if (totalOthers === 3) {
+              // 4 players total - top, left, right
+              if (index === 0) position = 'absolute left-12 top-1/2 transform -translate-y-1/2';
+              if (index === 1) position = 'absolute top-8 left-1/2 transform -translate-x-1/2';
+              if (index === 2) position = 'absolute right-12 top-1/2 transform -translate-y-1/2';
+            }
+            
+            return (
+              <div key={player.id} className={position}>
+                <div className="text-center mb-2">
+                  <div className={`text-sm font-bold ${currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === player.id) ? 'text-yellow-300' : 'text-white'}`}>
+                    {player.name}
                   </div>
                 </div>
                 
-                {/* Face-down cards */}
-                {humanPlayer.faceDownCards.length > 0 && (
-                  <div className="flex gap-2 justify-center mb-2">
-                    {humanPlayer.faceDownCards.map((_, index) => (
+                {/* Player's cards - horizontal rows */}
+                <div className="flex flex-col items-center gap-2">
+                  {/* Face-down cards */}
+                  <div className="flex gap-2">
+                    {player.faceDownCards.map((_, cardIndex) => (
                       <Card
-                        key={`human-down-${index}`}
+                        key={`${player.id}-down-${cardIndex}`}
                         card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                         faceDown={true}
-                        playerColor="blue"
+                        playerColor="black"
                         className="w-14 h-20"
                       />
                     ))}
                   </div>
-                )}
-                
-                {/* Face-up cards */}
-                <div className="flex gap-2 justify-center mb-2">
-                  {humanPlayer.faceUpCards.map((card) => (
-                    <Card
-                      key={card.id}
-                      card={card}
-                      className="w-14 h-20"
-                    />
-                  ))}
-                  {/* Empty slots during setup */}
-                  {currentRoom.game_state.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
-                    <div key={`empty-${index}`} className="w-14 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
-                      Empty
-                    </div>
-                  ))}
-                </div>
-
-                {/* Hand */}
-                {humanPlayer.hand.length > 0 && (
-                  <div className="flex gap-2 justify-center flex-wrap max-w-2xl mx-auto">
-                    {humanPlayer.hand.map((card) => (
+                  
+                  {/* Face-up cards */}
+                  <div className="flex gap-2">
+                    {player.faceUpCards.map((card, cardIndex) => (
                       <Card
-                        key={card.id}
+                        key={`${player.id}-up-${cardIndex}`}
                         card={card}
                         className="w-14 h-20"
                       />
                     ))}
                   </div>
+                  
+                  {/* Hand (face-down for other players) */}
+                  <div className="flex gap-2">
+                    {player.hand.slice(0, Math.min(6, player.hand.length)).map((_, cardIndex) => (
+                      <Card
+                        key={`${player.id}-hand-${cardIndex}`}
+                        card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                        faceDown={true}
+                        playerColor="black"
+                        className="w-12 h-16"
+                      />
+                    ))}
+                    {player.hand.length > 6 && (
+                      <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+                        +{player.hand.length - 6}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Center Area - Pile, Deck, and Controls */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {/* Pile and Deck - Fixed position */}
+            <div className="flex items-center justify-center gap-8 mb-8">
+              {/* Pile */}
+              <div className="text-center">
+                <h3 className="text-white font-bold mb-2">Pile ({currentRoom.game_state.pile.length})</h3>
+                <div className="w-20 h-28">
+                  {currentRoom.game_state.pile.length === 0 ? (
+                    <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
+                      Empty
+                    </div>
+                  ) : (
+                    <div className="relative w-20 h-28 overflow-visible">
+                      {/* Show last 3 cards with specific positioning */}
+                      {currentRoom.game_state.pile.slice(-3).map((card, index) => (
+                        <div
+                          key={card.id}
+                          className="absolute top-0"
+                          style={{
+                            left: `${index * 12}px`,
+                            top: `${index * 3}px`,
+                            zIndex: index,
+                            transform: `rotate(${index * 5 - 5}deg)`
+                          }}
+                        >
+                          <Card
+                            card={card}
+                            className="w-20 h-28"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Deck */}
+              <div className="text-center">
+                <h3 className="text-white font-bold mb-2">Deck ({currentRoom.game_state.deck.length})</h3>
+                <div className="w-20 h-28">
+                  {currentRoom.game_state.deck.length > 0 ? (
+                    <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
+                  ) : (
+                    <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                      Empty
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Game Controls - Fixed position below pile/deck */}
+            <div className="flex justify-center">
+              <div className="w-64 flex justify-center">
+                {/* Setup Phase - Choose Face-Up Cards message */}
+                {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
+                  <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
+                    Choose your 3 face-up cards
+                  </div>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  leaveRoom();
-                  onBackToMenu();
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
-              >
-                Leave Game
-              </button>
             </div>
+          </div>
+
+          {/* Human Player - Bottom */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <div className="text-center mb-4">
+              <div className={`text-lg font-bold ${currentRoom.game_state.currentPlayerIndex === currentRoom.game_state.players.findIndex(p => p.id === playerId) ? 'text-yellow-300' : 'text-white'}`}>
+                You
+              </div>
+              {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
+                <div className="text-sm text-white opacity-75">Choose face-up cards</div>
+              )}
+            </div>
+            
+            {/* Human player cards - stacked vertically */}
+            <div className="flex flex-col items-center gap-2">
+              {/* Face-down cards */}
+              {humanPlayer.faceDownCards.length > 0 && (
+                <div className="flex gap-2">
+                  {humanPlayer.faceDownCards.map((_, index) => (
+                    <Card
+                      key={`human-down-${index}`}
+                      card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
+                      faceDown={true}
+                      playerColor="blue"
+                      className="w-16 h-24"
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Face-up cards */}
+              <div className="flex gap-2">
+                {humanPlayer.faceUpCards.map((card) => (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    className="w-16 h-24"
+                  />
+                ))}
+                {/* Empty slots during setup */}
+                {currentRoom.game_state.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
+                  <div key={`empty-${index}`} className="w-16 h-24 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                    Empty
+                  </div>
+                ))}
+              </div>
+
+              {/* Hand */}
+              {humanPlayer.hand.length > 0 && (
+                <div className="flex gap-2 justify-center mb-2">
+                  {humanPlayer.hand.map((card) => (
+                    <Card
+                      key={card.id}
+                      card={card}
+                      className="w-16 h-24"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Leave button - top right */}
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={() => {
+                leaveRoom();
+                onBackToMenu();
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+            >
+              Leave
+            </button>
           </div>
         </div>
       );
