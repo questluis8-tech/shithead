@@ -59,8 +59,8 @@ function App() {
               SINGLE PLAYER
             </button>
             <button
-              onClick={() => {/* Do nothing for now */}}
-              className="w-full bg-gray-600 text-gray-400 px-8 py-4 rounded-lg font-bold text-xl cursor-not-allowed"
+              onClick={() => alert('Multiplayer coming soon!')}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-xl transition-all transform hover:scale-105"
             >
               MULTIPLAYER
             </button>
