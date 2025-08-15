@@ -12,6 +12,29 @@ export const useMultiplayer = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [gameState, setGameState] = useState(null);
 
+  // Function to fetch current room players
+  const fetchRoomPlayers = useCallback(async () => {
+    if (!currentRoom) return;
+
+    try {
+      console.log('Fetching room players for room:', currentRoom.id);
+      const { data: players, error } = await supabase
+        .from('room_players')
+        .select('*')
+        .eq('room_id', currentRoom.id)
+        .order('player_index');
+
+      if (error) {
+        console.error('Error fetching room players:', error);
+      } else {
+        console.log('Fetched room players:', players);
+        setRoomPlayers(players || []);
+      }
+    } catch (error) {
+      console.error('Error fetching room players:', error);
+    }
+  }, [currentRoom?.id]);
+
   // Real-time subscription for room updates
   React.useEffect(() => {
     if (!currentRoom) return;
@@ -45,29 +68,6 @@ export const useMultiplayer = () => {
       supabase.removeChannel(playersSubscription);
     };
   }, [currentRoom?.id, fetchRoomPlayers]);
-
-  // Function to fetch current room players
-  const fetchRoomPlayers = useCallback(async () => {
-    if (!currentRoom) return;
-
-    try {
-      console.log('Fetching room players for room:', currentRoom.id);
-      const { data: players, error } = await supabase
-        .from('room_players')
-        .select('*')
-        .eq('room_id', currentRoom.id)
-        .order('player_index');
-
-      if (error) {
-        console.error('Error fetching room players:', error);
-      } else {
-        console.log('Fetched room players:', players);
-        setRoomPlayers(players || []);
-      }
-    } catch (error) {
-      console.error('Error fetching room players:', error);
-    }
-  }, [currentRoom?.id]);
 
   // Simple create room function for now
   const createRoom = useCallback(async (roomName: string, maxPlayers: number) => {
