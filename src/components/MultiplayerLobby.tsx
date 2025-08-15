@@ -46,14 +46,28 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
 
   // Show game starting state
   if (currentRoom?.status === 'playing') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
-        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
-          <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
-          <div className="text-white">Game is starting, please wait...</div>
+    // Check if game state is loaded
+    if (currentRoom.game_state && currentRoom.game_state.players && currentRoom.game_state.players.length > 0) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-6">Game Loaded!</h1>
+            <div className="text-white">Players: {currentRoom.game_state.players.length}</div>
+            <div className="text-white">Phase: {currentRoom.game_state.gamePhase}</div>
+            <div className="text-white">Your ID: {playerId}</div>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+          <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-8 max-w-2xl w-full mx-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-6">Loading Game...</h1>
+            <div className="text-white">Game is starting, please wait...</div>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (
