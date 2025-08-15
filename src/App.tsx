@@ -24,63 +24,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
-      {/* Detailed Grid Lines */}
-      <div className="absolute inset-0 pointer-events-none z-50">
-        {/* Vertical lines every 50px */}
-        {Array.from({ length: Math.ceil(window.innerWidth / 50) }).map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute top-0 bottom-0 w-px bg-yellow-400 opacity-30"
-            style={{ left: `${i * 50}px` }}
-          />
-        ))}
-        {/* Horizontal lines every 50px */}
-        {Array.from({ length: Math.ceil(window.innerHeight / 50) }).map((_, i) => (
-          <div
-            key={`h-${i}`}
-            className="absolute left-0 right-0 h-px bg-yellow-400 opacity-30"
-            style={{ top: `${i * 50}px` }}
-          />
-        ))}
-        {/* Major grid lines every 100px */}
-        {Array.from({ length: Math.ceil(window.innerWidth / 100) }).map((_, i) => (
-          <div
-            key={`v-major-${i}`}
-            className="absolute top-0 bottom-0 w-px bg-red-400 opacity-50"
-            style={{ left: `${i * 100}px` }}
-          />
-        ))}
-        {Array.from({ length: Math.ceil(window.innerHeight / 100) }).map((_, i) => (
-          <div
-            key={`h-major-${i}`}
-            className="absolute left-0 right-0 h-px bg-red-400 opacity-50"
-            style={{ top: `${i * 100}px` }}
-          />
-        ))}
-        {/* Center crosshairs */}
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-blue-400 opacity-70" />
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-blue-400 opacity-70" />
-        {/* Grid coordinates */}
-        {Array.from({ length: Math.ceil(window.innerWidth / 100) }).map((_, i) => (
-          <div
-            key={`coord-x-${i}`}
-            className="absolute top-2 text-xs text-white bg-black bg-opacity-50 px-1 rounded"
-            style={{ left: `${i * 100 + 2}px` }}
-          >
-            {i * 100}
-          </div>
-        ))}
-        {Array.from({ length: Math.ceil(window.innerHeight / 100) }).map((_, i) => (
-          <div
-            key={`coord-y-${i}`}
-            className="absolute left-2 text-xs text-white bg-black bg-opacity-50 px-1 rounded"
-            style={{ top: `${i * 100 + 2}px` }}
-          >
-            {i * 100}
-          </div>
-        ))}
-      </div>
-
       {/* Game Info Panel - Top Left */}
       <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
         <h1 className="text-xl font-bold mb-2">Shithead</h1>
@@ -265,28 +208,13 @@ function App() {
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
-            <div className="w-20 h-28 relative">
+            <div className="w-20 h-28">
               {gameState.pile.length === 0 ? (
                 <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                   Empty
                 </div>
               ) : (
-                <>
-                  {/* Show last 3 cards stacked with slight offsets */}
-                  {gameState.pile.slice(-3).map((card, index) => (
-                    <Card
-                      key={`pile-${card.id}`}
-                      card={card}
-                      className="w-20 h-28 absolute"
-                      style={{
-                        left: `${index * 2}px`,
-                        top: `${index * 1}px`,
-                        zIndex: index,
-                        transform: `rotate(${index === 0 ? -2 : index === 1 ? 1 : 0}deg)`
-                      }}
-                    />
-                  ))}
-                </>
+                <Card card={topCard} className="w-20 h-28" />
               )}
             </div>
           </div>
