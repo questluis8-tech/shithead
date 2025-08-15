@@ -26,11 +26,14 @@ class SoundManager {
   }
   
   cardPlay(): void {
-    this.playSound(440, 0.1, 'triangle');
+    // Quick snap sound for playing cards
+    this.playSound(800, 0.08, 'triangle');
+    setTimeout(() => this.playSound(600, 0.06, 'sine'), 30);
   }
   
   cardDeal(): void {
-    this.playSound(330, 0.1, 'sine');
+    // Soft whoosh for dealing
+    this.playSound(400, 0.12, 'sine');
   }
   
   cardShuffle(): void {
@@ -40,6 +43,21 @@ class SoundManager {
         this.playSound(200 + Math.random() * 100, 0.05, 'sawtooth');
       }, i * 50);
     }
+  }
+  
+  cardPickup(): void {
+    // Disappointed pickup sound
+    this.playSound(300, 0.15, 'sine');
+    setTimeout(() => this.playSound(250, 0.2, 'triangle'), 80);
+    setTimeout(() => this.playSound(200, 0.25, 'sine'), 160);
+  }
+  
+  cardBurn(): void {
+    // Explosive burn sound
+    this.playSound(150, 0.1, 'sawtooth');
+    setTimeout(() => this.playSound(200, 0.15, 'square'), 50);
+    setTimeout(() => this.playSound(300, 0.2, 'triangle'), 100);
+    setTimeout(() => this.playSound(400, 0.1, 'sine'), 200);
   }
   
   gameWin(): void {
@@ -60,12 +78,6 @@ class SoundManager {
         this.playSound(note, 0.2, 'sine');
       }, index * 100);
     });
-  }
-  
-  burn(): void {
-    // Explosive sound
-    this.playSound(100, 0.3, 'sawtooth');
-    setTimeout(() => this.playSound(150, 0.2, 'square'), 100);
   }
   
   toggle(): void {
