@@ -41,19 +41,17 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     player.player_id === playerId && player.is_host
   );
 
-  // Show simple game when status is playing
+  // Show simple game started message when game is playing
   if (currentRoom && currentRoom.status === 'playing') {
-    return (
-      <SimpleMultiplayerGame 
-        currentRoom={currentRoom}
-        roomPlayers={roomPlayers}
-        playerId={playerId}
-        onLeaveRoom={() => {
-          leaveRoom();
-          onBackToMenu();
-        }}
-      />
-    );
+    return <SimpleMultiplayerGame 
+      currentRoom={currentRoom}
+      roomPlayers={roomPlayers}
+      playerId={playerId}
+      onLeaveRoom={() => {
+        leaveRoom();
+        onBackToMenu();
+      }}
+    />;
   }
 
   return (
