@@ -20,56 +20,70 @@ function App() {
   } = useGame();
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
-  const [burnJustHappened, setBurnJustHappened] = React.useState(false);
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
-  const [pickupJustHappened, setPickupJustHappened] = React.useState(false);
-  const prevPileLength = React.useRef(gameState.pile.length);
+  const [lastAction, setLastAction] = React.useState<'burn' | 'pickup' | null>(null);
 
-  // Show fire effect when pile is cleared by 10 or burn
+  // Show effects based on last action
   React.useEffect(() => {
-    if (burnJustHappened) {
+    if (lastAction === 'burn') {
       setShowFireEffect(true);
-      setBurnJustHappened(false);
       setTimeout(() => setShowFireEffect(false), 1500);
+      setLastAction(null);
     }
-  }, [burnJustHappened]);
-
-  // Show pickup effect when cards are picked up
-  React.useEffect(() => {
-    if (pickupJustHappened) {
+    
+    if (lastAction === 'pickup') {
       setShowPickupEffect(true);
-      setPickupJustHappened(false);
       setTimeout(() => setShowPickupEffect(false), 1500);
+      setLastAction(null);
     }
-  }, [pickupJustHappened]);
+  }, [lastAction]);
 
-  // Check for burns when pile changes
-
-  // Detect pickups by watching for sudden increases in hand size
+  // Track pile changes and hand size changes to detect burns vs pickups
+  const prevPileLength = React.useRef(gameState.pile.length);
   const prevHandSizes = React.useRef(gameState.players.map(p => p.hand.length));
+
+  React.useEffect(() => {
+    const currentPileLength = gameState.pile.length;
+    const prevPile = prevPileLength.current;
+    
+    // Check if pile was cleared
+    if (prevPile > 0 && currentPileLength === 0) {
+      // Check if any player's hand increased significantly (pickup)
+      let wasPickup = false;
+      gameState.players.forEach((player, index) => {
+        const prevHandSize = prevHandSizes.current[index];
+        const currentHandSize = player.hand.length;
+        
+        // If hand size increased by more than 3 cards, it was likely a pickup
+        if (currentHandSize > prevHandSize + 3) {
+          wasPickup = true;
+        }
+      });
+      
+      if (wasPickup) {
+        setLastAction('pickup');
+      } else {
+        // Pile cleared without pickup = burn (10 or 4-of-a-kind)
+        setLastAction('burn');
+      }
+    }
+    
+    // Update refs
+    prevPileLength.current = currentPileLength;
+    prevHandSizes.current = gameState.players.map(p => p.hand.length);
+  }, [gameState.pile.length, gameState.players]);
+
+  // Separate effect just for detecting pickups when pile doesn't change
   React.useEffect(() => {
     gameState.players.forEach((player, index) => {
       const prevHandSize = prevHandSizes.current[index];
       const currentHandSize = player.hand.length;
       
-      // If hand size increased by more than 3 cards, it was likely a pickup
-      if (currentHandSize > prevHandSize + 3) {
-        setPickupJustHappened(true);
+      // If hand size increased significantly but pile didn't change, it's a pickup
+      if (currentHandSize > prevHandSize + 3 && gameState.pile.length > 0) {
+        setLastAction('pickup');
       }
     });
-    
-    prevHandSizes.current = gameState.players.map(p => p.hand.length);
-  }, [gameState.players]);
-
-  // Remove the old pile length tracking for pickups
-  React.useEffect(() => {
-    if (prevPileLength.current > 0 && gameState.pile.length === 0) {
-      setBurnJustHappened(true);
-      setPickupJustHappened(true);
-    }
-    
-    prevPileLength.current = gameState.pile.length;
-  }, [gameState.pile.length]);
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
