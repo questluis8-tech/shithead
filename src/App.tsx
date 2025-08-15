@@ -84,6 +84,7 @@ function App() {
         setLastAction('pickup');
       }
     });
+  }, [gameState.players]);
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
