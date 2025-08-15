@@ -24,6 +24,7 @@ function App() {
   const [showFireEffect, setShowFireEffect] = React.useState(false);
   const [showPickupEffect, setShowPickupEffect] = React.useState(false);
   const [gameMode, setGameMode] = React.useState<'menu' | 'singleplayer' | 'multiplayer'>('menu');
+  const [playerCount, setPlayerCount] = React.useState<number | null>(null);
 
   // Show effects based on last action
   React.useEffect(() => {
@@ -69,6 +70,34 @@ function App() {
     );
   }
 
+  // Show player count selection screen
+  if (gameMode === 'singleplayer' && playerCount === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+        <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
+          <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
+          <h2 className="text-xl text-white mb-8">Choose Number of Players</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {[2, 3, 4].map((count) => (
+              <button
+                key={count}
+                onClick={() => setPlayerCount(count)}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 rounded-lg font-bold text-2xl transition-all transform hover:scale-105"
+              >
+                {count}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setGameMode('menu')}
+            className="mt-6 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-bold transition-all"
+          >
+            Back
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
 

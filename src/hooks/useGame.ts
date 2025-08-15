@@ -2,12 +2,25 @@ import { useState, useCallback, useEffect } from 'react';
 import { GameState, Player, Card } from '../types/game';
 import { createDeck, canPlayCard, shouldBurn, getEffectiveTopCard } from '../utils/cardUtils';
 
-const createInitialPlayers = (): Player[] => [
-  { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false },
-  { id: 'ai1', name: 'Carol', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
-  { id: 'ai2', name: 'Alice', hand: [], faceDownCards: [], faceUpCards: [], isAI: true },
-  { id: 'ai3', name: 'Bob', hand: [], faceDownCards: [], faceUpCards: [], isAI: true }
-];
+const createInitialPlayers = (playerCount: number): Player[] => {
+  const players: Player[] = [
+    { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false }
+  ];
+  
+  const aiNames = ['Carol', 'Alice', 'Bob'];
+  for (let i = 0; i < playerCount - 1; i++) {
+    players.push({
+      id: `ai${i + 1}`,
+      name: aiNames[i],
+      hand: [],
+      faceDownCards: [],
+      faceUpCards: [],
+      isAI: true
+    });
+  }
+  
+  return players;
+};
 
 const drawToThreeCards = (player: Player, deck: Card[]): { updatedPlayer: Player, updatedDeck: Card[] } => {
   const newPlayer = { ...player, hand: [...player.hand] };
