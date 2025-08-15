@@ -829,8 +829,39 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               >
                 Create New Room
               </button>
+              <button
+                onClick={fetchAvailableRooms}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
+              >
+                Refresh
+              </button>
             </div>
 
+            {/* Available Rooms */}
+            {availableRooms.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-white text-lg font-bold mb-3">Available Rooms</h3>
+                <div className="space-y-2">
+                  {availableRooms.map((room) => (
+                    <div key={room.id} className="bg-gray-800 p-3 rounded-lg flex justify-between items-center">
+                      <div>
+                        <div className="text-white font-bold">{room.name}</div>
+                        <div className="text-gray-400 text-sm">
+                          {room.current_players}/{room.max_players} players
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => joinRoom(room.id)}
+                        disabled={!playerName.trim() || room.current_players >= room.max_players}
+                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-bold transition-all"
+                      >
+                        Join
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="p-4 bg-green-800 rounded-lg">
