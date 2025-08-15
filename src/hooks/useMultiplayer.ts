@@ -69,6 +69,9 @@ export const useMultiplayer = () => {
 
     try {
       console.log('Fetching room data for room:', currentRoom.id);
+    }
+  }
+  )
   // Real-time subscription for room updates
   useEffect(() => {
     if (!currentRoom) return;
