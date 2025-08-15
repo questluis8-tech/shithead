@@ -8,13 +8,18 @@ interface MultiplayerLobbyProps {
 export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   onBackToMenu
 }) => {
-  const { playerName, setPlayerName, createRoom } = useMultiplayer();
+  const { playerName, setPlayerName, createRoom, currentRoom, isConnected } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
   const handleCreateRoom = () => {
     console.log('Create room clicked with:', { playerName, roomName });
     createRoom(roomName, 4);
   };
+
+  // Add logging to see state changes
+  React.useEffect(() => {
+    console.log('Room state changed:', { currentRoom, isConnected });
+  }, [currentRoom, isConnected]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
