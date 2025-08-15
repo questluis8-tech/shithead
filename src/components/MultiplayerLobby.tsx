@@ -307,38 +307,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                           newGameState.playersReady.push(playerId);
                         }
                         
-                        // If all players are ready, move to swapping phase
-                        if (newGameState.playersReady.length === newGameState.players.length) {
-                          newGameState.gamePhase = 'swapping';
-                        }
-                        
-                        try {
-                          const { error } = await supabase
-                            .from('game_rooms')
-                            .update({ game_state: newGameState })
-                            .eq('id', currentRoom.id);
-                          
-                          if (error) {
-                            console.error('Error confirming face-up cards:', error);
-                          }
-                        } catch (error) {
-                          console.error('Error confirming face-up cards:', error);
-                        }
-                      }
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
-                  >
-                    Confirm Face-Up Cards
-                  </button>
-                )}
-                
-                {/* Setup Phase - Choose Face-Up Cards message */}
-                {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-center">
-                    Choose your 3 face-up cards
-                  </div>
-                )}
-                
                 {/* Playing Phase - Game started message */}
                 {currentRoom.game_state.gamePhase === 'playing' && (
                   <div className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-center">
@@ -371,9 +339,6 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               {currentRoom.game_state.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
                 <div className="text-sm text-white opacity-75">Choose face-up cards</div>
               )}
-              {currentRoom.game_state.gamePhase === 'swapping' && (
-                <div className="text-sm text-white opacity-75">Swap cards (optional)</div>
-              )}
             </div>
             
             {/* Human player cards - stacked vertically */}
@@ -401,7 +366,7 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
                     card={card}
                     onClick={() => handleCardClick(card, 'faceUp')}
                     selected={selectedCards.some(c => c.id === card.id)}
-                    disabled={currentRoom.game_state.gamePhase === 'playing'}
+                    disabled={humanPlayer.hand.length > 0 && currentRoom.game_state.gamePhase === 'playing'}
                     className="w-16 h-24"
                   />
                 ))}
