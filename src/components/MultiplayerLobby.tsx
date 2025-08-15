@@ -19,7 +19,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
     isConnected, 
     roomPlayers,
     gameState,
-    startGame
+    startGame,
+    playerId
   } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
