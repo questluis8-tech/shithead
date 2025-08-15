@@ -7,7 +7,7 @@ const createInitialPlayers = (playerCount: number): Player[] => {
     { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false }
   ];
   
-  const aiNames = ['Alice', 'Carol', 'Bob'];
+  const aiNames = ['Alice', 'Bob', 'Carol'];
   for (let i = 0; i < playerCount - 1; i++) {
     players.push({
       id: `ai${i + 1}`,
