@@ -171,55 +171,35 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
               <div className="space-y-1">
                 {roomPlayers.map((player) => (
                   <div key={player.player_id} className="text-white text-sm">
-                    {player.name} {player.is_host && '(Host)'}
+                    {player.player_name} {player.is_host && '(Host)'}
                   </div>
                 ))}
               </div>
-              {(() => {
-                try {
-                  const player = currentRoom.game_state.players.find(p => p.id === playerId);
-                  return (
-                    <div>
-                      <h1 className="text-3xl font-bold text-white mb-6">Multiplayer Game</h1>
-                      <div className="text-white mb-4">
-                        <div>Your name: {player?.name || 'Unknown'}</div>
-                        <div>Phase: {currentRoom.game_state.gamePhase}</div>
-                        <div>Players: {currentRoom.game_state.players.length}</div>
-                        <div>Your hand: {player?.hand?.length || 0} cards</div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          leaveRoom();
-                          onBackToMenu();
-                        }}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
-                      >
-                        Leave Game
-                      </button>
-                    </div>
-                  );
-                } catch (error) {
-                  console.error('Game render error:', error);
-                  return (
-                    <div>
-                      <h1 className="text-3xl font-bold text-red-400 mb-6">Error Loading Game</h1>
-                      <div className="text-white mb-4">
-                        <div>Error: {error.message}</div>
-                        <div>Check console for details</div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          leaveRoom();
-                          onBackToMenu();
-                        }}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all"
-                      >
-                        Leave Game
-                      </button>
-                    </div>
-                  );
-                }
-              })()}
+            </div>
+            
+            {/* Start Game button for host */}
+            {isHost && roomPlayers.length >= 2 && (
+              <div className="mt-4">
+                <button
+                  onClick={startGame}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all w-full"
+                >
+                  Start Game
+                </button>
+              </div>
+            )}
+            
+            {/* Leave Room button */}
+            <div className="mt-4">
+              <button
+                onClick={() => {
+                  leaveRoom();
+                  onBackToMenu();
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all w-full"
+              >
+                Leave Room
+              </button>
             </div>
             
             {/* Waiting for more players message */}
