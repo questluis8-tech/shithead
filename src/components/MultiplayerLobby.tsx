@@ -8,7 +8,7 @@ interface MultiplayerLobbyProps {
 export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({
   onBackToMenu
 }) => {
-  const { playerName, setPlayerName } = useMultiplayer();
+  const { playerName, setPlayerName, createRoom } = useMultiplayer();
   const [roomName, setRoomName] = React.useState('');
 
   return (
