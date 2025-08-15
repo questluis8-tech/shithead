@@ -19,17 +19,16 @@ function App() {
   } = useGame();
 
   const [showFireEffect, setShowFireEffect] = React.useState(false);
+  const [tenJustPlayed, setTenJustPlayed] = React.useState(false);
 
   // Show fire effect when pile is cleared by 10 or burn
   React.useEffect(() => {
-    // Check if pile was just cleared (went from having cards to empty during playing phase)
-    const pileWasCleared = gameState.pile.length === 0 && gameState.gamePhase === 'playing';
-    
-    if (pileWasCleared) {
+    if (tenJustPlayed) {
       setShowFireEffect(true);
+      setTenJustPlayed(false);
       setTimeout(() => setShowFireEffect(false), 2000);
     }
-  }, [gameState.pile.length, gameState.gamePhase]);
+  }, [tenJustPlayed]);
 
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
