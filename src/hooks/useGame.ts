@@ -7,7 +7,7 @@ const createInitialPlayers = (playerCount: number): Player[] => {
     { id: 'human', name: 'You', hand: [], faceDownCards: [], faceUpCards: [], isAI: false }
   ];
   
-  const aiNames = ['Carol', 'Alice', 'Bob'];
+  const aiNames = ['Alice', 'Carol', 'Bob'];
   for (let i = 0; i < playerCount - 1; i++) {
     players.push({
       id: `ai${i + 1}`,
@@ -99,10 +99,10 @@ export const useGame = (playerCount: number = 4) => {
           };
         });
       } else if (event.key === 'Alt' && gameState.gamePhase === 'playing') {
-        // Add 10 cards to Carol's hand for testing
+        // Add 10 cards to second player's hand for testing
         setGameState(prev => {
           const newPlayers = prev.players.map((player, index) => {
-            if (index === 1) { // Carol (index 1 in the reordered array)
+            if (index === 1) { // Second player (Alice in 2p, Carol in 3p+)
               const newCards = [];
               for (let i = 0; i < 10; i++) {
                 const suits = ['hearts', 'diamonds', 'clubs', 'spades'] as const;
@@ -111,7 +111,7 @@ export const useGame = (playerCount: number = 4) => {
                 newCards.push({
                   suit: randomSuit,
                   rank: randomRank,
-                  id: `debug-carol-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+                  id: `debug-p2-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
                 });
               }
               return {
@@ -162,15 +162,15 @@ export const useGame = (playerCount: number = 4) => {
           };
         });
       } else if (event.key === 'p' && gameState.gamePhase === 'playing') {
-        // Give Carol three Jacks and human player one Jack for jump-in testing
+        // Give second player three Jacks and human player one Jack for jump-in testing
         setGameState(prev => {
           const newPlayers = prev.players.map((player, index) => {
-            if (index === 1) { // Carol (index 1)
+            if (index === 1) { // Second player
               const suits = ['hearts', 'diamonds', 'clubs'] as const;
               const newCards = suits.map((suit, i) => ({
                 suit,
                 rank: 11, // Jack
-                id: `debug-carol-jack-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
+                id: `debug-p2-jack-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`
               }));
               return {
                 ...player,

@@ -117,11 +117,11 @@ function App() {
       </div>
 
       {/* Alice - Top Center */}
-      {gameState.players.length > 2 && (
+      {gameState.players.length > 1 && (
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-2">
-          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
-            {gameState.players[2]?.name}
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[1]?.name}
           </div>
         </div>
         
@@ -129,7 +129,7 @@ function App() {
         <div className="flex flex-col items-center gap-2">
           {/* Face-down cards */}
           <div className="flex gap-2">
-            {gameState.players[2]?.faceDownCards.map((_, index) => (
+            {gameState.players[1]?.faceDownCards.map((_, index) => (
               <Card
                 key={`alice-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -142,7 +142,7 @@ function App() {
           
           {/* Face-up cards */}
           <div className="flex gap-2">
-            {gameState.players[2]?.faceUpCards.map((card, index) => (
+            {gameState.players[1]?.faceUpCards.map((card, index) => (
               <Card
                 key={`alice-up-${index}`}
                 card={card}
@@ -153,7 +153,7 @@ function App() {
           
           {/* Hand (face-down) */}
           <div className="flex gap-2">
-            {gameState.players[2]?.hand.slice(0, Math.min(6, gameState.players[2]?.hand.length || 0)).map((_, index) => (
+            {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
               <Card
                 key={`alice-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -162,9 +162,9 @@ function App() {
                 className="w-12 h-16"
               />
             ))}
-            {(gameState.players[2]?.hand.length || 0) > 6 && (
+            {(gameState.players[1]?.hand.length || 0) > 6 && (
               <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
-                +{(gameState.players[2]?.hand.length || 0) - 6}
+                +{(gameState.players[1]?.hand.length || 0) - 6}
               </div>
             )}
           </div>
@@ -173,11 +173,11 @@ function App() {
       )}
 
       {/* Carol - Left Side */}
-      {gameState.players.length > 1 && (
+      {gameState.players.length > 2 && (
         <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
-          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
-            {gameState.players[1]?.name}
+          <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
+            {gameState.players[2]?.name}
           </div>
         </div>
         
@@ -185,7 +185,7 @@ function App() {
         <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
           <div className="flex gap-1">
-            {gameState.players[1]?.faceDownCards.map((_, index) => (
+            {gameState.players[2]?.faceDownCards.map((_, index) => (
               <Card
                 key={`carol-down-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -198,7 +198,7 @@ function App() {
           
           {/* Face-up cards */}
           <div className="flex gap-1">
-            {gameState.players[1]?.faceUpCards.map((card, index) => (
+            {gameState.players[2]?.faceUpCards.map((card, index) => (
               <Card
                 key={`carol-up-${index}`}
                 card={card}
@@ -209,7 +209,7 @@ function App() {
           
           {/* Hand (face-down) */}
           <div className="flex gap-1">
-            {gameState.players[1]?.hand.slice(0, Math.min(6, gameState.players[1]?.hand.length || 0)).map((_, index) => (
+            {gameState.players[2]?.hand.slice(0, Math.min(6, gameState.players[2]?.hand.length || 0)).map((_, index) => (
               <Card
                 key={`carol-hand-${index}`}
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
@@ -218,9 +218,9 @@ function App() {
                 className="w-12 h-16"
               />
             ))}
-            {(gameState.players[1]?.hand.length || 0) > 6 && (
+            {(gameState.players[2]?.hand.length || 0) > 6 && (
               <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
-                +{(gameState.players[1]?.hand.length || 0) - 6}
+                +{(gameState.players[2]?.hand.length || 0) - 6}
               </div>
             )}
           </div>
