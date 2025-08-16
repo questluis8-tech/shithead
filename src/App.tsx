@@ -15,6 +15,7 @@ function App() {
   const [musicEnabled, setMusicEnabled] = React.useState(false);
   const [musicMuted, setMusicMuted] = React.useState(false);
   const [volumeLevel, setVolumeLevel] = React.useState(0.1);
+  const [resolution, setResolution] = React.useState<'1440p' | '1080p'>('1440p');
 
   const {
     gameState,
@@ -77,6 +78,9 @@ function App() {
   const humanPlayer = gameState.players[0];
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
   const effectiveTopCard = getEffectiveTopCard(gameState.pile);
+  
+  // Scale factor for 1080p (20% smaller)
+  const scaleClass = resolution === '1080p' ? 'scale-[0.8]' : 'scale-100';
 
   // Show menu screen
   if (gameMode === 'menu') {
@@ -103,6 +107,37 @@ function App() {
         
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
+          
+          {/* Resolution Settings */}
+          <div className="mb-8">
+            <h3 className="text-white text-lg font-bold mb-4">Display Resolution</h3>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setResolution('1440p')}
+                className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                  resolution === '1440p' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                }`}
+              >
+                1440p
+              </button>
+              <button
+                onClick={() => setResolution('1080p')}
+                className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                  resolution === '1080p' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                }`}
+              >
+                1080p
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              Choose your monitor resolution for optimal scaling
+            </p>
+          </div>
+          
           <div className="space-y-4">
             <button
               onClick={() => setGameMode('singleplayer')}
@@ -206,7 +241,7 @@ function App() {
       </div>
 
       {/* Game Info Panel - Top Left */}
-      <div className="absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10">
+      <div className={`absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10 ${scaleClass}`}>
         <h1 className="text-xl font-bold mb-2">Shithead</h1>
         <div className="text-sm space-y-1">
           <div>Phase: {
@@ -221,7 +256,7 @@ function App() {
 
       {/* Alice - Top Center */}
       {(gameState.players.length === 2 || gameState.players.length > 3) && (
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
+        <div className={`absolute top-8 left-1/2 transform -translate-x-1/2 ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === (gameState.players.length === 2 ? 1 : 2) ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[gameState.players.length === 2 ? 1 : 2]?.name}
@@ -277,7 +312,7 @@ function App() {
 
       {/* Second AI Player - Left Side (Carol in 3p, Alice in 4p) */}
       {gameState.players.length === 3 && (
-        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className={`absolute left-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -333,7 +368,7 @@ function App() {
 
       {/* Alice - Left Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className={`absolute left-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -389,7 +424,7 @@ function App() {
 
       {/* Third AI Player - Right Side (Bob in 3p, Carol in 4p) */}
       {gameState.players.length === 3 && (
-        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[2]?.name}
@@ -445,7 +480,7 @@ function App() {
 
       {/* Carol - Right Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[3]?.name}
@@ -500,7 +535,7 @@ function App() {
       )}
 
       {/* Center Area - Pile, Deck, and Controls */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${scaleClass}`}>
         {/* Fire flash for burns */}
         {showFireEffect && (
           <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-20">
@@ -649,7 +684,7 @@ function App() {
       </div>
 
       {/* Human Player - Bottom */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+      <div className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 ${scaleClass}`}>
         <div className="text-center mb-4">
           <div className={`text-lg font-bold ${gameState.currentPlayerIndex === 0 ? 'text-yellow-300' : 'text-white'}`}>
             You
