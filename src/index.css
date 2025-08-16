@@ -42,3 +42,8 @@ body {
   border: 2px solid #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Responsive text sizing */
+.min-text-sm {
+  font-size: max(0.875rem, 1.2vw);
+}

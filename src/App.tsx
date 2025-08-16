@@ -221,7 +221,7 @@ function App() {
 
       {/* Alice - Top Center */}
       {(gameState.players.length === 2 || gameState.players.length > 3) && (
-        <div className="absolute top-8 left-1/2 transform -translate-x-1/2">
+        <div className="absolute top-[5vh] left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === (gameState.players.length === 2 ? 1 : 2) ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[gameState.players.length === 2 ? 1 : 2]?.name}
@@ -229,7 +229,7 @@ function App() {
         </div>
         
         {/* Alice's cards - horizontal rows */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
           <div className="flex gap-2">
             {gameState.players[gameState.players.length === 2 ? 1 : 2]?.faceDownCards.map((_, index) => (
@@ -238,7 +238,7 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="black"
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -249,7 +249,7 @@ function App() {
               <Card
                 key={`alice-up-${index}`}
                 card={card}
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -262,11 +262,11 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="black"
-                className="w-12 h-16"
+                className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px]"
               />
             ))}
             {(gameState.players[gameState.players.length === 2 ? 1 : 2]?.hand.length || 0) > 6 && (
-              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+              <div className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px] flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                 +{(gameState.players[gameState.players.length === 2 ? 1 : 2]?.hand.length || 0) - 6}
               </div>
             )}
@@ -277,7 +277,7 @@ function App() {
 
       {/* Second AI Player - Left Side (Carol in 3p, Alice in 4p) */}
       {gameState.players.length === 3 && (
-        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className="absolute left-[5vw] top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -294,7 +294,7 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="green"
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -305,7 +305,7 @@ function App() {
               <Card
                 key={`bob-up-${index}`}
                 card={card}
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -318,11 +318,11 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="green"
-                className="w-12 h-16"
+                className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px]"
               />
             ))}
             {(gameState.players[1]?.hand.length || 0) > 6 && (
-              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+              <div className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px] flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                 +{(gameState.players[1]?.hand.length || 0) - 6}
               </div>
             )}
@@ -333,7 +333,7 @@ function App() {
 
       {/* Alice - Left Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className="absolute left-12 top-1/2 transform -translate-y-1/2">
+        <div className="absolute left-[5vw] top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -350,7 +350,7 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="green"
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -361,7 +361,7 @@ function App() {
               <Card
                 key={`bob-left-up-${index}`}
                 card={card}
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -374,11 +374,11 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="green"
-                className="w-12 h-16"
+                className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px]"
               />
             ))}
             {(gameState.players[1]?.hand.length || 0) > 6 && (
-              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+              <div className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px] flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                 +{(gameState.players[1]?.hand.length || 0) - 6}
               </div>
             )}
@@ -389,7 +389,7 @@ function App() {
 
       {/* Third AI Player - Right Side (Bob in 3p, Carol in 4p) */}
       {gameState.players.length === 3 && (
-        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-[5vw] top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[2]?.name}
@@ -397,7 +397,7 @@ function App() {
         </div>
         
         {/* Alice's cards - horizontal rows */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
           <div className="flex gap-2">
             {gameState.players[2]?.faceDownCards.map((_, index) => (
@@ -406,7 +406,7 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="black"
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -417,7 +417,7 @@ function App() {
               <Card
                 key={`alice-right-up-${index}`}
                 card={card}
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -430,11 +430,11 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="black"
-                className="w-12 h-16"
+                className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px]"
               />
             ))}
             {(gameState.players[2]?.hand.length || 0) > 6 && (
-              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+              <div className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px] flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                 +{(gameState.players[2]?.hand.length || 0) - 6}
               </div>
             )}
@@ -445,7 +445,7 @@ function App() {
 
       {/* Carol - Right Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+        <div className="absolute right-[5vw] top-1/2 transform -translate-y-1/2">
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[3]?.name}
@@ -453,7 +453,7 @@ function App() {
         </div>
         
         {/* Carol's cards - horizontal rows */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-1">
           {/* Face-down cards */}
           <div className="flex gap-2">
             {gameState.players[3]?.faceDownCards.map((_, index) => (
@@ -462,7 +462,7 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="red"
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -473,7 +473,7 @@ function App() {
               <Card
                 key={`carol-right-up-${index}`}
                 card={card}
-                className="w-14 h-20"
+                className="w-[3.5vw] h-[5vw] min-w-[40px] min-h-[56px] max-w-[56px] max-h-[80px]"
               />
             ))}
           </div>
@@ -486,11 +486,11 @@ function App() {
                 card={{ suit: 'hearts', rank: 2, id: 'dummy' }}
                 faceDown={true}
                 playerColor="red"
-                className="w-12 h-16"
+                className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px]"
               />
             ))}
             {(gameState.players[3]?.hand.length || 0) > 6 && (
-              <div className="w-12 h-16 flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
+              <div className="w-[3vw] h-[4vw] min-w-[32px] min-h-[44px] max-w-[48px] max-h-[64px] flex items-center justify-center text-white text-xs bg-black bg-opacity-30 rounded">
                 +{(gameState.players[3]?.hand.length || 0) - 6}
               </div>
             )}
@@ -529,32 +529,32 @@ function App() {
         )}
         
         {/* Pile and Deck - Fixed position */}
-        <div className="flex items-center justify-center gap-8 mb-8">
+        <div className="flex items-center justify-center gap-[4vw] mb-[4vh]">
           {/* Pile */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Pile ({gameState.pile.length})</h3>
-            <div className="w-20 h-28">
+            <div className="w-[5vw] h-[7vw] min-w-[60px] min-h-[84px] max-w-[80px] max-h-[112px]">
               {gameState.pile.length === 0 ? (
                 <div className="w-full h-full border-2 border-dashed border-white rounded-lg flex items-center justify-center text-white text-xs">
                   Empty
                 </div>
               ) : (
-                <div className="relative w-20 h-28 overflow-visible">
+                <div className="relative w-full h-full overflow-visible">
                   {/* Show last 3 cards with specific positioning */}
                   {gameState.pile.slice(-3).map((card, index) => (
                     <div
                       key={card.id}
                       className="absolute top-0"
                       style={{
-                        left: `${index * 12}px`,
-                        top: `${index * 3}px`,
+                        left: `${index * 0.6}vw`,
+                        top: `${index * 0.15}vw`,
                         zIndex: index,
                         transform: `rotate(${index * 5 - 5}deg)`
                       }}
                     >
                       <Card
                         card={card}
-                        className="w-20 h-28"
+                        className="w-[5vw] h-[7vw] min-w-[60px] min-h-[84px] max-w-[80px] max-h-[112px]"
                       />
                     </div>
                   ))}
@@ -566,9 +566,9 @@ function App() {
           {/* Deck */}
           <div className="text-center">
             <h3 className="text-white font-bold mb-2">Deck ({gameState.deck.length})</h3>
-            <div className="w-20 h-28">
+            <div className="w-[5vw] h-[7vw] min-w-[60px] min-h-[84px] max-w-[80px] max-h-[112px]">
               {gameState.deck.length > 0 ? (
-                <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-20 h-28" />
+                <Card card={{ suit: 'hearts', rank: 2, id: 'deck-back' }} faceDown={true} className="w-full h-full" />
               ) : (
                 <div className="w-full h-full border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                   Empty
@@ -580,13 +580,13 @@ function App() {
 
         {/* Game Controls - Fixed position below pile/deck */}
         <div className="flex justify-center">
-          <div className="w-64 flex justify-center">
+          <div className="w-[20vw] min-w-[240px] flex justify-center">
           {/* Setup Phase - Deal Cards */}
           {gameState.gamePhase === 'setup' && humanPlayer.hand.length === 0 && (
             <button
               onClick={dealCards}
               onMouseDown={() => soundManager.cardDeal()}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white px-[1.5vw] py-[0.75vh] rounded-lg font-bold transition-all transform hover:scale-105 text-[1.2vw] min-text-sm"
             >
               Deal Cards
             </button>
@@ -597,7 +597,7 @@ function App() {
             <button
               onClick={confirmFaceUpCards}
               onMouseDown={() => soundManager.cardPlay()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-[1.5vw] py-[0.75vh] rounded-lg font-bold transition-all transform hover:scale-105 text-[1.2vw] min-text-sm"
             >
               Confirm Face-Up Cards
             </button>
@@ -628,7 +628,7 @@ function App() {
             <button
               onClick={pickupCards}
               onMouseDown={() => soundManager.cardPickup()}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+              className="bg-red-600 hover:bg-red-700 text-white px-[1.5vw] py-[0.75vh] rounded-lg font-bold transition-all transform hover:scale-105 text-[1.2vw] min-text-sm"
             >
               Pick up Cards ({gameState.pile.length})
             </button>
@@ -639,7 +639,7 @@ function App() {
             <button
               onClick={dealCards}
               onMouseDown={() => soundManager.cardDeal()}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105"
+              className="bg-green-600 hover:bg-green-700 text-white px-[1.5vw] py-[0.75vh] rounded-lg font-bold transition-all transform hover:scale-105 text-[1.2vw] min-text-sm"
             >
               New Game
             </button>
@@ -649,7 +649,7 @@ function App() {
       </div>
 
       {/* Human Player - Bottom */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+      <div className="absolute bottom-[5vh] left-1/2 transform -translate-x-1/2">
         <div className="text-center mb-4">
           <div className={`text-lg font-bold ${gameState.currentPlayerIndex === 0 ? 'text-yellow-300' : 'text-white'}`}>
             You
@@ -701,12 +701,12 @@ function App() {
                 onMouseDown={() => soundManager.cardPlay()}
                 selected={selectedCards.some(c => c.id === card.id)}
                 disabled={humanPlayer.hand.length > 0 && gameState.gamePhase === 'playing'}
-                className="w-16 h-24"
+                className="w-[4vw] h-[6vw] min-w-[48px] min-h-[72px] max-w-[64px] max-h-[96px]"
               />
             ))}
             {/* Empty slots during setup */}
             {gameState.gamePhase === 'setup' && Array.from({ length: 3 - humanPlayer.faceUpCards.length }).map((_, index) => (
-              <div key={`empty-${index}`} className="w-16 h-24 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+              <div key={`empty-${index}`} className="w-[4vw] h-[6vw] min-w-[48px] min-h-[72px] max-w-[64px] max-h-[96px] border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-gray-400 text-xs">
                 Empty
               </div>
             ))}
@@ -714,7 +714,7 @@ function App() {
 
           {/* Hand */}
           {humanPlayer.hand.length > 0 && (
-            <div className="flex gap-2 flex-wrap justify-center max-w-2xl">
+            <div className="flex gap-2 flex-wrap justify-center max-w-[80vw]">
               {humanPlayer.hand.map((card) => (
                 <Card
                   key={card.id}
