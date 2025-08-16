@@ -14,6 +14,7 @@ function App() {
   const [playerCount, setPlayerCount] = React.useState<number | null>(null);
   const [musicEnabled, setMusicEnabled] = React.useState(false);
   const [musicMuted, setMusicMuted] = React.useState(false);
+  const [volumeLevel, setVolumeLevel] = React.useState(0.1);
 
   const {
     gameState,
@@ -188,16 +189,15 @@ function App() {
                 min="0"
                 max="1"
                 step="0.1"
-                value={musicManager.getVolume()}
+                value={volumeLevel}
                 onChange={(e) => {
                   const newVolume = parseFloat(e.target.value);
                   musicManager.setVolume(newVolume);
-                  // Force re-render to update the visual
-                  setMusicEnabled(musicManager.isActive());
+                  setVolumeLevel(newVolume);
                 }}
                 className="w-20 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                 style={{
-                  background: `linear-gradient(to right, #10b981 0%, #10b981 ${musicManager.getVolume() * 100}%, #4b5563 ${musicManager.getVolume() * 100}%, #4b5563 100%)`
+                  background: `linear-gradient(to right, #10b981 0%, #10b981 ${volumeLevel * 100}%, #4b5563 ${volumeLevel * 100}%, #4b5563 100%)`
                 }}
               />
             </div>
