@@ -226,6 +226,26 @@ function App() {
               style={{ top: `${i * 5}%` }}
             />
           ))}
+          {/* Coordinate labels - Top edge */}
+          {Array.from({ length: 21 }).map((_, i) => (
+            <div
+              key={`top-label-${i}`}
+              className="absolute text-xs text-white bg-black bg-opacity-75 px-1 rounded"
+              style={{ left: `${i * 5}%`, top: '2px', transform: 'translateX(-50%)' }}
+            >
+              {i * 5}%
+            </div>
+          ))}
+          {/* Coordinate labels - Left edge */}
+          {Array.from({ length: 21 }).map((_, i) => (
+            <div
+              key={`left-label-${i}`}
+              className="absolute text-xs text-white bg-black bg-opacity-75 px-1 rounded"
+              style={{ top: `${i * 5}%`, left: '2px', transform: 'translateY(-50%)' }}
+            >
+              {i * 5}%
+            </div>
+          ))}
           {/* Corner markers */}
           <div className="absolute top-0 left-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
           <div className="absolute top-0 right-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
