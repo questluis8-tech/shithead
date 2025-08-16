@@ -267,7 +267,7 @@ function App() {
 
       {/* Alice - Top Center */}
       {(gameState.players.length === 2 || gameState.players.length > 3) && (
-        <div className={`absolute top-8 left-1/2 transform -translate-x-1/2 ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'top-4 left-1/2 transform -translate-x-1/2' : 'top-8 left-1/2 transform -translate-x-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === (gameState.players.length === 2 ? 1 : 2) ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[gameState.players.length === 2 ? 1 : 2]?.name}
@@ -323,7 +323,7 @@ function App() {
 
       {/* Second AI Player - Left Side (Carol in 3p, Alice in 4p) */}
       {gameState.players.length === 3 && (
-        <div className={`absolute left-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'left-4 top-1/3 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -379,7 +379,7 @@ function App() {
 
       {/* Alice - Left Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className={`absolute left-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'left-4 top-1/4 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -435,7 +435,7 @@ function App() {
 
       {/* Third AI Player - Right Side (Bob in 3p, Carol in 4p) */}
       {gameState.players.length === 3 && (
-        <div className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'right-4 top-1/3 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[2]?.name}
@@ -491,7 +491,7 @@ function App() {
 
       {/* Carol - Right Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className={`absolute right-12 top-1/2 transform -translate-y-1/2 ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'right-4 top-3/4 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[3]?.name}
