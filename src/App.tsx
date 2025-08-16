@@ -15,6 +15,7 @@ function App() {
   const [musicEnabled, setMusicEnabled] = React.useState(false);
   const [musicMuted, setMusicMuted] = React.useState(false);
   const [volumeLevel, setVolumeLevel] = React.useState(0.1);
+  const [resolution, setResolution] = React.useState<'1440p' | '1080p'>('1440p');
 
   const {
     gameState,
@@ -81,7 +82,7 @@ function App() {
   // Show menu screen
   if (gameMode === 'menu') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center ${resolution === '1080p' ? 'scale-[0.8] origin-center' : ''}`}>
         {/* Music Controls - Top Right */}
         <div className="absolute top-4 right-4 z-10">
           <button
@@ -103,6 +104,37 @@ function App() {
         
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-8">Shithead</h1>
+          
+          {/* Resolution Settings */}
+          <div className="mb-8">
+            <h3 className="text-white text-lg font-bold mb-4">Display Resolution</h3>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => setResolution('1440p')}
+                className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                  resolution === '1440p' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                }`}
+              >
+                1440p
+              </button>
+              <button
+                onClick={() => setResolution('1080p')}
+                className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                  resolution === '1080p' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                }`}
+              >
+                1080p
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              Choose your monitor resolution for optimal display
+            </p>
+          </div>
+          
           <div className="space-y-4">
             <button
               onClick={() => setGameMode('singleplayer')}
@@ -124,13 +156,17 @@ function App() {
 
   // Show multiplayer lobby
   if (gameMode === 'multiplayer') {
-    return <MultiplayerLobby onBackToMenu={() => setGameMode('menu')} />;
+    return (
+      <div className={resolution === '1080p' ? 'scale-[0.8] origin-center min-h-screen' : ''}>
+        <MultiplayerLobby onBackToMenu={() => setGameMode('menu')} />
+      </div>
+    );
   }
 
   // Show player count selection screen
   if (gameMode === 'singleplayer' && playerCount === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 flex items-center justify-center ${resolution === '1080p' ? 'scale-[0.8] origin-center' : ''}`}>
         <div className="bg-black bg-opacity-70 backdrop-blur-sm rounded-xl p-12 text-center max-w-md">
           <h1 className="text-4xl font-bold text-white mb-4">Shithead</h1>
           <h2 className="text-xl text-white mb-8">Choose Number of Players</h2>
@@ -160,7 +196,7 @@ function App() {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+    <div className={`min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden ${resolution === '1080p' ? 'scale-[0.8] origin-center' : ''}`}>
 
       {/* Music Controls - Top Right */}
       <div className="absolute top-4 right-4 z-10">
