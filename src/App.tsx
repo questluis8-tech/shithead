@@ -190,6 +190,26 @@ function App() {
                 step="0.1"
                 value={musicManager.getVolume()}
                 onChange={(e) => musicManager.setVolume(parseFloat(e.target.value))}
+                className="w-20 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #10b981 0%, #10b981 ${musicManager.getVolume() * 100}%, #4b5563 ${musicManager.getVolume() * 100}%, #4b5563 100%)`
+                }}
+              />
+            </div>
+          )}
+        </div>
+          </button>
+          
+          {/* Volume Control */}
+          {musicEnabled && !musicMuted && (
+            <div className="bg-black bg-opacity-50 backdrop-blur-sm p-2 rounded-lg">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={musicManager.getVolume()}
+                onChange={(e) => musicManager.setVolume(parseFloat(e.target.value))}
                 className="w-16 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
               />
             </div>
