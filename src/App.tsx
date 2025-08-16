@@ -126,7 +126,7 @@ function App() {
           
           {/* Resolution Settings */}
           <div className="mt-8">
-            <h3 className="text-white text-lg font-bold mb-4">Display Resolution</h3>
+            <h3 className="text-white text-lg font-bold mb-4 text-center">Display Resolution</h3>
             <div className="grid grid-cols-3 gap-3 justify-center">
               <button
                 onClick={() => setResolution('1440p')}
@@ -701,7 +701,7 @@ function App() {
             You
           </div>
           {gameState.gamePhase === 'setup' && humanPlayer.faceUpCards.length < 3 && (
-            <div className="text-sm text-white opacity-75">Choose face-up cards</div>
+            <div className="text-sm text-white opacity-75 mb-2">Choose face-up cards</div>
           )}
         </div>
         
