@@ -15,7 +15,7 @@ function App() {
   const [musicEnabled, setMusicEnabled] = React.useState(false);
   const [musicMuted, setMusicMuted] = React.useState(false);
   const [volumeLevel, setVolumeLevel] = React.useState(0.1);
-  const [resolution, setResolution] = React.useState<'1440p' | '1080p' | 'mobile'>('1440p');
+  const [resolution, setResolution] = React.useState<'1440p' | '1080p'>('1440p');
 
   const {
     gameState,
@@ -79,9 +79,8 @@ function App() {
   const topCard = gameState.pile.length > 0 ? gameState.pile[gameState.pile.length - 1] : null;
   const effectiveTopCard = getEffectiveTopCard(gameState.pile);
   
-  // Scale factors for different resolutions
-  const scaleClass = resolution === '1080p' ? 'scale-[0.8]' : 
-                     resolution === 'mobile' ? 'scale-[0.5]' : 'scale-100';
+  // Scale factor for 1080p (20% smaller)
+  const scaleClass = resolution === '1080p' ? 'scale-[0.8]' : 'scale-100';
 
   // Show menu screen
   if (gameMode === 'menu') {
@@ -127,7 +126,7 @@ function App() {
           {/* Resolution Settings */}
           <div className="mt-8">
             <h3 className="text-white text-lg font-bold mb-4">Display Resolution</h3>
-            <div className="grid grid-cols-3 gap-4 justify-center">
+            <div className="flex gap-4 justify-center">
               <button
                 onClick={() => setResolution('1440p')}
                 className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
@@ -148,19 +147,9 @@ function App() {
               >
                 1080p
               </button>
-              <button
-                onClick={() => setResolution('mobile')}
-                className={`px-6 py-3 rounded-lg font-bold transition-all transform hover:scale-105 ${
-                  resolution === 'mobile' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
-                }`}
-              >
-                Mobile
-              </button>
             </div>
             <p className="text-gray-400 text-sm mt-2">
-              Choose your display type for optimal scaling
+              Choose your monitor resolution for optimal scaling
             </p>
           </div>
         </div>
