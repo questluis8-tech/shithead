@@ -301,7 +301,7 @@ function App() {
       </div>
 
       {/* Game Info Panel - Top Left */}
-      <div className={`absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10 ${scaleClass}`}>
+      <div className={`absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10 ${scaleClass} ${resolution === 'mobile' ? 'hidden' : ''}`}>
         <h1 className="text-xl font-bold mb-2">Shithead</h1>
         <div className="text-sm space-y-1">
           <div>Phase: {
