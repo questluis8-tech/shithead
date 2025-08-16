@@ -207,6 +207,35 @@ function App() {
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
+      {/* Debug Grid - Only show on mobile resolution */}
+      {resolution === 'mobile' && (
+        <div className="absolute inset-0 pointer-events-none z-50">
+          {/* Vertical lines */}
+          {Array.from({ length: 21 }).map((_, i) => (
+            <div
+              key={`v-${i}`}
+              className="absolute top-0 bottom-0 w-px bg-red-500 opacity-50"
+              style={{ left: `${i * 5}%` }}
+            />
+          ))}
+          {/* Horizontal lines */}
+          {Array.from({ length: 21 }).map((_, i) => (
+            <div
+              key={`h-${i}`}
+              className="absolute left-0 right-0 h-px bg-red-500 opacity-50"
+              style={{ top: `${i * 5}%` }}
+            />
+          ))}
+          {/* Corner markers */}
+          <div className="absolute top-0 left-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
+          <div className="absolute top-0 right-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
+          <div className="absolute bottom-0 left-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
+          <div className="absolute bottom-0 right-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
+          {/* Center marker */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-400 opacity-75 rounded-full"></div>
+        </div>
+      )}
+
 
       {/* Music Controls - Top Right */}
       <div className="absolute top-4 right-4 z-10">
