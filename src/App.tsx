@@ -207,55 +207,6 @@ function App() {
   }
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative overflow-hidden">
-      {/* Debug Grid - Only show on mobile resolution */}
-      {resolution === 'mobile' && (
-        <div className="absolute inset-0 pointer-events-none z-50">
-          {/* Vertical lines */}
-          {Array.from({ length: 21 }).map((_, i) => (
-            <div
-              key={`v-${i}`}
-              className="absolute top-0 bottom-0 w-px bg-red-500 opacity-50"
-              style={{ left: `${i * 5}%` }}
-            />
-          ))}
-          {/* Horizontal lines */}
-          {Array.from({ length: 21 }).map((_, i) => (
-            <div
-              key={`h-${i}`}
-              className="absolute left-0 right-0 h-px bg-red-500 opacity-50"
-              style={{ top: `${i * 5}%` }}
-            />
-          ))}
-          {/* Coordinate labels - Top edge */}
-          {Array.from({ length: 21 }).map((_, i) => (
-            <div
-              key={`top-label-${i}`}
-              className="absolute text-xs text-white bg-black bg-opacity-75 px-1 rounded"
-              style={{ left: `${i * 5}%`, top: '2px', transform: 'translateX(-50%)' }}
-            >
-              {i * 5}%
-            </div>
-          ))}
-          {/* Coordinate labels - Left edge */}
-          {Array.from({ length: 21 }).map((_, i) => (
-            <div
-              key={`left-label-${i}`}
-              className="absolute text-xs text-white bg-black bg-opacity-75 px-1 rounded"
-              style={{ top: `${i * 5}%`, left: '2px', transform: 'translateY(-50%)' }}
-            >
-              {i * 5}%
-            </div>
-          ))}
-          {/* Corner markers */}
-          <div className="absolute top-0 left-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
-          <div className="absolute top-0 right-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
-          <div className="absolute bottom-0 left-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
-          <div className="absolute bottom-0 right-0 w-4 h-4 bg-yellow-400 opacity-75"></div>
-          {/* Center marker */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-400 opacity-75 rounded-full"></div>
-        </div>
-      )}
-
 
       {/* Music Controls - Top Right */}
       <div className="absolute top-4 right-4 z-10">
@@ -301,7 +252,7 @@ function App() {
       </div>
 
       {/* Game Info Panel - Top Left */}
-      <div className={`absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10 ${scaleClass} ${resolution === 'mobile' ? 'hidden' : ''}`}>
+      <div className={`absolute top-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm rounded-lg p-4 text-white max-w-xs z-10 ${scaleClass}`}>
         <h1 className="text-xl font-bold mb-2">Shithead</h1>
         <div className="text-sm space-y-1">
           <div>Phase: {
@@ -316,7 +267,7 @@ function App() {
 
       {/* Alice - Top Center */}
       {(gameState.players.length === 2 || gameState.players.length > 3) && (
-        <div className={`absolute ${resolution === 'mobile' ? '-top-20 left-1/2 transform -translate-x-1/2' : 'top-8 left-1/2 transform -translate-x-1/2'} ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'top-4 left-1/2 transform -translate-x-1/2' : 'top-8 left-1/2 transform -translate-x-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === (gameState.players.length === 2 ? 1 : 2) ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[gameState.players.length === 2 ? 1 : 2]?.name}
@@ -372,7 +323,7 @@ function App() {
 
       {/* Second AI Player - Left Side (Carol in 3p, Alice in 4p) */}
       {gameState.players.length === 3 && (
-        <div className={`absolute ${resolution === 'mobile' ? 'left-0 top-1/4 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'left-4 top-1/3 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -428,7 +379,7 @@ function App() {
 
       {/* Alice - Left Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className={`absolute ${resolution === 'mobile' ? 'left-0 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`} style={resolution === 'mobile' ? { top: '15%' } : {}}>
+        <div className={`absolute ${resolution === 'mobile' ? 'left-4 top-1/4 transform -translate-y-1/2' : 'left-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 1 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[1]?.name}
@@ -484,7 +435,7 @@ function App() {
 
       {/* Third AI Player - Right Side (Bob in 3p, Carol in 4p) */}
       {gameState.players.length === 3 && (
-        <div className={`absolute ${resolution === 'mobile' ? 'right-0 top-1/4 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'right-4 top-1/3 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 2 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[2]?.name}
@@ -540,7 +491,7 @@ function App() {
 
       {/* Carol - Right Side (4 player only) */}
       {gameState.players.length > 3 && (
-        <div className={`absolute ${resolution === 'mobile' ? 'right-0 top-4/5 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
+        <div className={`absolute ${resolution === 'mobile' ? 'right-4 top-3/4 transform -translate-y-1/2' : 'right-12 top-1/2 transform -translate-y-1/2'} ${scaleClass}`}>
         <div className="text-center mb-2">
           <div className={`text-sm font-bold ${gameState.currentPlayerIndex === 3 ? 'text-yellow-300' : 'text-white'}`}>
             {gameState.players[3]?.name}
