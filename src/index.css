@@ -42,3 +42,46 @@ body {
   border: 2px solid #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Responsive scaling for different screen sizes */
+/* 1440p and above - perfect as is */
+@media (min-height: 1440px) {
+  .top-player-spacing { top: 2rem; }
+  .left-side-spacing { left: 3rem; }
+  .right-side-spacing { right: 3rem; }
+  .bottom-player-spacing { bottom: 2rem; }
+  .gap-card-spacing { gap: 0.5rem; }
+  .gap-card-spacing-sm { gap: 0.25rem; }
+  .gap-center-spacing { gap: 2rem; }
+  .mb-center-spacing { margin-bottom: 2rem; }
+  .w-card-xs { width: 3rem; }
+  .h-card-xs-h { height: 4rem; }
+  .w-card-sm { width: 3.5rem; }
+  .h-card-sm-h { height: 5rem; }
+  .w-card-md { width: 4rem; }
+  .h-card-md-h { height: 6rem; }
+  .w-card-lg { width: 5rem; }
+  .h-card-lg-h { height: 7rem; }
+  .max-w-hand { max-width: 32rem; }
+}
+
+/* 1080p - scaled down for better fit */
+@media (max-height: 1080px) {
+  .top-player-spacing { top: 1rem; }
+  .left-side-spacing { left: 1.5rem; }
+  .right-side-spacing { right: 1.5rem; }
+  .bottom-player-spacing { bottom: 1rem; }
+  .gap-card-spacing { gap: 0.25rem; }
+  .gap-card-spacing-sm { gap: 0.125rem; }
+  .gap-center-spacing { gap: 1rem; }
+  .mb-center-spacing { margin-bottom: 1rem; }
+  .w-card-xs { width: 2rem; }
+  .h-card-xs-h { height: 2.75rem; }
+  .w-card-sm { width: 2.5rem; }
+  .h-card-sm-h { height: 3.5rem; }
+  .w-card-md { width: 3rem; }
+  .h-card-md-h { height: 4.25rem; }
+  .w-card-lg { width: 3.5rem; }
+  .h-card-lg-h { height: 5rem; }
+  .max-w-hand { max-width: 24rem; }
+}
