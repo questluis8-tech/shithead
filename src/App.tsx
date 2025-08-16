@@ -189,7 +189,12 @@ function App() {
                 max="1"
                 step="0.1"
                 value={musicManager.getVolume()}
-                onChange={(e) => musicManager.setVolume(parseFloat(e.target.value))}
+                onChange={(e) => {
+                  const newVolume = parseFloat(e.target.value);
+                  musicManager.setVolume(newVolume);
+                  // Force re-render to update the visual
+                  setMusicEnabled(musicManager.isActive());
+                }}
                 className="w-20 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                 style={{
                   background: `linear-gradient(to right, #10b981 0%, #10b981 ${musicManager.getVolume() * 100}%, #4b5563 ${musicManager.getVolume() * 100}%, #4b5563 100%)`
